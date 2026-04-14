@@ -8,6 +8,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { Colors } from "../../constants/theme";
+import { MetricCard } from "../../components/ui/metric-card";
+import { DemandCard } from "../../components/ui/demand-card";
+import { SectionHeader } from "../../components/ui/section-header";
 
 const metrics = [
   { label: "Novos pedidos", value: "12", note: "Hoje" },
@@ -84,40 +88,26 @@ export default function ProfessionalHomeScreen() {
 
         <View style={styles.metricsRow}>
           {metrics.map((metric) => (
-            <View key={metric.label} style={styles.metricCard}>
-              <Text style={styles.metricValue}>{metric.value}</Text>
-              <Text style={styles.metricLabel}>{metric.label}</Text>
-              <Text style={styles.metricNote}>{metric.note}</Text>
-            </View>
+            <MetricCard 
+              key={metric.label}
+              label={metric.label}
+              value={metric.value}
+              note={metric.note}
+            />
           ))}
         </View>
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Demandas próximas</Text>
-          <Text style={styles.sectionSubtitle}>
-            {nearbyDemands.length} encontradas
-          </Text>
-        </View>
+        <SectionHeader 
+          title="Demandas próximas" 
+          subtitle={`${nearbyDemands.length} encontradas`} 
+        />
 
         {nearbyDemands.map((demand) => (
-          <View key={demand.title} style={styles.demandCard}>
-            <View style={styles.demandInfo}>
-              <Text style={styles.demandTitle}>{demand.title}</Text>
-              <Text style={styles.demandSubtitle}>{demand.subtitle}</Text>
-              <View style={styles.demandMetaRow}>
-                <View style={styles.demandTag}>
-                  <Text style={styles.demandTagText}>{demand.urgency}</Text>
-                </View>
-                <Text style={styles.demandDistance}>{demand.distance}</Text>
-              </View>
-            </View>
-            <View style={styles.demandAction}>
-              <Text style={styles.demandBudget}>{demand.budget}</Text>
-              <TouchableOpacity style={styles.proposalButton}>
-                <Text style={styles.proposalButtonText}>Enviar proposta</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <DemandCard 
+            key={demand.title}
+            {...demand}
+            onPressAction={() => {}}
+          />
         ))}
 
         <View style={styles.reviewCard}>
@@ -206,118 +196,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: -22,
   },
-  metricCard: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 18,
-    marginHorizontal: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-  },
-  metricValue: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#111",
-    marginBottom: 8,
-  },
-  metricLabel: {
-    color: "#7A7A95",
-    fontSize: 13,
-    marginBottom: 10,
-  },
-  metricNote: {
-    color: "#8A8A8A",
-    fontSize: 12,
-  },
-  sectionHeader: {
-    marginTop: 24,
-    marginHorizontal: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "800",
     color: "#111",
-  },
-  sectionSubtitle: {
-    fontSize: 13,
-    color: "#7A7A95",
-  },
-  demandCard: {
-    marginTop: 16,
-    marginHorizontal: 20,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 18,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
-  },
-  demandInfo: {
-    flex: 1,
-    marginRight: 12,
-  },
-  demandTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    marginBottom: 6,
-    color: "#111",
-  },
-  demandSubtitle: {
-    fontSize: 13,
-    color: "#7A7A95",
-    marginBottom: 12,
-  },
-  demandMetaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  demandTag: {
-    backgroundColor: "#F8F3E8",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  demandTagText: {
-    color: "#D86A3F",
-    fontWeight: "700",
-    fontSize: 12,
-  },
-  demandDistance: {
-    color: "#8A8A8A",
-    fontSize: 12,
-  },
-  demandAction: {
-    alignItems: "flex-end",
-  },
-  demandBudget: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#111",
-    marginBottom: 12,
-  },
-  proposalButton: {
-    backgroundColor: "#0D3D8B",
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-  },
-  proposalButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 13,
   },
   reviewCard: {
     backgroundColor: "#E9F7EE",
@@ -395,6 +277,7 @@ const styles = StyleSheet.create({
     padding: 4,
     marginHorizontal: 20,
     marginTop: 16,
+    marginBottom: 16,
   },
   switchButton: {
     flex: 1,

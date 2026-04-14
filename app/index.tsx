@@ -5,26 +5,22 @@ import {
     SafeAreaView,
     StyleSheet,
     Text,
-    TouchableOpacity
+    View,
 } from "react-native";
+import { Colors } from "../constants/theme";
+import { Button } from "../components/ui/button";
 
 export default function SplashScreen() {
   const router = useRouter();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      router.replace("/home");
-    }, 2500);
-
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 900,
       useNativeDriver: true,
     }).start();
-
-    return () => clearTimeout(timeout);
-  }, [fadeAnim, router]);
+  }, [fadeAnim]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,18 +32,20 @@ export default function SplashScreen() {
       </Animated.View>
 
       <Animated.View style={[styles.actions, { opacity: fadeAnim }]}>
-        <TouchableOpacity
-          style={styles.primaryButton}
+        <Button
+          title="Criar conta"
+          variant="secondary"
           onPress={() => router.replace("/signup")}
-        >
-          <Text style={styles.primaryButtonText}>Criar conta</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.secondaryButton}
+          style={styles.primaryButton}
+          textStyle={styles.primaryButtonText}
+        />
+        <Button
+          title="Já tenho conta"
+          variant="outline"
           onPress={() => router.replace("/login")}
-        >
-          <Text style={styles.secondaryButtonText}>Já tenho conta</Text>
-        </TouchableOpacity>
+          style={styles.secondaryButton}
+          textStyle={styles.secondaryButtonText}
+        />
       </Animated.View>
     </SafeAreaView>
   );
@@ -56,7 +54,7 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E75A2B",
+    backgroundColor: Colors.primary,
     justifyContent: "space-between",
     paddingHorizontal: 24,
   },
@@ -67,7 +65,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   brand: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 56,
     fontWeight: "900",
     letterSpacing: 2,
@@ -85,32 +83,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 999,
-    paddingVertical: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 4,
   },
   primaryButtonText: {
-    color: "#E75A2B",
-    fontWeight: "700",
-    fontSize: 16,
+    color: Colors.primary,
   },
   secondaryButton: {
-    borderWidth: 1,
     borderColor: "rgba(255,255,255,0.92)",
     borderRadius: 999,
-    paddingVertical: 16,
-    alignItems: "center",
-    justifyContent: "center",
   },
   secondaryButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
+    color: Colors.white,
   },
 });
