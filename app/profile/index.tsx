@@ -7,11 +7,11 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { Colors } from "../constants/theme";
-import { ServiceCard } from "../components/ui/service-card";
-import { ReviewCard } from "../components/ui/review-card";
-import { SectionHeader } from "../components/ui/section-header";
-import { Button } from "../components/ui/button";
+import { Colors } from "../../constants/theme";
+import { ServiceCard } from "../../components/ui/service-card";
+import { ReviewCard } from "../../components/ui/review-card";
+import { SectionHeader } from "../../components/ui/section-header";
+import { Button } from "../../components/ui/button";
 
 const services = [
   {
