@@ -67,12 +67,16 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.switchRow}>
-          <TouchableOpacity style={[styles.switchButton, styles.switchButtonActive]}>
-            <Text style={[styles.switchLabel, styles.switchLabelActive]}>Cliente</Text>
+          <TouchableOpacity
+            style={[styles.switchButton, styles.switchButtonActive]}
+          >
+            <Text style={[styles.switchLabel, styles.switchLabelActive]}>
+              Cliente
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => router.push('/professional-home')}
+            onPress={() => router.push("/professional-home")}
           >
             <Text style={styles.switchLabel}>Profissional</Text>
           </TouchableOpacity>

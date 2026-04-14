@@ -1,34 +1,34 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+    KeyboardAvoidingView,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 const categories = [
-  'Eletrônica',
-  'Limpeza',
-  'Construção',
-  'Beleza',
-  'Pintura',
-  'Jardinagem',
+  "Eletrônica",
+  "Limpeza",
+  "Construção",
+  "Beleza",
+  "Pintura",
+  "Jardinagem",
 ];
-const urgencies = ['Normal', 'Urgente', 'Hoje'];
+const urgencies = ["Normal", "Urgente", "Hoje"];
 
 export default function PublishDemandScreen() {
   const [categoryOpen, setCategoryOpen] = useState(false);
-  const [category, setCategory] = useState('Selecione a categoria');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [urgency, setUrgency] = useState('Normal');
-  const [budget, setBudget] = useState('');
+  const [category, setCategory] = useState("Selecione a categoria");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [urgency, setUrgency] = useState("Normal");
+  const [budget, setBudget] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
 
   const addPhoto = () => {
@@ -39,21 +39,36 @@ export default function PublishDemandScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.keyboardContainer}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.pageTitle}>Publicar demanda</Text>
-          <Text style={styles.pageDescription}>Descreva o serviço que você precisa e encontre o profissional ideal.</Text>
+          <Text style={styles.pageDescription}>
+            Descreva o serviço que você precisa e encontre o profissional ideal.
+          </Text>
 
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Categoria</Text>
             <TouchableOpacity
               style={styles.dropdownInput}
-              onPress={() => setCategoryOpen((value) => !value)}>
-              <Text style={category === 'Selecione a categoria' ? styles.dropdownPlaceholder : styles.dropdownText}>
+              onPress={() => setCategoryOpen((value) => !value)}
+            >
+              <Text
+                style={
+                  category === "Selecione a categoria"
+                    ? styles.dropdownPlaceholder
+                    : styles.dropdownText
+                }
+              >
                 {category}
               </Text>
-              <Text style={styles.dropdownArrow}>{categoryOpen ? '▲' : '▼'}</Text>
+              <Text style={styles.dropdownArrow}>
+                {categoryOpen ? "▲" : "▼"}
+              </Text>
             </TouchableOpacity>
             {categoryOpen ? (
               <View style={styles.dropdownList}>
@@ -64,7 +79,8 @@ export default function PublishDemandScreen() {
                     onPress={() => {
                       setCategory(item);
                       setCategoryOpen(false);
-                    }}>
+                    }}
+                  >
                     <Text style={styles.dropdownItemText}>{item}</Text>
                   </TouchableOpacity>
                 ))}
@@ -118,8 +134,16 @@ export default function PublishDemandScreen() {
                 <TouchableOpacity
                   key={item}
                   style={[styles.pill, urgency === item && styles.pillActive]}
-                  onPress={() => setUrgency(item)}>
-                  <Text style={[styles.pillText, urgency === item && styles.pillTextActive]}>{item}</Text>
+                  onPress={() => setUrgency(item)}
+                >
+                  <Text
+                    style={[
+                      styles.pillText,
+                      urgency === item && styles.pillTextActive,
+                    ]}
+                  >
+                    {item}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -147,7 +171,9 @@ export default function PublishDemandScreen() {
                   </View>
                 ))
               ) : (
-                <Text style={styles.photoHint}>Adicione até 4 fotos para explicar melhor sua demanda.</Text>
+                <Text style={styles.photoHint}>
+                  Adicione até 4 fotos para explicar melhor sua demanda.
+                </Text>
               )}
             </View>
             <TouchableOpacity style={styles.photoButton} onPress={addPhoto}>
@@ -167,7 +193,7 @@ export default function PublishDemandScreen() {
 const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
-    backgroundColor: '#F7F7F7',
+    backgroundColor: "#F7F7F7",
   },
   safeArea: {
     flex: 1,
@@ -179,12 +205,12 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontSize: 28,
-    fontWeight: '800',
-    color: '#111',
+    fontWeight: "800",
+    color: "#111",
     marginBottom: 8,
   },
   pageDescription: {
-    color: '#6B6B6B',
+    color: "#6B6B6B",
     fontSize: 15,
     marginBottom: 24,
   },
@@ -193,75 +219,75 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#111',
-    fontWeight: '700',
+    color: "#111",
+    fontWeight: "700",
     marginBottom: 10,
   },
   dropdownInput: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: "#E5E5E5",
   },
   dropdownText: {
-    color: '#111',
+    color: "#111",
   },
   dropdownPlaceholder: {
-    color: '#A5A5A5',
+    color: "#A5A5A5",
   },
   dropdownArrow: {
-    color: '#A5A5A5',
+    color: "#A5A5A5",
     fontSize: 12,
   },
   dropdownList: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    overflow: 'hidden',
+    borderColor: "#E5E5E5",
+    overflow: "hidden",
   },
   dropdownItem: {
     paddingVertical: 14,
     paddingHorizontal: 16,
   },
   dropdownItemText: {
-    color: '#111',
+    color: "#111",
     fontSize: 15,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 16,
     fontSize: 16,
-    color: '#111',
+    color: "#111",
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: "#E5E5E5",
   },
   textArea: {
     minHeight: 140,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   gpsButton: {
     marginTop: 12,
-    alignSelf: 'flex-start',
-    backgroundColor: '#E75A2B',
+    alignSelf: "flex-start",
+    backgroundColor: "#E75A2B",
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderRadius: 16,
   },
   gpsButtonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
   },
   pillRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
   },
   pill: {
@@ -269,69 +295,69 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    borderColor: "#E5E5E5",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   pillActive: {
-    backgroundColor: '#E75A2B',
-    borderColor: '#E75A2B',
+    backgroundColor: "#E75A2B",
+    borderColor: "#E75A2B",
   },
   pillText: {
     fontSize: 14,
-    color: '#111',
-    fontWeight: '700',
+    color: "#111",
+    fontWeight: "700",
   },
   pillTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   photosRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   photoThumb: {
     width: 74,
     height: 74,
     borderRadius: 16,
-    backgroundColor: '#F3F3F3',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#F3F3F3",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: "#E5E5E5",
   },
   photoText: {
-    color: '#8A8A8A',
-    textAlign: 'center',
+    color: "#8A8A8A",
+    textAlign: "center",
     fontSize: 12,
   },
   photoHint: {
-    color: '#8A8A8A',
+    color: "#8A8A8A",
     fontSize: 13,
   },
   photoButton: {
     marginTop: 14,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: "#E5E5E5",
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
   },
   photoButtonText: {
-    color: '#E75A2B',
-    fontWeight: '700',
+    color: "#E75A2B",
+    fontWeight: "700",
   },
   publishButton: {
     marginTop: 20,
-    backgroundColor: '#E75A2B',
+    backgroundColor: "#E75A2B",
     borderRadius: 18,
     paddingVertical: 18,
-    alignItems: 'center',
+    alignItems: "center",
   },
   publishButtonText: {
-    color: '#fff',
-    fontWeight: '800',
+    color: "#fff",
+    fontWeight: "800",
     fontSize: 16,
   },
 });
