@@ -11,7 +11,9 @@ export function SectionHeader({ title, subtitle, style }: SectionHeaderProps) {
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.title}>{title}</Text>
-      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      {subtitle && (
+        <Text style={styles.subtitle}>{subtitle}</Text>
+      )}
     </View>
   );
 }
@@ -19,18 +21,21 @@ export function SectionHeader({ title, subtitle, style }: SectionHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
-    marginTop: 24,
+    marginTop: 28,
+    marginBottom: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '800',
     color: Colors.black,
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontSize: 13,
-    color: '#7A7A95',
+    color: Colors.primary,
+    fontWeight: '700',
   },
 });

@@ -1,8 +1,6 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Card } from './card';
-import { Button } from './button';
 
 interface ProfessionalCardProps {
   name: string;
@@ -28,76 +26,82 @@ export function ProfessionalCard({
   onButtonPress,
 }: ProfessionalCardProps) {
   return (
-    <Card style={styles.card}>
-      <TouchableOpacity 
-        style={styles.profileInfo} 
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
+    <View style={styles.card}>
+      <View style={styles.row}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
         </View>
-        <View style={styles.profileText}>
-          <Text style={styles.profileName}>{name}</Text>
-          <Text style={styles.profileSpecialty}>{specialty || role}</Text>
-          <View style={styles.badgeRow}>
+        <View style={styles.info}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.role}>{specialty || role}</Text>
+          <View style={styles.metaRow}>
             <View style={styles.ratingBadge}>
-              <MaterialIcons name="star" size={14} color="#FFB800" />
+              <MaterialIcons name="star" size={13} color="#FFB800" />
               <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
             </View>
-            <Text style={styles.distanceText}>{distance}</Text>
+            <View style={styles.distanceBadge}>
+              <MaterialIcons name="location-on" size={13} color={Colors.gray} />
+              <Text style={styles.distanceText}>{distance}</Text>
+            </View>
           </View>
         </View>
-      </TouchableOpacity>
-      <Button
-        title={buttonTitle}
+      </View>
+      <TouchableOpacity
+        style={styles.button}
         onPress={onButtonPress || onPress}
-        style={styles.profileButton}
-        textStyle={styles.profileButtonText}
-      />
-    </Card>
+        activeOpacity={0.8}
+      >
+        <Text style={styles.buttonText}>{buttonTitle}</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
     padding: 18,
-    marginBottom: 16,
-    borderRadius: 22,
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
   },
-  profileInfo: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 16,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
+    width: 54,
+    height: 54,
+    borderRadius: 18,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 14,
   },
   avatarText: {
-    color: Colors.white,
+    color: '#fff',
     fontSize: 18,
     fontWeight: '800',
   },
-  profileText: {
+  info: {
     flex: 1,
   },
-  profileName: {
+  name: {
     fontSize: 16,
     fontWeight: '800',
-    color: Colors.black,
-    marginBottom: 4,
+    color: '#111',
+    marginBottom: 3,
   },
-  profileSpecialty: {
-    fontSize: 14,
+  role: {
+    fontSize: 13,
     color: Colors.gray,
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  badgeRow: {
+  metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -105,31 +109,36 @@ const styles = StyleSheet.create({
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
     backgroundColor: '#FFF4E8',
     paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 14,
+    paddingVertical: 4,
+    borderRadius: 10,
   },
   ratingText: {
     color: '#BF6B00',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
+  },
+  distanceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
   },
   distanceText: {
     color: Colors.gray,
-    fontSize: 13,
+    fontSize: 12,
   },
-  profileButton: {
-    marginTop: 18,
-    alignSelf: 'flex-start',
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 16,
-    width: 'auto',
-    height: 'auto',
+  button: {
+    backgroundColor: Colors.primary,
+    borderRadius: 14,
+    paddingVertical: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  profileButtonText: {
+  buttonText: {
+    color: '#fff',
     fontSize: 14,
+    fontWeight: '800',
   },
 });

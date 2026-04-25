@@ -28,6 +28,7 @@ export function ScreenContainer({
         <ScrollView
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           {children}
         </ScrollView>
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 22,
-    paddingTop: 30,
-    paddingBottom: 40,
+    paddingTop: 28,
+    paddingBottom: 60,
   },
 });

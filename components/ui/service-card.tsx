@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Card } from './card';
@@ -8,10 +8,12 @@ interface ServiceCardProps {
   price: string;
   subtitle: string;
   rating: number;
+  onPress?: () => void;
 }
 
-export function ServiceCard({ title, price, subtitle, rating }: ServiceCardProps) {
+export function ServiceCard({ title, price, subtitle, rating, onPress }: ServiceCardProps) {
   return (
+    <TouchableOpacity onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
     <Card style={styles.card}>
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
@@ -25,6 +27,7 @@ export function ServiceCard({ title, price, subtitle, rating }: ServiceCardProps
         </View>
       </View>
     </Card>
+    </TouchableOpacity>
   );
 }
 

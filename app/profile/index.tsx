@@ -1,11 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Colors } from "../../constants/theme";
 import { ServiceCard } from "../../components/ui/service-card";
@@ -13,45 +14,35 @@ import { ReviewCard } from "../../components/ui/review-card";
 import { SectionHeader } from "../../components/ui/section-header";
 import { Button } from "../../components/ui/button";
 
+const professionalName = "Rafael Oliveira";
+
 const services = [
-  {
-    title: "Instalação elétrica",
-    price: "R$ 150",
-    subtitle: "Tomada e painel",
-    rating: 4.9,
-  },
-  {
-    title: "Troca de lâmpadas",
-    price: "R$ 90",
-    subtitle: "Residencial e comercial",
-    rating: 4.7,
-  },
-  {
-    title: "Laudo técnico",
-    price: "R$ 250",
-    subtitle: "Inspeção completa",
-    rating: 4.8,
-  },
+  { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
+  { title: "Troca de lâmpadas", price: "R$ 90", subtitle: "Residencial e comercial", rating: 4.7 },
+  { title: "Laudo técnico", price: "R$ 250", subtitle: "Inspeção completa", rating: 4.8 },
 ];
 
 const reviews = [
-  {
-    name: "Mariana Costa",
-    comment: "Excelente trabalho e rapidez na entrega. Recomendo!",
-    rating: 5.0,
-    distance: "1.0 km",
-  },
-  {
-    name: "Felipe Alves",
-    comment: "Muito profissional e demonstrou conhecimento técnico.",
-    rating: 4.8,
-    distance: "3.2 km",
-  },
+  { name: "Mariana Costa", comment: "Excelente trabalho e rapidez na entrega. Recomendo!", rating: 5.0, distance: "1.0 km" },
+  { name: "Felipe Alves", comment: "Muito profissional e demonstrou conhecimento técnico.", rating: 4.8, distance: "3.2 km" },
 ];
 
 export default function ProfileScreen() {
+  const router = useRouter();
+
+  const openProposal = (serviceTitle?: string) => {
+    router.push({
+      pathname: "/send-proposal" as any,
+      params: { professional: professionalName, service: serviceTitle ?? "" },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.7}>
+        <MaterialIcons name="arrow-back" size={22} color={Colors.white} />
+      </TouchableOpacity>
+
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
@@ -67,7 +58,7 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.detailsCard}>
-          <Text style={styles.name}>Rafael Oliveira</Text>
+          <Text style={styles.name}>{professionalName}</Text>
           <Text style={styles.specialty}>Técnico em Eletrônica</Text>
           <Text style={styles.location}>Barra, Salvador - BA</Text>
 
@@ -89,29 +80,25 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <View style={styles.actionRow}>
-            <Button 
-              title="Contratar" 
-              style={styles.actionButton} 
-              onPress={() => {}} 
-            />
-            <Button 
-              title="Mensagem" 
-              variant="outline" 
-              style={styles.actionButton} 
-              onPress={() => {}} 
-            />
-          </View>
+          <Button
+            title="Contratar"
+            style={styles.contractButton}
+            onPress={() => openProposal()}
+          />
         </View>
 
-        <SectionHeader 
-          title="Serviços" 
-          subtitle="a partir de R$ 90" 
-          style={styles.servicesHeader} 
+        <SectionHeader
+          title="Serviços"
+          subtitle="a partir de R$ 90"
+          style={styles.servicesHeader}
         />
 
         {services.map((service) => (
-          <ServiceCard key={service.title} {...service} />
+          <ServiceCard
+            key={service.title}
+            {...service}
+            onPress={() => openProposal(service.title)}
+          />
         ))}
 
         <Text style={styles.reviewTitle}>Avaliações recentes</Text>
@@ -129,11 +116,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F7F7F7",
   },
+  backButton: {
+    position: "absolute",
+    top: 54,
+    left: 16,
+    zIndex: 10,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   container: {
-    paddingBottom: 50,
+    paddingBottom: 60,
   },
   cover: {
-    height: 180,
+    height: 200,
     backgroundColor: Colors.primary,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
@@ -167,10 +166,10 @@ const styles = StyleSheet.create({
   },
   detailsCard: {
     marginHorizontal: 20,
-    marginTop: 18,
+    marginTop: 20,
     borderRadius: 24,
     backgroundColor: "#fff",
-    padding: 20,
+    padding: 22,
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 14,
@@ -196,6 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,
+    marginBottom: 6,
   },
   statBlock: {
     flex: 1,
@@ -221,13 +221,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 16,
   },
-  actionRow: {
-    flexDirection: "row",
-    gap: 14,
-    marginTop: 22,
-  },
-  actionButton: {
-    flex: 1,
+  contractButton: {
+    marginTop: 20,
+    borderRadius: 16,
+    paddingVertical: 16,
   },
   servicesHeader: {
     marginTop: 28,
