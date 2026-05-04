@@ -1,28 +1,38 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text } from "react-native";
+import { AuthHeader } from "../../components/ui/auth-header";
 import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
-import { AuthHeader } from "../../components/ui/auth-header";
-import { Card } from "../../components/ui/card";
+import { createUser } from "../../services/api";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupScreen() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
+  const [nome, setNome] = useState("");
+  const [sobrenome, setSobrenome] = useState("");
+  const [documento, setDocumento] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const fullNameError = useMemo(() => {
-    const trimmed = fullName.trim();
-    if (!trimmed) return "Informe o nome completo.";
-    if (trimmed.split(" ").filter(Boolean).length < 2)
-      return "Digite nome e sobrenome.";
+  const nomeError = useMemo(() => {
+    if (!nome.trim()) return "Informe o nome.";
     return "";
-  }, [fullName]);
+  }, [nome]);
+
+  const sobrenomeError = useMemo(() => {
+    if (!sobrenome.trim()) return "Informe o sobrenome.";
+    return "";
+  }, [sobrenome]);
+
+  const documentoError = useMemo(() => {
+    if (!documento.trim()) return "Informe o documento.";
+    return "";
+  }, [documento]);
 
   const emailError = useMemo(() => {
     if (!email.trim()) return "Informe o e-mail.";
@@ -44,8 +54,40 @@ export default function SignupScreen() {
     return "";
   }, [confirmPassword, password]);
 
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
   const isFormValid =
-    !fullNameError && !emailError && !passwordError && !confirmPasswordError;
+    !nomeError &&
+    !sobrenomeError &&
+    !documentoError &&
+    !emailError &&
+    !passwordError &&
+    !confirmPasswordError;
+
+  const handleSignup = async () => {
+    setSubmitError("");
+    setLoading(true);
+
+    try {
+      await createUser({
+        nome: nome.trim(),
+        sobrenome: sobrenome.trim(),
+        email: email.trim(),
+        senha: password,
+        documento: documento.trim(),
+        tipoPessoa: "PF",
+      });
+      router.replace("/home");
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : "Erro ao criar conta. Tente novamente.";
+      setSubmitError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ScreenContainer>
@@ -56,13 +98,33 @@ export default function SignupScreen() {
 
       <Card>
         <Input
-          label="Nome completo"
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Digite seu nome completo"
+          label="Nome"
+          value={nome}
+          onChangeText={setNome}
+          placeholder="Digite seu nome"
           returnKeyType="next"
           autoCapitalize="words"
-          error={fullNameError}
+          error={nomeError}
+        />
+
+        <Input
+          label="Sobrenome"
+          value={sobrenome}
+          onChangeText={setSobrenome}
+          placeholder="Digite seu sobrenome"
+          returnKeyType="next"
+          autoCapitalize="words"
+          error={sobrenomeError}
+        />
+
+        <Input
+          label="Documento"
+          value={documento}
+          onChangeText={setDocumento}
+          placeholder="CPF ou CNPJ"
+          returnKeyType="next"
+          autoCapitalize="none"
+          error={documentoError}
         />
 
         <Input
@@ -97,10 +159,15 @@ export default function SignupScreen() {
           error={confirmPasswordError}
         />
 
+        {submitError ? (
+          <Text style={styles.errorText}>{submitError}</Text>
+        ) : null}
+
         <Button
           title="Criar conta"
-          onPress={() => router.replace("/home")}
-          disabled={!isFormValid}
+          onPress={handleSignup}
+          disabled={!isFormValid || loading}
+          loading={loading}
           style={styles.submitButton}
         />
       </Card>
@@ -111,5 +178,12 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   submitButton: {
     marginTop: 4,
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 14,
+    marginTop: 12,
+    marginBottom: 4,
+    textAlign: "center",
   },
 });
