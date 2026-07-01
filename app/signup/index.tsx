@@ -1,11 +1,14 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { AuthHeader } from "../../components/ui/auth-header";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
+import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
+import { Colors } from "../../constants/theme";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { createUser } from "../../services/api";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,6 +21,12 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
+    router.replace("/home")
+  );
 
   const nomeError = useMemo(() => {
     if (!nome.trim()) return "Informe o nome.";
@@ -54,9 +63,6 @@ export default function SignupScreen() {
     return "";
   }, [confirmPassword, password]);
 
-  const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-
   const isFormValid =
     !nomeError &&
     !sobrenomeError &&
@@ -80,9 +86,10 @@ export default function SignupScreen() {
       });
       router.replace("/home");
     } catch (error) {
-      const message = error instanceof Error
-        ? error.message
-        : "Erro ao criar conta. Tente novamente.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar conta. Tente novamente.";
       setSubmitError(message);
     } finally {
       setLoading(false);
@@ -91,12 +98,28 @@ export default function SignupScreen() {
 
   return (
     <ScreenContainer>
-      <AuthHeader 
-        title="Criar Conta" 
-        subtitle="Preencha seus dados para criar sua conta." 
+      <AuthHeader
+        title="Criar Conta"
+        subtitle="Preencha seus dados para criar sua conta."
       />
 
       <Card>
+        <GoogleSignInButton
+          label="Cadastrar com Google"
+          onPress={promptAsync}
+          loading={googleLoading}
+        />
+
+        {googleError ? (
+          <Text style={styles.errorText}>{googleError}</Text>
+        ) : null}
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou cadastre com e-mail</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
         <Input
           label="Nome"
           value={nome}
@@ -180,10 +203,26 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   errorText: {
-    color: "#D32F2F",
+    color: Colors.error,
     fontSize: 14,
     marginTop: 12,
     marginBottom: 4,
     textAlign: "center",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  dividerText: {
+    color: Colors.gray,
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

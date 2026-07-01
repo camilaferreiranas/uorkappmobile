@@ -1,12 +1,14 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { AuthHeader } from "../../components/ui/auth-header";
 import { Card } from "../../components/ui/card";
+import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -14,6 +16,10 @@ export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
+    router.replace("/home")
+  );
 
   const emailError = useMemo(() => {
     if (!email.trim()) return "Informe o e-mail.";
@@ -32,12 +38,27 @@ export default function LoginScreen() {
 
   return (
     <ScreenContainer>
-      <AuthHeader 
-        title="Bem-vinda de volta" 
-        subtitle="Entre com seu e-mail e senha para acessar o dashboard." 
+      <AuthHeader
+        title="Bem-vinda de volta"
+        subtitle="Entre com seu e-mail e senha para acessar o dashboard."
       />
 
       <Card>
+        <GoogleSignInButton
+          onPress={promptAsync}
+          loading={googleLoading}
+        />
+
+        {googleError ? (
+          <Text style={styles.errorText}>{googleError}</Text>
+        ) : null}
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
         <Input
           label="E-mail"
           value={email}
@@ -98,5 +119,27 @@ const styles = StyleSheet.create({
   linkText: {
     color: Colors.primary,
     fontWeight: "700",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  dividerText: {
+    color: Colors.gray,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: "center",
   },
 });
