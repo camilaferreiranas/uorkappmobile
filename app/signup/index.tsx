@@ -9,7 +9,8 @@ import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { Colors } from "../../constants/theme";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
-import { createUser } from "../../services/api";
+import { salvarUsuario } from "../../services/storageService";
+import { createUser } from "../../services/userService";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -76,15 +77,19 @@ export default function SignupScreen() {
     setLoading(true);
 
     try {
-      await createUser({
-        nome: nome.trim(),
-        sobrenome: sobrenome.trim(),
-        email: email.trim(),
-        senha: password,
-        documento: documento.trim(),
-        tipoPessoa: "PF",
-      });
-      router.replace("/home");
+      const usuario = await createUser({
+      nome: nome.trim(),
+      sobrenome: sobrenome.trim(),
+      email: email.trim(),
+      senha: password,
+      documento: documento.trim(),
+      tipoPessoa: "CPF",
+    });
+
+    await salvarUsuario(usuario);
+
+    router.replace("/home");
+    
     } catch (error) {
       const message =
         error instanceof Error

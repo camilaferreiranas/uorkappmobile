@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -13,6 +14,7 @@ import { CategoryCard } from "../../../components/ui/category-card";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors } from "../../../constants/theme";
+import { obterUsuario } from "../../../services/storageService";
 
 const categories = [
   { title: "Eletrônica", icon: "flash" },
@@ -33,7 +35,17 @@ const professionals = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const [usuario, setUsuario] = useState<any>(null);
 
+  useEffect(() => {
+    async function carregarUsuario() {
+      const dados = await obterUsuario();
+      setUsuario(dados);
+    }
+
+    carregarUsuario();
+  }, []);
+  
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
@@ -43,13 +55,13 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerText}>
-            <Text style={styles.welcome}>Olá, Mariana! </Text>
+            <Text style={styles.welcome}>Olá, {usuario?.nome || 'Usuário'}! </Text>
             <Text style={styles.subtitle}>
               Encontre o profissional ideal para você
             </Text>
           </View>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>MC</Text>
+            <Text style={styles.avatarText}>{usuario?.nome?.substring(0, 2).toUpperCase() || "US"}</Text>
           </View>
         </View>
 
