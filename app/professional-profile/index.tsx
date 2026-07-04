@@ -9,13 +9,13 @@ import {
 } from "react-native";
 import { Colors } from "../../constants/theme";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { useAuth } from "../../contexts/auth-context";
+import { getInitials } from "../../utils/get-initials";
 
-const professional = {
-  name: "Rafael Oliveira",
+const professionalMock = {
   specialty: "Técnico em Eletrônica",
   location: "Barra, Salvador - BA",
   phone: "(71) 99876-5432",
-  email: "rafael.oliveira@email.com",
   memberSince: "Março de 2023",
   rating: 4.9,
   totalRatings: 120,
@@ -44,22 +44,26 @@ const menuItems = [
 ];
 
 export default function ProfessionalProfileScreen() {
+  const { user } = useAuth();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>RO</Text>
+            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
           </View>
-          <Text style={styles.name}>{professional.name}</Text>
-          <Text style={styles.specialty}>{professional.specialty}</Text>
+          <Text style={styles.name}>
+            {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
+          </Text>
+          <Text style={styles.specialty}>{professionalMock.specialty}</Text>
           <View style={styles.locationRow}>
             <MaterialIcons name="location-on" size={14} color="#FFE5D9" />
-            <Text style={styles.location}>{professional.location}</Text>
+            <Text style={styles.location}>{professionalMock.location}</Text>
           </View>
           <View style={styles.memberBadge}>
             <MaterialIcons name="verified" size={14} color="#FFD700" />
-            <Text style={styles.memberText}>Membro desde {professional.memberSince}</Text>
+            <Text style={styles.memberText}>Membro desde {professionalMock.memberSince}</Text>
           </View>
         </View>
 
@@ -67,18 +71,18 @@ export default function ProfessionalProfileScreen() {
           <View style={styles.statItem}>
             <View style={styles.statIconRow}>
               <MaterialIcons name="star" size={16} color="#FFB800" />
-              <Text style={styles.statValue}>{professional.rating}</Text>
+              <Text style={styles.statValue}>{professionalMock.rating}</Text>
             </View>
-            <Text style={styles.statLabel}>{professional.totalRatings} avaliações</Text>
+            <Text style={styles.statLabel}>{professionalMock.totalRatings} avaliações</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{professional.completionRate}%</Text>
+            <Text style={styles.statValue}>{professionalMock.completionRate}%</Text>
             <Text style={styles.statLabel}>Conclusão</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{professional.totalEarned}</Text>
+            <Text style={styles.statValue}>{professionalMock.totalEarned}</Text>
             <Text style={styles.statLabel}>Total ganho</Text>
           </View>
         </View>
@@ -87,11 +91,11 @@ export default function ProfessionalProfileScreen() {
           <Text style={styles.sectionTitle}>Contato</Text>
           <View style={styles.contactItem}>
             <MaterialIcons name="phone" size={18} color={Colors.primary} />
-            <Text style={styles.contactText}>{professional.phone}</Text>
+            <Text style={styles.contactText}>{professionalMock.phone}</Text>
           </View>
           <View style={styles.contactItem}>
             <MaterialIcons name="email" size={18} color={Colors.primary} />
-            <Text style={styles.contactText}>{professional.email}</Text>
+            <Text style={styles.contactText}>{user?.email ?? ""}</Text>
           </View>
         </View>
 

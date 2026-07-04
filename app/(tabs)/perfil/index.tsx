@@ -9,6 +9,8 @@ import {
   View,
 } from "react-native";
 import { Colors } from "../../../constants/theme";
+import { useAuth } from "../../../contexts/auth-context";
+import { getInitials } from "../../../utils/get-initials";
 
 const menuItems = [
   { icon: "edit", label: "Editar perfil" },
@@ -22,17 +24,26 @@ const menuItems = [
 
 export default function PerfilScreen() {
   const router = useRouter();
+  const { user, logout } = useAuth();
+
+  async function handleMenuPress(label: string) {
+    if (label === "Sair") {
+      await logout();
+      router.replace("/login");
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>MC</Text>
+            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
           </View>
-          <Text style={styles.name}>Mariana Costa</Text>
-          <Text style={styles.email}>mariana.costa@email.com</Text>
-          <Text style={styles.phone}>(71) 99234-5678</Text>
+          <Text style={styles.name}>
+            {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
+          </Text>
+          <Text style={styles.email}>{user?.email ?? ""}</Text>
         </View>
 
         <View style={styles.statsRow}>
@@ -57,7 +68,7 @@ export default function PerfilScreen() {
             <TouchableOpacity
               key={item.label}
               style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
-              onPress={() => {}}
+              onPress={() => handleMenuPress(item.label)}
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
@@ -118,11 +129,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   email: {
-    color: "#FFE5D9",
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  phone: {
     color: "#FFE5D9",
     fontSize: 13,
   },

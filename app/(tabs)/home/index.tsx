@@ -13,6 +13,8 @@ import { CategoryCard } from "../../../components/ui/category-card";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors } from "../../../constants/theme";
+import { useAuth } from "../../../contexts/auth-context";
+import { getInitials } from "../../../utils/get-initials";
 
 const categories = [
   { title: "Eletrônica", icon: "flash" },
@@ -33,6 +35,7 @@ const professionals = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -43,13 +46,13 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerText}>
-            <Text style={styles.welcome}>Olá, Mariana! </Text>
+            <Text style={styles.welcome}>Olá, {user?.nome ?? "visitante"}! </Text>
             <Text style={styles.subtitle}>
               Encontre o profissional ideal para você
             </Text>
           </View>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>MC</Text>
+            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
           </View>
         </View>
 

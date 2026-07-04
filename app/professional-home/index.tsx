@@ -12,6 +12,7 @@ import {
 import { Colors } from "../../constants/theme";
 import { SectionHeader } from "../../components/ui/section-header";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { useAuth } from "../../contexts/auth-context";
 
 const metrics = [
   { label: "Novos pedidos", value: "12", note: "Hoje", icon: "inbox", color: "#0D3D8B", bg: "#E8EDFA" },
@@ -67,6 +68,7 @@ const urgencyStyle: Record<string, { bg: string; text: string }> = {
 
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const { width } = useWindowDimensions();
   const isSmall = width < 360;
 
@@ -80,7 +82,7 @@ export default function ProfessionalHomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={[styles.headerTitle, isSmall && { fontSize: 18 }]}>
-              Olá, Rafael 👋
+              Olá, {user?.nome ?? "profissional"} 👋
             </Text>
             <Text style={styles.headerSubtitle}>Disponível para novos serviços</Text>
           </View>
