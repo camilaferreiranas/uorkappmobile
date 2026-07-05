@@ -2,7 +2,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
 import { GOOGLE_CLIENT_IDS } from '../constants/env';
-import { loginWithGoogle } from '../services/api';
+import { useAuth } from '../contexts/auth-context';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,6 +21,7 @@ interface UseGoogleAuthResult {
 }
 
 export function useGoogleAuth(onSuccess: () => void): UseGoogleAuthResult {
+  const { loginWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

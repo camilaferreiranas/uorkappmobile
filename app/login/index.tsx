@@ -9,13 +9,17 @@ import { AuthHeader } from "../../components/ui/auth-header";
 import { Card } from "../../components/ui/card";
 import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
 import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+import { useAuth } from "../../contexts/auth-context";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
     router.replace("/home")
@@ -35,6 +39,20 @@ export default function LoginScreen() {
   }, [password]);
 
   const isFormValid = !emailError && !passwordError;
+
+  async function handleLogin() {
+    setSubmitError("");
+    setSubmitting(true);
+    try {
+      await login(email, password);
+      router.replace("/home");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao entrar. Tente novamente.";
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <ScreenContainer>
@@ -81,10 +99,15 @@ export default function LoginScreen() {
           textContentType="password"
         />
 
+        {submitError ? (
+          <Text style={styles.errorText}>{submitError}</Text>
+        ) : null}
+
         <Button
           title="Entrar"
-          onPress={() => router.replace("/home")}
-          disabled={!isFormValid}
+          onPress={handleLogin}
+          disabled={!isFormValid || submitting}
+          loading={submitting}
           style={styles.submitButton}
         />
 
