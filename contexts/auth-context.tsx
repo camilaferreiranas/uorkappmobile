@@ -2,26 +2,29 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import {
   AuthResponse,
   GoogleAuthPayload,
+  UpdateUserProfilePayload,
   UserProfile,
   getUserProfile,
   login as loginRequest,
   loginWithGoogle as loginWithGoogleRequest,
+  updateUserProfile,
 } from '../services/api';
-import { clearToken, getToken, saveToken } from '../services/token-storage';
+import { clearToken, getToken, saveEmail, saveToken } from '../services/token-storage';
 
 interface AuthContextValue {
   user: UserProfile | null;
   loading: boolean;
   login: (email: string, senha: string) => Promise<void>;
   loginWithGoogle: (payload: GoogleAuthPayload) => Promise<void>;
+  updateProfile: (payload: UpdateUserProfilePayload) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function loadProfile(auth: AuthResponse): Promise<UserProfile> {
-  await saveToken(auth.accessToken, auth.expiresIn);
-  return getUserProfile(auth.accessToken);
+async function loadProfile(auth: AuthResponse, email: string): Promise<UserProfile> {
+  await saveToken(auth.accessToken, auth.expiresIn, email);
+  return getUserProfile(auth.accessToken, email);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -36,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const stored = await getToken();
       if (stored && stored.expiresAt > Date.now()) {
-        const profile = await getUserProfile(stored.accessToken);
+        const profile = await getUserProfile(stored.accessToken, stored.email);
         setUser(profile);
       } else if (stored) {
         await clearToken();
@@ -50,13 +53,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, senha: string) {
     const auth = await loginRequest({ email, senha });
-    const profile = await loadProfile(auth);
+    const profile = await loadProfile(auth, email);
     setUser(profile);
   }
 
   async function loginWithGoogle(payload: GoogleAuthPayload) {
     const auth = await loginWithGoogleRequest(payload);
-    const profile = await loadProfile(auth);
+    const profile = await loadProfile(auth, payload.email);
+    setUser(profile);
+  }
+
+  async function updateProfile(payload: UpdateUserProfilePayload) {
+    const stored = await getToken();
+    if (!stored) {
+      throw new Error('Sessão expirada. Faça login novamente.');
+    }
+    const profile = await updateUserProfile(stored.accessToken, stored.email, payload);
+    if (profile.email !== stored.email) {
+      await saveEmail(profile.email);
+    }
     setUser(profile);
   }
 
@@ -66,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, updateProfile, logout }}>
       {children}
     </AuthContext.Provider>
   );
