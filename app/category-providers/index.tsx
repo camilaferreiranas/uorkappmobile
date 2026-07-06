@@ -1,17 +1,18 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { Colors } from "../../constants/theme";
 import { ProfessionalCard } from "../../components/ui/professional-card";
-
+import { Colors } from "../../constants/theme";
+import { buscarPrestadoresCategoria, Prestador } from "../../services/prestadorService";
+/*
 const allProfessionals = [
   { name: "Rafael Oliveira", role: "Técnico em Eletrônica", rating: 4.9, distance: "1,2 km", initials: "RO", category: "Eletrônica" },
   { name: "Patrícia Silva", role: "Limpeza residencial", rating: 4.8, distance: "2,0 km", initials: "PS", category: "Limpeza" },
@@ -28,14 +29,36 @@ const allProfessionals = [
   { name: "Camila Torres", role: "Limpeza pós-obra", rating: 4.8, distance: "3,5 km", initials: "CT", category: "Limpeza" },
   { name: "André Nascimento", role: "Serviços gerais", rating: 4.4, distance: "4,0 km", initials: "AN", category: "Serviços" },
 ];
-
+*/
 export default function CategoryProvidersScreen() {
   const router = useRouter();
-  const { category } = useLocalSearchParams<{ category: string }>();
 
-  const filtered = allProfessionals.filter(
-    (p) => p.category.toLowerCase() === (category ?? "").toLowerCase()
-  );
+  const { category, categoriaId } = useLocalSearchParams<{
+    category: string;
+    categoriaId: string;
+  }>();
+
+  const [prestadores, setPrestadores] = useState<Prestador[]>([]);
+  const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    async function carregarPrestadores() {
+      try {
+        setCarregando(true);
+
+        const dados = await buscarPrestadoresCategoria(Number(categoriaId));
+        setPrestadores(dados);
+      } catch (error) {
+        console.log("Erro ao buscar prestadores:", error);
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    if (categoriaId) {
+      carregarPrestadores();
+    }
+  }, [categoriaId]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -45,7 +68,7 @@ export default function CategoryProvidersScreen() {
         </TouchableOpacity>
         <View>
           <Text style={styles.headerTitle}>{category}</Text>
-          <Text style={styles.headerSubtitle}>{filtered.length} profissionais disponíveis</Text>
+          <Text style={styles.headerSubtitle}>{prestadores.length} profissionais disponíveis</Text>
         </View>
       </View>
 
@@ -53,7 +76,7 @@ export default function CategoryProvidersScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        {filtered.length === 0 ? (
+        {prestadores.length === 0 ? (
           <View style={styles.emptyState}>
             <MaterialIcons name="search-off" size={56} color="#C4C4C4" />
             <Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text>
@@ -62,10 +85,15 @@ export default function CategoryProvidersScreen() {
             </Text>
           </View>
         ) : (
-          filtered.map((professional) => (
+          prestadores.map((professional) => (
             <ProfessionalCard
-              key={professional.name}
-              {...professional}
+              key={professional.id}
+              name={professional.nome}
+              role="Prestador de serviço"
+              rating={0}
+              distance="0 km"
+              initials={professional.nome?.substring(0, 2).toUpperCase() || "US"}
+              //category={category ?? ""}
               buttonTitle="Ver perfil"
               onPress={() => router.push("/profile")}
             />
