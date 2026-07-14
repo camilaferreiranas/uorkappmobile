@@ -95,7 +95,12 @@ export default function CategoryProvidersScreen() {
               initials={professional.nome?.substring(0, 2).toUpperCase() || "US"}
               //category={category ?? ""}
               buttonTitle="Ver perfil"
-              onPress={() => router.push("/profile")}
+              onPress={() =>
+                router.push({
+                  pathname: "/profile",
+                  params: { id: professional.id.toString() },
+                })
+              }
             />
           ))
         )}

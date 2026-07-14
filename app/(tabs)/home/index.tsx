@@ -62,7 +62,7 @@ export default function HomeScreen() {
           <View style={styles.headerText}>
 
 
-            <Text style={[styles.welcome, { marginTop: 25 }]}> Olá, {usuario?.nome || "Usuário"}! </Text>
+            <Text style={[styles.welcome]}> Olá, {usuario?.nome || "Usuário"}! </Text>
 
             {/* <Text style={styles.welcome}>Olá, {user?.nome ?? "visitante"}! </Text> */}
 
@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
+    marginTop: 25, 
     marginBottom: 6,
   },
   subtitle: {

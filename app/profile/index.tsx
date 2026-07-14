@@ -1,6 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -8,34 +10,71 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
-import { ServiceCard } from "../../components/ui/service-card";
-import { ReviewCard } from "../../components/ui/review-card";
-import { SectionHeader } from "../../components/ui/section-header";
 import { Button } from "../../components/ui/button";
+import { SectionHeader } from "../../components/ui/section-header";
+import { ServiceCard } from "../../components/ui/service-card";
+import { Colors } from "../../constants/theme";
+import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
 
-const professionalName = "Rafael Oliveira";
-
-const services = [
-  { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
-  { title: "Troca de lâmpadas", price: "R$ 90", subtitle: "Residencial e comercial", rating: 4.7 },
-  { title: "Laudo técnico", price: "R$ 250", subtitle: "Inspeção completa", rating: 4.8 },
-];
-
-const reviews = [
-  { name: "Mariana Costa", comment: "Excelente trabalho e rapidez na entrega. Recomendo!", rating: 5.0, distance: "1.0 km" },
-  { name: "Felipe Alves", comment: "Muito profissional e demonstrou conhecimento técnico.", rating: 4.8, distance: "3.2 km" },
-];
+function formatCurrency(value: number) {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+
+  const [profile, setProfile] = useState<PerfilPrestador | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function carregarPerfil() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await buscarPerfilPrestador(Number(id));
+        setProfile(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Erro desconhecido");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      carregarPerfil();
+    }
+  }, [id]);
 
   const openProposal = (serviceTitle?: string) => {
-    router.push({
-      pathname: "/send-proposal" as any,
-      params: { professional: professionalName, service: serviceTitle ?? "" },
-    });
-  };
+  router.push({
+    pathname: "/send-proposal" as any,
+    params: {
+      prestadorId: id,
+      professional: profile?.nome ?? "",
+      service: serviceTitle ?? "",
+    },
+  });
+};
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.safeArea, styles.centered]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <SafeAreaView style={[styles.safeArea, styles.centered]}>
+        <Text style={styles.errorText}>{error ?? "Não foi possível carregar o perfil"}</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const initials = profile.nome?.substring(0, 2).toUpperCase() || "US";
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -53,29 +92,31 @@ export default function ProfileScreen() {
 
         <View style={styles.avatarContainer}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>RO</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
         </View>
 
         <View style={styles.detailsCard}>
-          <Text style={styles.name}>{professionalName}</Text>
-          <Text style={styles.specialty}>Técnico em Eletrônica</Text>
-          <Text style={styles.location}>Barra, Salvador - BA</Text>
+          <Text style={styles.name}>{profile.nome}</Text>
+          <Text style={styles.specialty}>{profile.descricao}</Text>
+          <Text style={styles.location}>
+            {profile.cidade} - {profile.estado}
+          </Text>
 
           <View style={styles.statsRow}>
             <View style={styles.statBlock}>
-              <Text style={styles.statValue}>98%</Text>
+              <Text style={styles.statValue}>{profile.percentualConclusao.toFixed(0)}%</Text>
               <Text style={styles.statLabel}>Conclusão</Text>
             </View>
             <View style={styles.statBlock}>
               <View style={styles.ratingRow}>
                 <MaterialIcons name="star" size={16} color="#FFB800" />
-                <Text style={styles.ratingValue}>4.9</Text>
+                <Text style={styles.ratingValue}>{profile.notaMedia.toFixed(1)}</Text>
               </View>
               <Text style={styles.statLabel}>Avaliação</Text>
             </View>
             <View style={styles.statBlock}>
-              <Text style={styles.statValue}>120</Text>
+              <Text style={styles.statValue}>{profile.totalAvaliacoes}</Text>
               <Text style={styles.statLabel}>Avaliações</Text>
             </View>
           </View>
@@ -89,23 +130,33 @@ export default function ProfileScreen() {
 
         <SectionHeader
           title="Serviços"
-          subtitle="a partir de R$ 90"
+          subtitle={
+            profile.servicos.length > 0
+              ? `a partir de ${formatCurrency(
+                  Math.min(...profile.servicos.map((s) => s.valorMedio))
+                )}`
+              : "Nenhum serviço cadastrado"
+          }
           style={styles.servicesHeader}
         />
 
-        {services.map((service) => (
+        {profile.servicos.map((service) => (
           <ServiceCard
-            key={service.title}
-            {...service}
-            onPress={() => openProposal(service.title)}
+            key={service.titulo}
+            title={service.titulo}
+            subtitle={service.descricao}
+            price={formatCurrency(service.valorMedio)}
+            rating={service.avaliacao}
+            onPress={() => openProposal(service.titulo)}
           />
         ))}
 
-        <Text style={styles.reviewTitle}>Avaliações recentes</Text>
-
-        {reviews.map((review) => (
-          <ReviewCard key={review.name} {...review} />
-        ))}
+        {profile.totalAvaliacoes > 0 && (
+          <>
+            <Text style={styles.reviewTitle}>Avaliações recentes</Text>
+            {/* Quando existir endpoint de reviews, mapeie aqui com <ReviewCard /> */}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -115,6 +166,16 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#F7F7F7",
+  },
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  errorText: {
+    fontSize: 14,
+    color: "#8A8A8A",
+    textAlign: "center",
   },
   backButton: {
     position: "absolute",
