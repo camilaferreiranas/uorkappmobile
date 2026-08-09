@@ -22,9 +22,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function loadProfile(auth: AuthResponse, email: string): Promise<UserProfile> {
+async function loadProfile(auth: AuthResponse, email: string): Promise<UserProfile | null> {
   await saveToken(auth.accessToken, auth.expiresIn, email);
-  return getUserProfile(auth.accessToken, email);
+  try {
+    return await getUserProfile(auth.accessToken, email);
+  } catch {
+    return null;
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -38,11 +42,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function restoreSession() {
     try {
       const stored = await getToken();
-      if (stored && stored.expiresAt > Date.now()) {
-        const profile = await getUserProfile(stored.accessToken, stored.email);
-        setUser(profile);
-      } else if (stored) {
-        await clearToken();
+      if (stored) {
+        if (stored.expiresAt <= Date.now()) {
+          await clearToken();
+        } else {
+          try {
+            const profile = await getUserProfile(stored.accessToken, stored.email);
+            setUser(profile);
+          } catch {
+            setUser(null);
+          }
+        }
       }
     } catch {
       await clearToken();

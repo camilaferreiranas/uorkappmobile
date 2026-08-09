@@ -1,5 +1,5 @@
 
-const BASE_URL = 'http://192.168.11.4:8080/usuario';
+const BASE_URL = 'http://192.168.15.27:8080/usuario';
 
 export interface CreateUserPayload {
   nome: string;
