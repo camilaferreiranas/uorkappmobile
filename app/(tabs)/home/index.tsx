@@ -20,14 +20,14 @@ import { obterUsuario } from "../../../services/storageService";
 
 
 const categories = [
-  { title: "Eletrônica", icon: "flash" },
-  { title: "Beleza", icon: "face-woman" },
-  { title: "Limpeza", icon: "broom" },
-  { title: "Pintura", icon: "palette" },
-  { title: "Serviços", icon: "wrench" },
-  { title: "Instalação", icon: "pipe" },
-  { title: "Jardinagem", icon: "tree-outline" },
-  { title: "Reparo", icon: "hammer" },
+  { id: 1, title: "Eletrônica", icon: "flash" },
+  { id: 2, title: "Beleza", icon: "face-woman" },
+  { id: 3, title: "Limpeza", icon: "broom" },
+  { id: 4, title: "Pintura", icon: "palette" },
+  { id: 5, title: "Serviços", icon: "wrench" },
+  { id: 6, title: "Instalação", icon: "pipe" },
+  { id: 7, title: "Jardinagem", icon: "tree-outline" },
+  { id: 8, title: "Reparo", icon: "hammer" },
 ];
 
 const professionals = [
@@ -61,9 +61,8 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerText}>
 
-            {/*<Text style={styles.welcome}>Olá, {usuario?.nome || 'Usuário'}! </Text> */}
 
-            <Text style={[styles.welcome, { marginTop: 25 }]}> Olá, {usuario?.nome || "Usuário"}! </Text>
+            <Text style={[styles.welcome]}> Olá, {usuario?.nome || "Usuário"}! </Text>
 
             {/* <Text style={styles.welcome}>Olá, {user?.nome ?? "visitante"}! </Text> */}
 
@@ -114,7 +113,10 @@ export default function HomeScreen() {
               onPress={() =>
                 router.push({
                   pathname: "/category-providers",
-                  params: { category: category.title },
+                  params: { 
+                    category: category.title,
+                    categoriaId: String(category.id),
+                  },
                 })
               }
             />
@@ -167,6 +169,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
+    marginTop: 25, 
     marginBottom: 6,
   },
   subtitle: {

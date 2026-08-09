@@ -2,6 +2,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -9,10 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Select } from "../../components/ui/select";
+import { Colors } from "../../constants/theme";
+import { enviarProposta } from "../../services/propostaService";
 
 const professionalServices = [
   "Instalação elétrica",
@@ -20,9 +23,13 @@ const professionalServices = [
   "Laudo técnico",
 ];
 
+// TODO: remover quando implementar autenticação
+const CLIENTE_EMAIL_FIXO = "camila@email.com";
+
 export default function SendProposalScreen() {
   const router = useRouter();
-  const { professional, service } = useLocalSearchParams<{
+  const { prestadorId, professional, service } = useLocalSearchParams<{
+    prestadorId: string;
     professional: string;
     service: string;
   }>();
@@ -31,11 +38,53 @@ export default function SendProposalScreen() {
   const [description, setDescription] = useState("");
   const [selectedService, setSelectedService] = useState(service ?? "");
   const [budget, setBudget] = useState("");
+  const [enviando, setEnviando] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
-    setSubmitted(true);
-    setTimeout(() => router.back(), 2000);
+  const handleSubmit = async () => {
+    
+    if (!title.trim()) {
+      Alert.alert("Atenção", "Informe um título para a proposta.");
+      return;
+    }
+
+    if (!description.trim()) {
+      Alert.alert("Atenção", "Descreva o que você precisa.");
+      return;
+    }
+
+    const valorNumerico = Number(
+      budget.replace("R$", "").trim().replace(".", "").replace(",", ".")
+    );
+
+    if (!budget || isNaN(valorNumerico) || valorNumerico <= 0) {
+      Alert.alert("Atenção", "Informe um orçamento válido.");
+      return;
+    }
+
+    if (!prestadorId) {
+      Alert.alert("Erro", "Prestador não identificado. Volte e tente novamente.");
+      return;
+    }
+
+    try {
+      setEnviando(true);
+
+      await enviarProposta({
+        email: CLIENTE_EMAIL_FIXO,
+        prestadorId: Number(prestadorId),
+        titulo: title.trim(),
+        descricao: description.trim(),
+        valor: valorNumerico,
+      });
+
+      setSubmitted(true);
+      setTimeout(() => router.back(), 2000);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível enviar a proposta. Tente novamente.");
+    } finally {
+      setEnviando(false);
+    }
   };
 
   if (submitted) {
@@ -115,10 +164,13 @@ export default function SendProposalScreen() {
         />
 
         <Button
-          title="Enviar proposta"
+          title={enviando ? "Enviando..." : "Enviar proposta"}
           onPress={handleSubmit}
           style={styles.submitButton}
+          disabled={enviando}
         />
+
+        {enviando && <ActivityIndicator style={{ marginTop: 16 }} color={Colors.primary} />}
       </ScrollView>
     </SafeAreaView>
   );

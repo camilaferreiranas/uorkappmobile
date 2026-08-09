@@ -1,3 +1,4 @@
+import { API_URL } from "./api_url";
 
 const BASE_URL = 'http://192.168.15.27:8080/usuario';
 
@@ -23,7 +24,7 @@ interface ApiResponse<T> {
 }
 
 export async function createUser(payload: CreateUserPayload): Promise<Usuario> {
-  const response = await fetch(BASE_URL, {
+  const response = await fetch(API_URL + "/usuario", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
