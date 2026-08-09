@@ -1,7 +1,7 @@
 import { API_URL } from "./api_url";
+import { getToken } from "./token-storage";
 
 export interface NovaProposta {
-  email: string;  
   prestadorId: number;
   titulo: string;
   descricao: string;
@@ -11,12 +11,17 @@ export interface NovaProposta {
 export async function enviarProposta(proposta: NovaProposta): Promise<void> {
   try {
     const url = `${API_URL}/propostas`;
+    const storedToken = await getToken();
 
+    if (!storedToken || storedToken.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${storedToken.accessToken}`,
       },
       body: JSON.stringify(proposta),
     });

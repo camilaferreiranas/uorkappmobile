@@ -23,9 +23,6 @@ const professionalServices = [
   "Laudo técnico",
 ];
 
-// TODO: remover quando implementar autenticação
-const CLIENTE_EMAIL_FIXO = "camila@email.com";
-
 export default function SendProposalScreen() {
   const router = useRouter();
   const { prestadorId, professional, service } = useLocalSearchParams<{
@@ -71,7 +68,6 @@ export default function SendProposalScreen() {
       setEnviando(true);
 
       await enviarProposta({
-        email: CLIENTE_EMAIL_FIXO,
         prestadorId: Number(prestadorId),
         titulo: title.trim(),
         descricao: description.trim(),

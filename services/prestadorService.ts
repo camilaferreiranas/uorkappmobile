@@ -1,4 +1,5 @@
 import { API_URL } from "./api_url";
+import { getToken } from "./token-storage";
 
 export interface Prestador {
   id: number;
@@ -10,8 +11,17 @@ export interface Prestador {
 export async function buscarPrestadoresCategoria(categoriaId: number): Promise<Prestador[]> {
    try {
     const url =  `${API_URL}/prestadores?categoriaId=${categoriaId}&page=0&size=10`;
+    const storedToken = await getToken();
 
-    const response = await fetch(url);
+    if (!storedToken || storedToken.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${storedToken.accessToken}`,
+      },
+    });
 
     if (!response.ok) {
         const erroTexto = await response.text();
@@ -57,8 +67,17 @@ export interface PerfilPrestador {
 export async function buscarPerfilPrestador(prestadorId: number): Promise<PerfilPrestador> {
   try {
     const url = `${API_URL}/prestadores/prestadores/${prestadorId}/perfil`;
+    const storedToken = await getToken();
 
-    const response = await fetch(url);
+    if (!storedToken || storedToken.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${storedToken.accessToken}`,
+      },
+    });
 
 
     if (!response.ok) {

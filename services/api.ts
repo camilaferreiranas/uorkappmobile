@@ -1,12 +1,32 @@
-const BASE_URL = 'http://localhost:8080'; // TODO: ajustar isso
+import { API_URL } from "./api_url";
 
-export interface CreateUserPayload {
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+interface ApiError {
+  message?: string;
+  erros?: string[];
+}
+export interface Endereco {
+  rua: string | null;
+  numero: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cep: string | null;
+}
+
+export interface UserProfile {
+  id: number;
   nome: string;
   sobrenome: string;
   email: string;
-  senha: string;
   documento: string;
-  tipoPessoa: 'PF' | 'PJ';
+  tipoPessoa: "CPF" | "CNPJ";
+  endereco: Endereco;
 }
 
 export interface GoogleAuthPayload {
@@ -27,30 +47,9 @@ export interface AuthResponse {
   expiresIn: number;
 }
 
-export interface UserProfile {
-  nome: string;
-  sobrenome: string;
-  email: string;
-  documento: string;
-  tipoPessoa: 'PF' | 'PJ';
-  avatarUrl?: string;
-}
-
-export async function createUser(payload: CreateUserPayload): Promise<void> {
-  const response = await fetch(`${BASE_URL}/usuarios`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message ?? 'Erro ao criar conta. Tente novamente.');
-  }
-}
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
-  const response = await fetch(`${BASE_URL}/login`, {
+  const response = await fetch(`${API_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -58,14 +57,18 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message ?? 'E-mail ou senha inválidos.');
+    throw new Error(
+      error?.erros?.[0] ??
+      error?.message ??
+      'E-mail ou senha inválidos.'
+    );
   }
 
   return response.json();
 }
 
 export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthResponse> {
-  const response = await fetch(`${BASE_URL}/auth/google`, {
+  const response = await fetch(`${API_URL}/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -79,15 +82,25 @@ export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthR
   return response.json();
 }
 
-export async function getUserProfile(accessToken: string): Promise<UserProfile> {
-  const response = await fetch(`${BASE_URL}/usuarios/perfil`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+export async function getUserProfile(
+  accessToken: string
+): Promise<UserProfile> {
+  const response = await fetch(`${API_URL}/usuario/perfil`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
 
+  const json: ApiResponse<UserProfile> | ApiError = await response.json();
+
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message ?? 'Não foi possível carregar os dados do usuário.');
+    throw new Error(
+      ("erros" in json ? json.erros?.[0] : undefined) ??
+      json.message ??
+      "Não foi possível carregar os dados do usuário."
+    );
   }
 
-  return response.json();
+  return (json as ApiResponse<UserProfile>).data;
 }
