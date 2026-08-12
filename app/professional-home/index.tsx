@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -9,10 +10,10 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Colors } from "../../constants/theme";
 import { SectionHeader } from "../../components/ui/section-header";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
+import { atualizarLocalizacaoPrestador } from "../../services/prestadorService";
 
 const metrics = [
   { label: "Novos pedidos", value: "12", note: "Hoje", icon: "inbox", color: "#0D3D8B", bg: "#E8EDFA" },
@@ -71,6 +72,41 @@ export default function ProfessionalHomeScreen() {
   const { user } = useAuth();
   const { width } = useWindowDimensions();
   const isSmall = width < 360;
+  const [localizacaoStatus, setLocalizacaoStatus] = useState<
+    "carregando" | "atualizada" | "erro"
+  >("carregando");
+  const [localizacaoMensagem, setLocalizacaoMensagem] = useState(
+    "Atualizando localização..."
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    async function atualizarLocalizacao() {
+      try {
+        await atualizarLocalizacaoPrestador();
+        if (!active) return;
+
+        setLocalizacaoStatus("atualizada");
+        setLocalizacaoMensagem("Localização profissional atualizada");
+      } catch (error) {
+        if (!active) return;
+
+        setLocalizacaoStatus("erro");
+        setLocalizacaoMensagem(
+          error instanceof Error
+            ? error.message
+            : "Não foi possível atualizar a localização."
+        );
+      }
+    }
+
+    void atualizarLocalizacao();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -93,6 +129,27 @@ export default function ProfessionalHomeScreen() {
         </View>
 
         {/* ── Toggle Cliente/Profissional ── */}
+        <View
+          style={[
+            styles.locationStatus,
+            localizacaoStatus === "erro" && styles.locationStatusError,
+          ]}
+        >
+          <MaterialIcons
+            name={localizacaoStatus === "erro" ? "location-off" : "location-on"}
+            size={16}
+            color={localizacaoStatus === "erro" ? "#B3261E" : "#0D3D8B"}
+          />
+          <Text
+            style={[
+              styles.locationStatusText,
+              localizacaoStatus === "erro" && styles.locationStatusTextError,
+            ]}
+          >
+            {localizacaoMensagem}
+          </Text>
+        </View>
+
         <View style={styles.switchRow}>
           <TouchableOpacity
             style={styles.switchButton}
@@ -277,7 +334,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 4,
     marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 10,
     marginBottom: 20,
     shadowColor: "#000",
     shadowOpacity: 0.06,
@@ -302,6 +359,29 @@ const styles = StyleSheet.create({
   },
   switchLabelActive: {
     color: "#fff",
+  },
+  locationStatus: {
+    marginHorizontal: 20,
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 12,
+    backgroundColor: "#E8EDFA",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  locationStatusError: {
+    backgroundColor: "#FDECEA",
+  },
+  locationStatusText: {
+    flex: 1,
+    color: "#0D3D8B",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  locationStatusTextError: {
+    color: "#B3261E",
   },
 
   /* Metrics */

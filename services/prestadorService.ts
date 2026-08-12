@@ -10,6 +10,12 @@ export interface Prestador {
   distanciaKm: number | null;
 }
 
+export interface LocalizacaoPrestador {
+  latitude: number;
+  longitude: number;
+  atualizadaEm: string;
+}
+
 async function buscarPrestadores(url: string): Promise<Prestador[]> {
   const storedToken = await getToken();
 
@@ -55,8 +61,56 @@ export async function buscarPrestadoresProximos(): Promise<Prestador[]> {
 }
 
 export async function buscarPrestadoresCategoria(categoriaId: number): Promise<Prestador[]> {
-  const url = `${API_URL}/prestadores?categoriaId=${categoriaId}&page=0&size=10`;
-  return buscarPrestadores(url);
+  const localizacao = await obterLocalizacaoAtual();
+  const params = new URLSearchParams({
+    categoriaId: String(categoriaId),
+    page: "0",
+    size: "10",
+  });
+
+  if (localizacao) {
+    params.set("latitude", String(localizacao.latitude));
+    params.set("longitude", String(localizacao.longitude));
+  }
+
+  return buscarPrestadores(`${API_URL}/prestadores?${params.toString()}`);
+}
+
+export async function atualizarLocalizacaoPrestador(): Promise<LocalizacaoPrestador> {
+  const [localizacao, storedToken] = await Promise.all([
+    obterLocalizacaoAtual(),
+    getToken(),
+  ]);
+
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  if (!localizacao) {
+    throw new Error(
+      "Permita o acesso à localização para aparecer para clientes próximos."
+    );
+  }
+
+  const response = await fetch(`${API_URL}/prestadores/localizacao`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${storedToken.accessToken}`,
+    },
+    body: JSON.stringify(localizacao),
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      json?.erros?.[0] ??
+      json?.message ??
+      "Não foi possível atualizar a localização profissional."
+    );
+  }
+
+  return json.data;
 }
 
 // ---- Perfil do prestador ----
