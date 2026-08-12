@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   AuthResponse,
   GoogleAuthPayload,
@@ -20,47 +20,59 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 async function loadProfile(auth: AuthResponse): Promise<UserProfile> {
+  const profile = await getUserProfile(auth.accessToken);
+
+  // Persiste por último para que uma restauração antiga não apague
+  // o token da sessão que acabou de ser autenticada.
   await saveToken(auth.accessToken, auth.expiresIn);
-  return getUserProfile(auth.accessToken);
+  return profile;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const authOperation = useRef(0);
 
   useEffect(() => {
     restoreSession();
   }, []);
 
   async function restoreSession() {
+    const operation = authOperation.current;
+
     try {
       const stored = await getToken();
       if (stored && stored.expiresAt > Date.now()) {
         const profile = await getUserProfile(stored.accessToken);
-        setUser(profile);
-      } else if (stored) {
+        if (operation === authOperation.current) setUser(profile);
+      } else if (stored && operation === authOperation.current) {
         await clearToken();
       }
     } catch {
-      await clearToken();
+      if (operation === authOperation.current) await clearToken();
     } finally {
-      setLoading(false);
+      if (operation === authOperation.current) setLoading(false);
     }
   }
 
   async function login(email: string, senha: string) {
     const auth = await loginRequest({ email, senha });
+    authOperation.current += 1;
     const profile = await loadProfile(auth);
     setUser(profile);
+    setLoading(false);
   }
 
   async function loginWithGoogle(payload: GoogleAuthPayload) {
     const auth = await loginWithGoogleRequest(payload);
+    authOperation.current += 1;
     const profile = await loadProfile(auth);
     setUser(profile);
+    setLoading(false);
   }
 
   async function logout() {
+    authOperation.current += 1;
     await clearToken();
     setUser(null);
   }
