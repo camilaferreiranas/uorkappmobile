@@ -1,4 +1,5 @@
 import { API_URL } from "./api_url";
+import { obterLocalizacaoAtual } from "./locationService";
 import { getToken } from "./token-storage";
 
 export interface Prestador {
@@ -6,37 +7,56 @@ export interface Prestador {
   nome: string;
   categorias: string[];
   mediaAvaliacoes: number;
+  distanciaKm: number | null;
+}
+
+async function buscarPrestadores(url: string): Promise<Prestador[]> {
+  const storedToken = await getToken();
+
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${storedToken.accessToken}`,
+    },
+  });
+
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      json?.erros?.[0] ??
+      json?.message ??
+      `Erro ao buscar prestadores: ${response.status}`
+    );
+  }
+
+  return json?.data?.content ?? [];
+}
+
+export async function buscarPrestadoresProximos(): Promise<Prestador[]> {
+  const localizacao = await obterLocalizacaoAtual();
+
+  const params = new URLSearchParams({
+    page: "0",
+    size: "10",
+  });
+
+  if (localizacao) {
+    params.set("latitude", String(localizacao.latitude));
+    params.set("longitude", String(localizacao.longitude));
+  }
+
+  return buscarPrestadores(
+    `${API_URL}/prestadores?${params.toString()}`
+  );
 }
 
 export async function buscarPrestadoresCategoria(categoriaId: number): Promise<Prestador[]> {
-   try {
-    const url =  `${API_URL}/prestadores?categoriaId=${categoriaId}&page=0&size=10`;
-    const storedToken = await getToken();
-
-    if (!storedToken || storedToken.expiresAt <= Date.now()) {
-      throw new Error("Sessão expirada. Entre novamente.");
-    }
-
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${storedToken.accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-        const erroTexto = await response.text();
-        throw new Error(`Erro na requisição: ${response.status}`);
-    }
-
-    const json = await response.json();
-
-
-    return json.data.content;
-
-    } catch (error) {
-    console.error("Erro ao buscar prestadores:", error);
-    throw error;
-  }
+  const url = `${API_URL}/prestadores?categoriaId=${categoriaId}&page=0&size=10`;
+  return buscarPrestadores(url);
 }
 
 // ---- Perfil do prestador ----
@@ -81,7 +101,6 @@ export async function buscarPerfilPrestador(prestadorId: number): Promise<Perfil
 
 
     if (!response.ok) {
-      const erroTexto = await response.text();
       throw new Error(`Erro na requisição: ${response.status}`);
     }
 

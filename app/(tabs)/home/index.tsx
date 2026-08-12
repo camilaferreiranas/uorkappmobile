@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -15,7 +16,10 @@ import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors } from "../../../constants/theme";
 
-import { useAuth } from "../../../contexts/auth-context";
+import {
+  buscarPrestadoresProximos,
+  type Prestador,
+} from "../../../services/prestadorService";
 import { obterUsuario } from "../../../services/storageService";
 
 
@@ -30,16 +34,12 @@ const categories = [
   { id: 8, title: "Reparo", icon: "hammer" },
 ];
 
-const professionals = [
-  { name: "Raquel Oliveira", role: "Técnica em eletricidade", rating: 4.9, distance: "1,2 km", initials: "RO" },
-  { name: "Marcos Costa", role: "Pintor e reformas", rating: 4.7, distance: "2,4 km", initials: "MC" },
-  { name: "Lara Mendes", role: "Faxineira profissional", rating: 4.8, distance: "850 m", initials: "LM" },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
   const [usuario, setUsuario] = useState<any>(null);
-  const { user } = useAuth();
+  const [professionals, setProfessionals] = useState<Prestador[]>([]);
+  const [loadingProfessionals, setLoadingProfessionals] = useState(true);
+  const [professionalsError, setProfessionalsError] = useState("");
 
 
   useEffect(() => {
@@ -49,6 +49,26 @@ export default function HomeScreen() {
     }
 
     carregarUsuario();
+  }, []);
+
+  useEffect(() => {
+    async function carregarProfissionais() {
+      try {
+        setLoadingProfessionals(true);
+        setProfessionalsError("");
+        setProfessionals(await buscarPrestadoresProximos());
+      } catch (error) {
+        setProfessionalsError(
+          error instanceof Error
+            ? error.message
+            : "Não foi possível carregar os profissionais."
+        );
+      } finally {
+        setLoadingProfessionals(false);
+      }
+    }
+
+    carregarProfissionais();
   }, []);
   
   return (
@@ -130,12 +150,29 @@ export default function HomeScreen() {
           style={styles.sectionHeader}
         />
         <View style={styles.professionalsContainer}>
-          {professionals.map((professional) => (
+          {loadingProfessionals ? (
+            <ActivityIndicator color={Colors.primary} />
+          ) : professionalsError ? (
+            <Text style={styles.professionalsMessage}>{professionalsError}</Text>
+          ) : professionals.length === 0 ? (
+            <Text style={styles.professionalsMessage}>
+              Nenhum profissional disponível no momento.
+            </Text>
+          ) : professionals.map((professional) => (
             <ProfessionalCard
-              key={professional.name}
-              {...professional}
+              key={professional.id}
+              name={professional.nome}
+              role={professional.categorias.join(", ") || "Prestador de serviço"}
+              rating={professional.mediaAvaliacoes ?? 0}
+              distance={professional.distanciaKm !== null ? `${professional.distanciaKm.toFixed(1)} km` : "Distância indisponível"}
+              initials={professional.nome?.substring(0, 2).toUpperCase() || "US"}
               buttonTitle="Contratar"
-              onPress={() => router.push("/profile")}
+              onPress={() =>
+                router.push({
+                  pathname: "/profile",
+                  params: { id: professional.id.toString() },
+                })
+              }
             />
           ))}
         </View>
@@ -259,5 +296,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
     gap: 14,
     marginTop: 4,
+  },
+  professionalsMessage: {
+    color: Colors.gray,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+    paddingVertical: 16,
   },
 });
