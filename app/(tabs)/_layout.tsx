@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
@@ -32,6 +33,9 @@ function TabIcon({
 }
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 10);
+
   return (
     <Tabs
       screenOptions={{
@@ -39,6 +43,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: "#7A7A95",
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarHideOnKeyboard: true,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: "600",
@@ -51,9 +56,9 @@ export default function TabLayout() {
           borderTopWidth: 0,
           borderWidth: 0,
           borderColor: "transparent",
-          paddingTop: 10,
-          height: 76,
-          paddingBottom: 12,
+          paddingTop: 8,
+          height: 62 + bottomPadding,
+          paddingBottom: bottomPadding,
           shadowColor: "#000",
           shadowOpacity: 0.08,
           shadowRadius: 16,

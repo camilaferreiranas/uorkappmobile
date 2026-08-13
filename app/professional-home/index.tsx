@@ -2,6 +2,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -13,7 +15,10 @@ import {
 import { SectionHeader } from "../../components/ui/section-header";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
-import { atualizarLocalizacaoPrestador } from "../../services/prestadorService";
+import {
+  atualizarLocalizacaoPrestador,
+  verificarCadastroPrestador,
+} from "../../services/prestadorService";
 
 const metrics = [
   { label: "Novos pedidos", value: "12", note: "Hoje", icon: "inbox", color: "#0D3D8B", bg: "#E8EDFA" },
@@ -78,35 +83,136 @@ export default function ProfessionalHomeScreen() {
   const [localizacaoMensagem, setLocalizacaoMensagem] = useState(
     "Atualizando localização..."
   );
+  const [cadastroStatus, setCadastroStatus] = useState<
+    "carregando" | "prestador" | "cliente" | "erro"
+  >("carregando");
 
   useEffect(() => {
     let active = true;
 
-    async function atualizarLocalizacao() {
+    async function carregarModoProfissional() {
       try {
+        const cadastrado = await verificarCadastroPrestador();
+        if (!active) return;
+
+        if (!cadastrado) {
+          setCadastroStatus("cliente");
+          return;
+        }
+
+        setCadastroStatus("prestador");
+
+        try {
         await atualizarLocalizacaoPrestador();
         if (!active) return;
 
         setLocalizacaoStatus("atualizada");
         setLocalizacaoMensagem("Localização profissional atualizada");
-      } catch (error) {
-        if (!active) return;
+        } catch (error) {
+          if (!active) return;
 
-        setLocalizacaoStatus("erro");
-        setLocalizacaoMensagem(
-          error instanceof Error
-            ? error.message
-            : "Não foi possível atualizar a localização."
-        );
+          setLocalizacaoStatus("erro");
+          setLocalizacaoMensagem(
+            error instanceof Error
+              ? error.message
+              : "Não foi possível atualizar a localização."
+          );
+        }
+      } catch {
+        if (!active) return;
+        setCadastroStatus("erro");
       }
     }
 
-    void atualizarLocalizacao();
+    void carregarModoProfissional();
 
     return () => {
       active = false;
     };
   }, []);
+
+  if (cadastroStatus === "carregando") {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0D3D8B" />
+          <Text style={styles.loadingText}>Verificando cadastro profissional...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (cadastroStatus === "cliente") {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView contentContainerStyle={styles.nonProfessionalContainer}>
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <Text style={[styles.headerTitle, isSmall && { fontSize: 18 }]}>
+                Olá, {user?.nome ?? "usuário"} 👋
+              </Text>
+              <Text style={styles.headerSubtitle}>
+                Comece a oferecer seus serviços
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.switchRow}>
+            <TouchableOpacity
+              style={styles.switchButton}
+              onPress={() => router.replace("/(tabs)/home")}
+            >
+              <Text style={styles.switchLabel}>Cliente</Text>
+            </TouchableOpacity>
+            <View style={[styles.switchButton, styles.switchButtonActive]}>
+              <Text style={[styles.switchLabel, styles.switchLabelActive]}>
+                Profissional
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.professionalInvite}>
+            <View style={styles.professionalInviteIcon}>
+              <MaterialIcons name="work-outline" size={36} color="#0D3D8B" />
+            </View>
+            <Text style={styles.professionalInviteTitle}>Torne-se um profissional</Text>
+            <TouchableOpacity
+              style={styles.professionalInviteButton}
+              onPress={() =>
+                Alert.alert(
+                  "Cadastro profissional",
+                  "O formulário de cadastro profissional será aberto nesta opção."
+                )
+              }
+              activeOpacity={0.8}
+              accessibilityRole="button"
+            >
+              <Text style={styles.professionalInviteButtonText}>
+                Cadastro profissional
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (cadastroStatus === "erro") {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.loadingContainer}>
+          <MaterialIcons name="error-outline" size={42} color="#B3261E" />
+          <Text style={styles.statusErrorTitle}>Não foi possível verificar seu cadastro</Text>
+          <TouchableOpacity
+            style={styles.backToClientButton}
+            onPress={() => router.replace("/(tabs)/home")}
+          >
+            <Text style={styles.backToClientButtonText}>Voltar para cliente</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -278,6 +384,83 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingBottom: 110,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    gap: 14,
+  },
+  loadingText: {
+    color: "#7A7A95",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  nonProfessionalContainer: {
+    flexGrow: 1,
+    paddingBottom: 40,
+  },
+  professionalInvite: {
+    flex: 1,
+    minHeight: 330,
+    marginHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 4,
+  },
+  professionalInviteIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E8EDFA",
+    marginBottom: 18,
+  },
+  professionalInviteTitle: {
+    color: "#111",
+    fontSize: 22,
+    fontWeight: "800",
+    textAlign: "center",
+    marginBottom: 22,
+  },
+  professionalInviteButton: {
+    width: "100%",
+    backgroundColor: "#0D3D8B",
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  professionalInviteButtonText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  statusErrorTitle: {
+    color: "#B3261E",
+    fontSize: 17,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  backToClientButton: {
+    backgroundColor: "#0D3D8B",
+    borderRadius: 14,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+  backToClientButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
   },
 
   /* Header */

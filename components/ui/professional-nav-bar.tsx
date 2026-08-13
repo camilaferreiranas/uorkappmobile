@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type ProfessionalTab = "inicio" | "demandas" | "relatorio" | "perfil";
 
@@ -24,9 +25,15 @@ interface ProfessionalNavBarProps {
 
 export function ProfessionalNavBar({ active }: ProfessionalNavBarProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.nav}>
+    <View
+      style={[
+        styles.nav,
+        { paddingBottom: Math.max(insets.bottom, 16) },
+      ]}
+    >
       {items.map((item) => {
         const isActive = active === item.tab;
         return (
@@ -63,7 +70,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 10,
-    paddingBottom: 24,
+    paddingBottom: 16,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",

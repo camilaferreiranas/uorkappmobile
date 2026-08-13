@@ -16,6 +16,31 @@ export interface LocalizacaoPrestador {
   atualizadaEm: string;
 }
 
+export async function verificarCadastroPrestador(): Promise<boolean> {
+  const storedToken = await getToken();
+
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/prestadores/me/status`, {
+    headers: {
+      Authorization: `Bearer ${storedToken.accessToken}`,
+    },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      json?.erros?.[0] ??
+      json?.message ??
+      "Não foi possível verificar o cadastro profissional."
+    );
+  }
+
+  return json.data === true;
+}
+
 async function buscarPrestadores(url: string): Promise<Prestador[]> {
   const storedToken = await getToken();
 
