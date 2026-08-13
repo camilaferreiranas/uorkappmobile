@@ -15,12 +15,12 @@ import { CategoryCard } from "../../../components/ui/category-card";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors } from "../../../constants/theme";
+import { useAuth } from "../../../contexts/auth-context";
 
 import {
   buscarPrestadoresProximos,
   type Prestador,
 } from "../../../services/prestadorService";
-import { obterUsuario } from "../../../services/storageService";
 
 
 const categories = [
@@ -36,20 +36,11 @@ const categories = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [usuario, setUsuario] = useState<any>(null);
+  const { user } = useAuth();
   const [professionals, setProfessionals] = useState<Prestador[]>([]);
   const [loadingProfessionals, setLoadingProfessionals] = useState(true);
   const [professionalsError, setProfessionalsError] = useState("");
 
-
-  useEffect(() => {
-    async function carregarUsuario() {
-      const dados = await obterUsuario();
-      setUsuario(dados);
-    }
-
-    carregarUsuario();
-  }, []);
 
   useEffect(() => {
     async function carregarProfissionais() {
@@ -82,9 +73,7 @@ export default function HomeScreen() {
           <View style={styles.headerText}>
 
 
-            <Text style={[styles.welcome]}> Olá, {usuario?.nome || "Usuário"}! </Text>
-
-            {/* <Text style={styles.welcome}>Olá, {user?.nome ?? "visitante"}! </Text> */}
+            <Text style={styles.welcome}>Olá, {user?.nome ?? "Usuário"}!</Text>
 
             <Text style={styles.subtitle}>
               Encontre o profissional ideal para você
@@ -92,9 +81,9 @@ export default function HomeScreen() {
           </View>
           <View style={styles.avatar}>
 
-            <Text style={styles.avatarText}>{usuario?.nome?.substring(0, 2).toUpperCase() || "US"}</Text>
-
-           {/* <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text> */}
+            <Text style={styles.avatarText}>
+              {user?.nome?.substring(0, 2).toUpperCase() ?? "US"}
+            </Text>
 
           </View>
         </View>
