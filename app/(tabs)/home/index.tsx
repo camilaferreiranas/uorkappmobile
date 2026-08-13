@@ -79,13 +79,19 @@ export default function HomeScreen() {
               Encontre o profissional ideal para você
             </Text>
           </View>
-          <View style={styles.avatar}>
+          <TouchableOpacity
+            style={styles.avatar}
+            onPress={() => router.push("/(tabs)/perfil")}
+            activeOpacity={0.75}
+            accessibilityRole="button"
+            accessibilityLabel="Abrir perfil"
+          >
 
             <Text style={styles.avatarText}>
               {user?.nome?.substring(0, 2).toUpperCase() ?? "US"}
             </Text>
 
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Toggle Cliente/Profissional */}

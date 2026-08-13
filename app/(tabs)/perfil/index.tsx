@@ -19,7 +19,7 @@ const menuItems = [
   { icon: "payment", label: "Formas de pagamento" },
   { icon: "history", label: "Histórico de serviços" },
   { icon: "help-outline", label: "Ajuda e suporte" },
-  { icon: "logout", label: "Sair" },
+  { icon: "logout", label: "Sair da conta" },
 ];
 
 export default function PerfilScreen() {
@@ -27,7 +27,7 @@ export default function PerfilScreen() {
   const { user, logout } = useAuth();
 
   async function handleMenuPress(label: string) {
-    if (label === "Sair") {
+    if (label === "Sair da conta") {
       await logout();
       router.replace("/login");
     }
@@ -75,13 +75,13 @@ export default function PerfilScreen() {
                 <MaterialIcons
                   name={item.icon as any}
                   size={20}
-                  color={item.label === "Sair" ? "#D32F2F" : Colors.primary}
+                  color={item.label === "Sair da conta" ? "#D32F2F" : Colors.primary}
                 />
               </View>
-              <Text style={[styles.menuLabel, item.label === "Sair" && styles.menuLabelDanger]}>
+              <Text style={[styles.menuLabel, item.label === "Sair da conta" && styles.menuLabelDanger]}>
                 {item.label}
               </Text>
-              {item.label !== "Sair" && (
+              {item.label !== "Sair da conta" && (
                 <MaterialIcons name="chevron-right" size={20} color="#C4C4C4" />
               )}
             </TouchableOpacity>
