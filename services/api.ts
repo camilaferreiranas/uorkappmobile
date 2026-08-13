@@ -25,8 +25,27 @@ export interface UserProfile {
   sobrenome: string;
   email: string;
   documento: string;
+  telefone: string | null;
   tipoPessoa: "CPF" | "CNPJ";
   endereco: Endereco;
+}
+
+export interface UpdateUserProfilePayload {
+  nome: string;
+  sobrenome: string;
+  email: string;
+  senha?: string;
+  documento: string;
+  telefone: string;
+  tipoPessoa: "CPF" | "CNPJ";
+}
+
+export interface CepResult {
+  cep: string;
+  rua: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
 }
 
 export interface GoogleAuthPayload {
@@ -99,6 +118,74 @@ export async function getUserProfile(
       ("erros" in json ? json.erros?.[0] : undefined) ??
       json.message ??
       "Não foi possível carregar os dados do usuário."
+    );
+  }
+
+  return (json as ApiResponse<UserProfile>).data;
+}
+
+export async function updateUserProfile(
+  accessToken: string,
+  payload: UpdateUserProfilePayload
+): Promise<UserProfile> {
+  const response = await fetch(`${API_URL}/usuario/perfil`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const json: ApiResponse<UserProfile> | ApiError = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      ("erros" in json ? json.erros?.[0] : undefined) ??
+      json.message ??
+      "Não foi possível atualizar o perfil."
+    );
+  }
+
+  return (json as ApiResponse<UserProfile>).data;
+}
+
+export async function getAddressByCep(cep: string): Promise<CepResult> {
+  const normalizedCep = cep.replace(/\D/g, "");
+  const response = await fetch(`${API_URL}/enderecos/cep/${normalizedCep}`);
+  const json: ApiResponse<CepResult> | ApiError = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      ("erros" in json ? json.erros?.[0] : undefined) ??
+      json.message ??
+      "Não foi possível consultar o CEP."
+    );
+  }
+
+  return (json as ApiResponse<CepResult>).data;
+}
+
+export async function updateUserAddress(
+  accessToken: string,
+  endereco: Endereco
+): Promise<UserProfile> {
+  const response = await fetch(`${API_URL}/usuario/perfil`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ endereco }),
+  });
+
+  const json: ApiResponse<UserProfile> | ApiError = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      ("erros" in json ? json.erros?.[0] : undefined) ??
+      json.message ??
+      "Não foi possível salvar o endereço."
     );
   }
 

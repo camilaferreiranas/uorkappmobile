@@ -27,6 +27,16 @@ export default function PerfilScreen() {
   const { user, logout } = useAuth();
 
   async function handleMenuPress(label: string) {
+    if (label === "Editar perfil") {
+      router.push("/edit-profile");
+      return;
+    }
+
+    if (label === "Meu endereço") {
+      router.push("/address");
+      return;
+    }
+
     if (label === "Sair da conta") {
       await logout();
       router.replace("/login");

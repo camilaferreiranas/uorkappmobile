@@ -1,11 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   AuthResponse,
+  Endereco,
   GoogleAuthPayload,
   UserProfile,
+  UpdateUserProfilePayload,
   getUserProfile,
   login as loginRequest,
   loginWithGoogle as loginWithGoogleRequest,
+  updateUserProfile as updateUserProfileRequest,
+  updateUserAddress as updateUserAddressRequest,
 } from '../services/api';
 import { clearToken, getToken, saveToken } from '../services/token-storage';
 
@@ -14,6 +18,8 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, senha: string) => Promise<void>;
   loginWithGoogle: (payload: GoogleAuthPayload) => Promise<void>;
+  updateProfile: (payload: UpdateUserProfilePayload) => Promise<UserProfile>;
+  updateAddress: (endereco: Endereco) => Promise<UserProfile>;
   logout: () => Promise<void>;
 }
 
@@ -71,6 +77,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }
 
+  async function updateProfile(payload: UpdateUserProfilePayload) {
+    const stored = await getToken();
+    if (!stored || stored.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const profile = await updateUserProfileRequest(stored.accessToken, payload);
+    setUser(profile);
+    return profile;
+  }
+
+  async function updateAddress(endereco: Endereco) {
+    const stored = await getToken();
+    if (!stored || stored.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const profile = await updateUserAddressRequest(stored.accessToken, endereco);
+    setUser(profile);
+    return profile;
+  }
+
   async function logout() {
     authOperation.current += 1;
     await clearToken();
@@ -78,7 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, loginWithGoogle, updateProfile, updateAddress, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
