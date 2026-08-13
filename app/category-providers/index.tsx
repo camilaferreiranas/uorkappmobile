@@ -88,6 +88,7 @@ export default function CategoryProvidersScreen() {
           prestadores.map((professional) => (
             <ProfessionalCard
               key={professional.id}
+              style={styles.providerCard}
               name={professional.nome}
               role="Prestador de serviço"
               rating={0}
@@ -142,9 +143,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   container: {
-    paddingTop: 20,
+    paddingTop: 14,
     paddingBottom: 50,
-    gap: 4,
+    gap: 6,
+  },
+  providerCard: {
+    marginHorizontal: 12,
   },
   emptyState: {
     alignItems: "center",

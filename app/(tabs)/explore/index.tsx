@@ -127,6 +127,7 @@ export default function BuscarScreen() {
         <ProfessionalCard
           key={professional.name}
           {...professional}
+          style={styles.professionalCard}
           buttonTitle="Ver perfil"
           onPress={() => router.push("/profile")}
         />
@@ -204,5 +205,8 @@ const styles = StyleSheet.create({
     color: Colors.gray,
     marginBottom: 14,
     fontWeight: "600",
+  },
+  professionalCard: {
+    marginBottom: 10,
   },
 });

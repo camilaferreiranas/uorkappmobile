@@ -139,6 +139,7 @@ export default function SearchScreen() {
         <ProfessionalCard
           key={professional.name}
           {...professional}
+          style={styles.professionalCard}
           onPress={() => router.push("/profile")}
         />
       ))}
@@ -209,5 +210,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.gray,
     marginBottom: 16,
+  },
+  professionalCard: {
+    marginBottom: 10,
   },
 });

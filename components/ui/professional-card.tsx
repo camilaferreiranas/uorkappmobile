@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -12,6 +12,7 @@ interface ProfessionalCardProps {
   onPress?: () => void;
   buttonTitle?: string;
   onButtonPress?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function ProfessionalCard({
@@ -24,9 +25,10 @@ export function ProfessionalCard({
   onPress,
   buttonTitle = 'Ver perfil',
   onButtonPress,
+  style,
 }: ProfessionalCardProps) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, style]}>
       <View style={styles.row}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{initials}</Text>
@@ -60,8 +62,9 @@ export function ProfessionalCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     shadowColor: '#000',
     shadowOpacity: 0.07,
     shadowRadius: 14,
@@ -71,16 +74,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   avatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
+    width: 48,
+    height: 48,
+    borderRadius: 15,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: 12,
   },
   avatarText: {
     color: '#fff',
@@ -131,8 +134,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: Colors.primary,
-    borderRadius: 14,
-    paddingVertical: 13,
+    borderRadius: 12,
+    paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
