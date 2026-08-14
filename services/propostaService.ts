@@ -28,7 +28,6 @@ export async function enviarProposta(proposta: NovaProposta): Promise<void> {
 
 
     if (!response.ok) {
-      const erroTexto = await response.text();
       throw new Error(`Erro na requisição: ${response.status}`);
     }
 
@@ -41,4 +40,34 @@ export async function enviarProposta(proposta: NovaProposta): Promise<void> {
     console.error("Erro ao enviar proposta:", error);
     throw error;
   }
+}
+
+export interface DetalheDemanda {
+  propostaId: number;
+  titulo: string;
+  nomeCliente: string;
+  orcamento: number;
+  distancia: number | null;
+  descricao: string;
+  nomePrestador: string;
+}
+
+export async function buscarDetalheDemanda(propostaId: number): Promise<DetalheDemanda> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/${propostaId}/detalhe-demanda`, {
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível carregar a proposta."
+    );
+  }
+
+  return json.data;
 }

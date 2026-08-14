@@ -24,6 +24,7 @@ export default function RootLayout() {
           <Stack.Screen name="forgot-password/index" />
           <Stack.Screen name="reset-password/index" />
           <Stack.Screen name="professional-home/index" />
+          <Stack.Screen name="professional-notifications" />
           <Stack.Screen name="profile/index" />
           <Stack.Screen name="edit-profile/index" />
           <Stack.Screen name="address" />

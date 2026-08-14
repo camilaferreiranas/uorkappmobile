@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -15,6 +15,10 @@ import {
 import { SectionHeader } from "../../components/ui/section-header";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
+import {
+  buscarNotificacoes,
+  type Notificacao,
+} from "../../services/notificacaoService";
 import {
   atualizarLocalizacaoPrestador,
   verificarCadastroPrestador,
@@ -86,6 +90,8 @@ export default function ProfessionalHomeScreen() {
   const [cadastroStatus, setCadastroStatus] = useState<
     "carregando" | "prestador" | "cliente" | "erro"
   >("carregando");
+  const [notificacoesNaoLidas, setNotificacoesNaoLidas] = useState(0);
+  const [ultimaNotificacao, setUltimaNotificacao] = useState<Notificacao | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -130,6 +136,34 @@ export default function ProfessionalHomeScreen() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (cadastroStatus !== "prestador") return;
+
+    let active = true;
+
+    async function atualizarContador() {
+      try {
+        const data = await buscarNotificacoes();
+        if (active) {
+          setNotificacoesNaoLidas(data.naoLidas);
+          setUltimaNotificacao(
+            data.notificacoes.find((notificacao) => !notificacao.lida) ?? null
+          );
+        }
+      } catch {
+        // O painel continua disponível mesmo se o contador falhar.
+      }
+    }
+
+    void atualizarContador();
+    const interval = setInterval(() => void atualizarContador(), 15000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [cadastroStatus]);
 
   if (cadastroStatus === "carregando") {
     return (
@@ -228,13 +262,51 @@ export default function ProfessionalHomeScreen() {
             </Text>
             <Text style={styles.headerSubtitle}>Disponível para novos serviços</Text>
           </View>
-          <View style={styles.onlineBadge}>
-            <View style={styles.onlineDot} />
-            <Text style={styles.onlineBadgeText}>Online</Text>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => router.push("/professional-notifications" as Href)}
+              accessibilityRole="button"
+              accessibilityLabel={`Notificações: ${notificacoesNaoLidas} não lidas`}
+            >
+              <MaterialIcons name="notifications-none" size={23} color="#D1E0FF" />
+              {notificacoesNaoLidas > 0 ? (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {notificacoesNaoLidas > 99 ? "99+" : notificacoesNaoLidas}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+            <View style={styles.onlineBadge}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.onlineBadgeText}>Online</Text>
+            </View>
           </View>
         </View>
 
         {/* ── Toggle Cliente/Profissional ── */}
+        {ultimaNotificacao ? (
+          <TouchableOpacity
+            style={styles.notificationCard}
+            onPress={() => router.push("/professional-notifications" as Href)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`${ultimaNotificacao.titulo}. ${ultimaNotificacao.mensagem}`}
+          >
+            <View style={styles.notificationCardIcon}>
+              <MaterialIcons name="notifications-active" size={22} color="#0D3D8B" />
+            </View>
+            <View style={styles.notificationCardContent}>
+              <Text style={styles.notificationCardTitle}>{ultimaNotificacao.titulo}</Text>
+              <Text style={styles.notificationCardMessage} numberOfLines={2}>
+                {ultimaNotificacao.mensagem}
+              </Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color="#0D3D8B" />
+          </TouchableOpacity>
+        ) : null}
+
         <View
           style={[
             styles.locationStatus,
@@ -542,6 +614,72 @@ const styles = StyleSheet.create({
   },
   switchLabelActive: {
     color: "#fff",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  notificationButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -3,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: "#E75A2B",
+    borderWidth: 2,
+    borderColor: "#0D3D8B",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationBadgeText: {
+    color: "#fff",
+    fontSize: 9,
+    fontWeight: "800",
+  },
+  notificationCard: {
+    marginHorizontal: 20,
+    marginTop: 12,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: "#F4F7FF",
+    borderWidth: 1,
+    borderColor: "#D6E1F5",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  notificationCardIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: "#E2EAF9",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationCardContent: {
+    flex: 1,
+  },
+  notificationCardTitle: {
+    color: "#0D3D8B",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  notificationCardMessage: {
+    color: "#5E6472",
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 3,
   },
   locationStatus: {
     marginHorizontal: 20,
