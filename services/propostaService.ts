@@ -52,6 +52,74 @@ export interface DetalheDemanda {
   nomePrestador: string;
 }
 
+export interface PropostaResponse {
+  id: number;
+  nomeUsuario: string;
+  nomePrestador: string;
+  descricao: string;
+  valor: number;
+  status: string;
+  dataCriacao: string;
+}
+
+export type StatusProposta =
+  | "PENDENTE"
+  | "ACEITA"
+  | "RECUSADA"
+  | "CANCELADA"
+  | "FINALIZADA";
+
+export interface DemandaProfissional {
+  propostaId: number;
+  titulo: string;
+  descricao: string;
+  nomeCliente: string;
+  valor: number;
+  status: StatusProposta;
+  dataCriacao: string;
+}
+
+export async function buscarDemandasDoPrestador(): Promise<DemandaProfissional[]> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/prestador/demandas`, {
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível carregar as demandas."
+    );
+  }
+
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function aceitarProposta(propostaId: number): Promise<PropostaResponse> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/${propostaId}/aceitar`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível aceitar a proposta."
+    );
+  }
+
+  return json.data;
+}
+
 export async function buscarDetalheDemanda(propostaId: number): Promise<DetalheDemanda> {
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {

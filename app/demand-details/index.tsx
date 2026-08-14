@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { Colors } from "../../constants/theme";
+import { aceitarProposta } from "../../services/propostaService";
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
   Urgente: { bg: "#FFF0EB", text: "#D86A3F" },
@@ -31,11 +33,30 @@ export default function DemandDetailsScreen() {
   }>();
 
   const [status, setStatus] = useState<"pending" | "accepted" | "refused">("pending");
+  const [processando, setProcessando] = useState(false);
+  const [erro, setErro] = useState("");
 
   const urgency = params.urgency ?? "Normal";
   const colors = urgencyColors[urgency] ?? urgencyColors["Normal"];
 
-  const handleAccept = () => setStatus("accepted");
+  const handleAccept = async () => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0) {
+      setErro("Não foi possível identificar esta proposta.");
+      return;
+    }
+
+    setProcessando(true);
+    setErro("");
+    try {
+      await aceitarProposta(propostaId);
+      setStatus("accepted");
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível aceitar a proposta.");
+    } finally {
+      setProcessando(false);
+    }
+  };
   const handleRefuse = () => setStatus("refused");
 
   if (status !== "pending") {
@@ -54,7 +75,7 @@ export default function DemandDetailsScreen() {
           </Text>
           <Text style={styles.resultText}>
             {status === "accepted"
-              ? `Você aceitou a demanda "${params.title}". O cliente será notificado.`
+              ? `Você aceitou a demanda "${params.title}". O status da proposta foi atualizado.`
               : `Você recusou a demanda "${params.title}".`}
           </Text>
           <TouchableOpacity style={styles.backHomeButton} onPress={() => router.replace("/professional-home" as any)}>
@@ -131,13 +152,30 @@ export default function DemandDetailsScreen() {
       </ScrollView>
 
       <View style={styles.actionBar}>
-        <TouchableOpacity style={styles.refuseButton} onPress={handleRefuse} activeOpacity={0.8}>
+        {erro ? <Text style={styles.actionError}>{erro}</Text> : null}
+        <TouchableOpacity
+          style={[styles.refuseButton, processando && styles.actionButtonDisabled]}
+          onPress={handleRefuse}
+          activeOpacity={0.8}
+          disabled={processando}
+        >
           <MaterialIcons name="close" size={20} color="#C62828" />
           <Text style={styles.refuseText}>Recusar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.acceptButton} onPress={handleAccept} activeOpacity={0.8}>
-          <MaterialIcons name="check" size={20} color="#fff" />
-          <Text style={styles.acceptText}>Aceitar demanda</Text>
+        <TouchableOpacity
+          style={[styles.acceptButton, processando && styles.actionButtonDisabled]}
+          onPress={() => void handleAccept()}
+          activeOpacity={0.8}
+          disabled={processando}
+        >
+          {processando ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <MaterialIcons name="check" size={20} color="#fff" />
+          )}
+          <Text style={styles.acceptText}>
+            {processando ? "Aceitando..." : "Aceitar demanda"}
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -321,6 +359,14 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     shadowOffset: { width: 0, height: -4 },
     elevation: 12,
+    flexWrap: "wrap",
+  },
+  actionError: {
+    width: "100%",
+    color: "#B3261E",
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 2,
   },
   refuseButton: {
     flex: 1,
@@ -353,6 +399,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "800",
     fontSize: 15,
+  },
+  actionButtonDisabled: {
+    opacity: 0.7,
   },
   resultContainer: {
     flex: 1,
