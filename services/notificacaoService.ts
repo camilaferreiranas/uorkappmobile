@@ -39,6 +39,24 @@ export async function buscarNotificacoes(): Promise<NotificacoesData> {
   return json.data;
 }
 
+export async function buscarNotificacoesCliente(): Promise<NotificacoesData> {
+  const accessToken = await getAccessToken();
+  const response = await fetch(`${API_URL}/notificacoes/cliente`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      json?.erros?.[0] ??
+        json?.message ??
+        "Não foi possível carregar as notificações do cliente."
+    );
+  }
+
+  return json.data;
+}
+
 export async function marcarNotificacaoComoLida(id: number): Promise<Notificacao> {
   const accessToken = await getAccessToken();
   const response = await fetch(`${API_URL}/notificacoes/${id}/lida`, {

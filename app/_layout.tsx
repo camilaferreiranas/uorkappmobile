@@ -7,6 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { AuthProvider } from "@/contexts/auth-context";
+import { NotificationProvider } from "@/contexts/notification-context";
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -16,6 +17,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={DefaultTheme}>
       <AuthProvider>
+        <NotificationProvider>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
@@ -25,6 +27,7 @@ export default function RootLayout() {
           <Stack.Screen name="reset-password/index" />
           <Stack.Screen name="professional-home/index" />
           <Stack.Screen name="professional-notifications" />
+          <Stack.Screen name="client-notifications" />
           <Stack.Screen name="profile/index" />
           <Stack.Screen name="edit-profile/index" />
           <Stack.Screen name="address" />
@@ -42,6 +45,7 @@ export default function RootLayout() {
             options={{ presentation: "modal", title: "Modal" }}
           />
         </Stack>
+        </NotificationProvider>
         <StatusBar style="dark" />
       </AuthProvider>
     </ThemeProvider>

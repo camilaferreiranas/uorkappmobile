@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { Colors } from "../../constants/theme";
+import { useNotifications } from "../../contexts/notification-context";
 import { aceitarProposta } from "../../services/propostaService";
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
@@ -21,6 +22,7 @@ const urgencyColors: Record<string, { bg: string; text: string }> = {
 
 export default function DemandDetailsScreen() {
   const router = useRouter();
+  const { sincronizarPrestador } = useNotifications();
   const params = useLocalSearchParams<{
     id: string;
     title: string;
@@ -51,6 +53,7 @@ export default function DemandDetailsScreen() {
     try {
       await aceitarProposta(propostaId);
       setStatus("accepted");
+      void sincronizarPrestador();
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Não foi possível aceitar a proposta.");
     } finally {

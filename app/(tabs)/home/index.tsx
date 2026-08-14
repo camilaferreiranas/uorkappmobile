@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -16,6 +16,7 @@ import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors } from "../../../constants/theme";
 import { useAuth } from "../../../contexts/auth-context";
+import { useNotifications } from "../../../contexts/notification-context";
 
 import {
   buscarPrestadoresProximos,
@@ -37,9 +38,11 @@ const categories = [
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { notificacoesCliente, naoLidasCliente } = useNotifications();
   const [professionals, setProfessionals] = useState<Prestador[]>([]);
   const [loadingProfessionals, setLoadingProfessionals] = useState(true);
   const [professionalsError, setProfessionalsError] = useState("");
+  const ultimaNotificacao = notificacoesCliente.find((notificacao) => !notificacao.lida) ?? null;
 
 
   useEffect(() => {
@@ -61,6 +64,7 @@ export default function HomeScreen() {
 
     carregarProfissionais();
   }, []);
+
   
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -79,20 +83,55 @@ export default function HomeScreen() {
               Encontre o profissional ideal para você
             </Text>
           </View>
-          <TouchableOpacity
-            style={styles.avatar}
-            onPress={() => router.push("/(tabs)/perfil")}
-            activeOpacity={0.75}
-            accessibilityRole="button"
-            accessibilityLabel="Abrir perfil"
-          >
-
-            <Text style={styles.avatarText}>
-              {user?.nome?.substring(0, 2).toUpperCase() ?? "US"}
-            </Text>
-
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => router.push("/client-notifications" as Href)}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel={`Notificações: ${naoLidasCliente} não lidas`}
+            >
+              <MaterialIcons name="notifications-none" size={23} color="#fff" />
+              {naoLidasCliente > 0 ? (
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationBadgeText}>
+                    {naoLidasCliente > 99 ? "99+" : naoLidasCliente}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.avatar}
+              onPress={() => router.push("/(tabs)/perfil")}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir perfil"
+            >
+              <Text style={styles.avatarText}>
+                {user?.nome?.substring(0, 2).toUpperCase() ?? "US"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {ultimaNotificacao ? (
+          <TouchableOpacity
+            style={styles.notificationCard}
+            onPress={() => router.push("/client-notifications" as Href)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.notificationCardIcon}>
+              <MaterialIcons name="check-circle-outline" size={22} color={Colors.primary} />
+            </View>
+            <View style={styles.notificationCardContent}>
+              <Text style={styles.notificationCardTitle}>{ultimaNotificacao.titulo}</Text>
+              <Text style={styles.notificationCardMessage} numberOfLines={2}>
+                {ultimaNotificacao.mensagem}
+              </Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
+          </TouchableOpacity>
+        ) : null}
 
         {/* Toggle Cliente/Profissional */}
         <View style={styles.switchRow}>
@@ -197,6 +236,38 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    backgroundColor: "#B3261E",
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationBadgeText: {
+    color: "#fff",
+    fontSize: 9,
+    fontWeight: "800",
+  },
   welcome: {
     color: Colors.white,
     fontSize: 22,
@@ -222,6 +293,40 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: "800",
     fontSize: 16,
+  },
+  notificationCard: {
+    marginHorizontal: 22,
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 16,
+    backgroundColor: "#FFF8F5",
+    borderWidth: 1,
+    borderColor: "#FFDCCF",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  notificationCardIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: "#FFE7DE",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationCardContent: {
+    flex: 1,
+  },
+  notificationCardTitle: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  notificationCardMessage: {
+    color: "#5E6472",
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 3,
   },
   switchRow: {
     flexDirection: "row",

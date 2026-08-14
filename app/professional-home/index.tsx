@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { type Href, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,10 +16,7 @@ import {
 import { SectionHeader } from "../../components/ui/section-header";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
-import {
-  buscarNotificacoes,
-  type Notificacao,
-} from "../../services/notificacaoService";
+import { useNotifications } from "../../contexts/notification-context";
 import {
   atualizarLocalizacaoPrestador,
   verificarCadastroPrestador,
@@ -79,6 +77,11 @@ const urgencyStyle: Record<string, { bg: string; text: string }> = {
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const {
+    notificacoesPrestador,
+    naoLidasPrestador,
+    sincronizarPrestador,
+  } = useNotifications();
   const { width } = useWindowDimensions();
   const isSmall = width < 360;
   const [localizacaoStatus, setLocalizacaoStatus] = useState<
@@ -90,8 +93,8 @@ export default function ProfessionalHomeScreen() {
   const [cadastroStatus, setCadastroStatus] = useState<
     "carregando" | "prestador" | "cliente" | "erro"
   >("carregando");
-  const [notificacoesNaoLidas, setNotificacoesNaoLidas] = useState(0);
-  const [ultimaNotificacao, setUltimaNotificacao] = useState<Notificacao | null>(null);
+  const ultimaNotificacao =
+    notificacoesPrestador.find((notificacao) => !notificacao.lida) ?? null;
 
   useEffect(() => {
     let active = true;
@@ -137,33 +140,11 @@ export default function ProfessionalHomeScreen() {
     };
   }, []);
 
-  useEffect(() => {
-    if (cadastroStatus !== "prestador") return;
-
-    let active = true;
-
-    async function atualizarContador() {
-      try {
-        const data = await buscarNotificacoes();
-        if (active) {
-          setNotificacoesNaoLidas(data.naoLidas);
-          setUltimaNotificacao(
-            data.notificacoes.find((notificacao) => !notificacao.lida) ?? null
-          );
-        }
-      } catch {
-        // O painel continua disponível mesmo se o contador falhar.
-      }
-    }
-
-    void atualizarContador();
-    const interval = setInterval(() => void atualizarContador(), 15000);
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-    };
-  }, [cadastroStatus]);
+  useFocusEffect(
+    useCallback(() => {
+      if (cadastroStatus === "prestador") void sincronizarPrestador();
+    }, [cadastroStatus, sincronizarPrestador])
+  );
 
   if (cadastroStatus === "carregando") {
     return (
@@ -267,13 +248,13 @@ export default function ProfessionalHomeScreen() {
               style={styles.notificationButton}
               onPress={() => router.push("/professional-notifications" as Href)}
               accessibilityRole="button"
-              accessibilityLabel={`Notificações: ${notificacoesNaoLidas} não lidas`}
+              accessibilityLabel={`Notificações: ${naoLidasPrestador} não lidas`}
             >
               <MaterialIcons name="notifications-none" size={23} color="#D1E0FF" />
-              {notificacoesNaoLidas > 0 ? (
+              {naoLidasPrestador > 0 ? (
                 <View style={styles.notificationBadge}>
                   <Text style={styles.notificationBadgeText}>
-                    {notificacoesNaoLidas > 99 ? "99+" : notificacoesNaoLidas}
+                    {naoLidasPrestador > 99 ? "99+" : naoLidasPrestador}
                   </Text>
                 </View>
               ) : null}

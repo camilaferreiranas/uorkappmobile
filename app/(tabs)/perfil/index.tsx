@@ -16,7 +16,7 @@ const menuItems = [
   { icon: "edit", label: "Editar perfil" },
   { icon: "location-on", label: "Meu endereço" },
   { icon: "notifications", label: "Notificações" },
-  { icon: "payment", label: "Formas de pagamento" },
+  // { icon: "payment", label: "Formas de pagamento" },
   { icon: "history", label: "Histórico de serviços" },
   { icon: "help-outline", label: "Ajuda e suporte" },
   { icon: "logout", label: "Sair da conta" },
@@ -34,6 +34,11 @@ export default function PerfilScreen() {
 
     if (label === "Meu endereço") {
       router.push("/address");
+      return;
+    }
+
+    if (label === "Notificações") {
+      router.push("/client-notifications");
       return;
     }
 
