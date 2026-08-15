@@ -79,6 +79,17 @@ export interface DemandaProfissional {
   dataCriacao: string;
 }
 
+export interface HistoricoCliente {
+  propostaId: number;
+  prestadorId: number;
+  titulo: string;
+  descricao: string;
+  nomePrestador: string;
+  valor: number;
+  status: StatusProposta;
+  dataCriacao: string;
+}
+
 export async function buscarDemandasDoPrestador(): Promise<DemandaProfissional[]> {
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
@@ -93,6 +104,28 @@ export async function buscarDemandasDoPrestador(): Promise<DemandaProfissional[]
   if (!response.ok || !json?.success) {
     throw new Error(
       json?.erros?.[0] ?? json?.message ?? "Não foi possível carregar as demandas."
+    );
+  }
+
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function buscarHistoricoDoCliente(): Promise<HistoricoCliente[]> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/cliente/historico`, {
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ??
+        json?.message ??
+        "Não foi possível carregar o histórico de serviços."
     );
   }
 

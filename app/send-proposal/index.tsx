@@ -25,16 +25,26 @@ const professionalServices = [
 
 export default function SendProposalScreen() {
   const router = useRouter();
-  const { prestadorId, professional, service } = useLocalSearchParams<{
+  const {
+    prestadorId,
+    professional,
+    service,
+    initialTitle,
+    initialDescription,
+    initialBudget,
+  } = useLocalSearchParams<{
     prestadorId: string;
     professional: string;
     service: string;
+    initialTitle?: string;
+    initialDescription?: string;
+    initialBudget?: string;
   }>();
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState(initialTitle ?? "");
+  const [description, setDescription] = useState(initialDescription ?? "");
   const [selectedService, setSelectedService] = useState(service ?? "");
-  const [budget, setBudget] = useState("");
+  const [budget, setBudget] = useState(initialBudget ?? "");
   const [enviando, setEnviando] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -76,7 +86,7 @@ export default function SendProposalScreen() {
 
       setSubmitted(true);
       setTimeout(() => router.back(), 2000);
-    } catch (error) {
+    } catch {
       Alert.alert("Erro", "Não foi possível enviar a proposta. Tente novamente.");
     } finally {
       setEnviando(false);

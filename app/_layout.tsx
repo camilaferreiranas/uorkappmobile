@@ -28,6 +28,7 @@ export default function RootLayout() {
           <Stack.Screen name="professional-home/index" />
           <Stack.Screen name="professional-notifications" />
           <Stack.Screen name="client-notifications" />
+          <Stack.Screen name="client-history" />
           <Stack.Screen name="profile/index" />
           <Stack.Screen name="edit-profile/index" />
           <Stack.Screen name="address" />

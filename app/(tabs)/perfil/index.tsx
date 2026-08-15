@@ -42,6 +42,11 @@ export default function PerfilScreen() {
       return;
     }
 
+    if (label === "Histórico de serviços") {
+      router.push("/client-history");
+      return;
+    }
+
     if (label === "Sair da conta") {
       await logout();
       router.replace("/login");

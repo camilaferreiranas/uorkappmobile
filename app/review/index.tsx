@@ -1,7 +1,10 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from "react-native";
 import { Colors } from "../../constants/theme";
@@ -20,21 +23,39 @@ const qualityTags = [
 ];
 
 export default function ReviewScreen() {
+  const router = useRouter();
+  const { professional } = useLocalSearchParams<{ professional?: string }>();
+  const professionalName = professional?.trim() || "Prestador";
+  const partesNome = professionalName.split(/\s+/);
+  const initials = `${partesNome[0]?.[0] ?? "P"}${
+    partesNome.length > 1 ? partesNome.at(-1)?.[0] ?? "" : ""
+  }`.toUpperCase();
   const [rating, setRating] = useState(0);
   const [selectedTag, setSelectedTag] = useState("");
   const [comment, setComment] = useState("");
 
   return (
     <ScreenContainer backgroundColor="#F7F7F7">
-      <Text style={styles.pageTitle}>Avaliação</Text>
+      <View style={styles.pageHeader}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
+        >
+          <MaterialIcons name="arrow-back" size={23} color={Colors.black} />
+        </TouchableOpacity>
+        <Text style={styles.pageTitle}>Avaliação</Text>
+        <View style={styles.headerSpacer} />
+      </View>
       
       <Card style={styles.profileCard}>
         <View style={styles.profileAvatar}>
-          <Text style={styles.profileAvatarText}>RO</Text>
+          <Text style={styles.profileAvatarText}>{initials}</Text>
         </View>
         <View style={styles.profileInfo}>
-          <Text style={styles.profileName}>Rafael Oliveira</Text>
-          <Text style={styles.profileRole}>Eletricista Profissional</Text>
+          <Text style={styles.profileName}>{professionalName}</Text>
+          <Text style={styles.profileRole}>Prestador de serviço</Text>
         </View>
       </Card>
 
@@ -76,11 +97,24 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
+  pageHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  backButton: {
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerSpacer: { width: 42 },
   pageTitle: {
+    flex: 1,
     fontSize: 28,
     fontWeight: "800",
     color: Colors.black,
-    marginBottom: 24,
+    textAlign: "center",
   },
   profileCard: {
     padding: 18,

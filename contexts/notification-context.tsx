@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { AppState } from "react-native";
 import { API_URL } from "../services/api_url";
 import {
   buscarNotificacoes,
@@ -66,6 +67,15 @@ function lerMensagemRealtime(message: IMessage): NotificacaoRealtime | null {
   }
 }
 
+function lerNotificacao(message: IMessage): Notificacao | null {
+  try {
+    const recebida = JSON.parse(message.body) as Notificacao;
+    return typeof recebida?.id === "number" ? recebida : null;
+  } catch {
+    return null;
+  }
+}
+
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [notificacoesCliente, setNotificacoesCliente] = useState<Notificacao[]>([]);
@@ -115,19 +125,39 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           if (encerrado || !stompClient) return;
           setConectado(true);
 
+          const adicionarCliente = (notificacao: Notificacao) => {
+            setNotificacoesCliente((atuais) =>
+              adicionarSemDuplicar(atuais, notificacao)
+            );
+          };
+
+          const adicionarPrestador = (notificacao: Notificacao) => {
+            setNotificacoesPrestador((atuais) =>
+              adicionarSemDuplicar(atuais, notificacao)
+            );
+          };
+
           stompClient.subscribe("/user/queue/notificacoes", (message) => {
             const recebida = lerMensagemRealtime(message);
             if (!recebida) return;
 
             if (recebida.contexto === "CLIENTE") {
-              setNotificacoesCliente((atuais) =>
-                adicionarSemDuplicar(atuais, recebida.notificacao)
-              );
+              adicionarCliente(recebida.notificacao);
             } else {
-              setNotificacoesPrestador((atuais) =>
-                adicionarSemDuplicar(atuais, recebida.notificacao)
-              );
+              adicionarPrestador(recebida.notificacao);
             }
+          });
+
+          // Compatibilidade com instancias do backend que ainda publicam
+          // nos destinos separados usados antes da fila unificada.
+          stompClient.subscribe("/user/queue/notificacoes/cliente", (message) => {
+            const recebida = lerNotificacao(message);
+            if (recebida) adicionarCliente(recebida);
+          });
+
+          stompClient.subscribe("/user/queue/notificacoes/prestador", (message) => {
+            const recebida = lerNotificacao(message);
+            if (recebida) adicionarPrestador(recebida);
           });
 
           void Promise.allSettled([sincronizarCliente(), sincronizarPrestador()]);
@@ -147,6 +177,35 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       encerrado = true;
       setConectado(false);
       if (stompClient) void stompClient.deactivate();
+    };
+  }, [sincronizarCliente, sincronizarPrestador, user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const sincronizarAoRetornar = () => {
+      void Promise.allSettled([sincronizarCliente(), sincronizarPrestador()]);
+    };
+
+    const appStateSubscription = AppState.addEventListener("change", (estado) => {
+      if (estado === "active") sincronizarAoRetornar();
+    });
+
+    const aoAlterarVisibilidade = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        sincronizarAoRetornar();
+      }
+    };
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", aoAlterarVisibilidade);
+    }
+
+    return () => {
+      appStateSubscription.remove();
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", aoAlterarVisibilidade);
+      }
     };
   }, [sincronizarCliente, sincronizarPrestador, user]);
 
