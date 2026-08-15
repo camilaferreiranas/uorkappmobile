@@ -5,13 +5,14 @@ import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ProfileScreenHeader } from "../components/ui/profile-screen-header";
 import { Colors } from "../constants/theme";
 import {
   buscarHistoricoDoCliente,
@@ -132,22 +133,11 @@ export default function ClientHistoryScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Voltar"
-        >
-          <MaterialIcons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Histórico de serviços</Text>
-          <Text style={styles.headerSubtitle}>Acompanhe todas as suas solicitações</Text>
-        </View>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <ProfileScreenHeader
+        title="Histórico de serviços"
+        subtitle="Acompanhe todas as suas solicitações"
+      />
 
       {carregando ? (
         <View style={styles.centerState}>
@@ -280,18 +270,6 @@ export default function ClientHistoryScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
-  header: {
-    minHeight: 88,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  backButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  headerContent: { flex: 1, alignItems: "center" },
-  headerSpacer: { width: 44 },
-  headerTitle: { color: "#fff", fontSize: 20, fontWeight: "800" },
-  headerSubtitle: { color: "#FFE4D8", fontSize: 12, marginTop: 3, textAlign: "center" },
   centerState: {
     flex: 1,
     alignItems: "center",

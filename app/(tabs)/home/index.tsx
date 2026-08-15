@@ -3,7 +3,6 @@ import { type Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { CategoryCard } from "../../../components/ui/category-card";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
@@ -37,6 +37,7 @@ const categories = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const { notificacoesCliente, naoLidasCliente } = useNotifications();
   const [professionals, setProfessionals] = useState<Prestador[]>([]);
@@ -67,13 +68,13 @@ export default function HomeScreen() {
 
   
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <View style={styles.headerText}>
 
 
@@ -226,7 +227,6 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: Colors.primary,
     paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 24,
     flexDirection: "row",
     alignItems: "flex-start",

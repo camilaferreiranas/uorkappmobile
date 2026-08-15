@@ -1,17 +1,17 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ProfileScreenHeader } from "../components/ui/profile-screen-header";
 import { Colors } from "../constants/theme";
 import { useNotifications } from "../contexts/notification-context";
 import {
@@ -19,7 +19,6 @@ import {
 } from "../services/notificacaoService";
 
 export default function ClientNotificationsScreen() {
-  const router = useRouter();
   const {
     notificacoesCliente: notificacoes,
     sincronizarCliente,
@@ -73,14 +72,8 @@ export default function ClientNotificationsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notificações</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <ProfileScreenHeader title="Notificações" />
 
       {carregando ? (
         <View style={styles.centerState}>
@@ -152,17 +145,6 @@ export default function ClientNotificationsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
-  header: {
-    minHeight: 72,
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  backButton: { width: 42, height: 42, alignItems: "center", justifyContent: "center" },
-  headerSpacer: { width: 42 },
-  headerTitle: { color: "#fff", fontSize: 20, fontWeight: "800" },
   centerState: {
     flex: 1,
     alignItems: "center",

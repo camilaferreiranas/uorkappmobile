@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { SectionHeader } from "../../components/ui/section-header";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
@@ -76,6 +76,7 @@ const urgencyStyle: Record<string, { bg: string; text: string }> = {
 
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { user } = useAuth();
   const {
     notificacoesPrestador,
@@ -148,7 +149,7 @@ export default function ProfessionalHomeScreen() {
 
   if (cadastroStatus === "carregando") {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0D3D8B" />
           <Text style={styles.loadingText}>Verificando cadastro profissional...</Text>
@@ -159,9 +160,9 @@ export default function ProfessionalHomeScreen() {
 
   if (cadastroStatus === "cliente") {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
         <ScrollView contentContainerStyle={styles.nonProfessionalContainer}>
-          <View style={styles.header}>
+          <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
             <View style={styles.headerLeft}>
               <Text style={[styles.headerTitle, isSmall && { fontSize: 18 }]}>
                 Olá, {user?.nome ?? "usuário"} 👋
@@ -214,7 +215,7 @@ export default function ProfessionalHomeScreen() {
 
   if (cadastroStatus === "erro") {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
         <View style={styles.loadingContainer}>
           <MaterialIcons name="error-outline" size={42} color="#B3261E" />
           <Text style={styles.statusErrorTitle}>Não foi possível verificar seu cadastro</Text>
@@ -230,13 +231,13 @@ export default function ProfessionalHomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
         {/* ── Header ── */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <View style={styles.headerLeft}>
             <Text style={[styles.headerTitle, isSmall && { fontSize: 18 }]}>
               Olá, {user?.nome ?? "profissional"} 👋
@@ -520,7 +521,6 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#0D3D8B",
     paddingHorizontal: 20,
-    paddingTop: 20,
     paddingBottom: 24,
     flexDirection: "row",
     justifyContent: "space-between",
