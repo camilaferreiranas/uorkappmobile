@@ -10,6 +10,16 @@ export interface Prestador {
   distanciaKm: number | null;
 }
 
+export interface PaginaPrestadores {
+  content: Prestador[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
 export interface LocalizacaoPrestador {
   latitude: number;
   longitude: number;
@@ -41,7 +51,7 @@ export async function verificarCadastroPrestador(): Promise<boolean> {
   return json.data === true;
 }
 
-async function buscarPrestadores(url: string): Promise<Prestador[]> {
+async function buscarPaginaPrestadores(url: string): Promise<PaginaPrestadores> {
   const storedToken = await getToken();
 
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
@@ -64,15 +74,35 @@ async function buscarPrestadores(url: string): Promise<Prestador[]> {
     );
   }
 
-  return json?.data?.content ?? [];
+  const data = json?.data;
+  return {
+    content: Array.isArray(data?.content) ? data.content : [],
+    page: Number(data?.page ?? 0),
+    size: Number(data?.size ?? 0),
+    totalElements: Number(data?.totalElements ?? 0),
+    totalPages: Number(data?.totalPages ?? 0),
+    first: data?.first !== false,
+    last: data?.last !== false,
+  };
+}
+
+async function buscarPrestadores(url: string): Promise<Prestador[]> {
+  return (await buscarPaginaPrestadores(url)).content;
 }
 
 export async function buscarPrestadoresProximos(): Promise<Prestador[]> {
+  return (await buscarPaginaPrestadoresProximos()).content;
+}
+
+export async function buscarPaginaPrestadoresProximos(
+  page = 0,
+  size = 10
+): Promise<PaginaPrestadores> {
   const localizacao = await obterLocalizacaoAtual();
 
   const params = new URLSearchParams({
-    page: "0",
-    size: "10",
+    page: String(page),
+    size: String(size),
   });
 
   if (localizacao) {
@@ -80,7 +110,7 @@ export async function buscarPrestadoresProximos(): Promise<Prestador[]> {
     params.set("longitude", String(localizacao.longitude));
   }
 
-  return buscarPrestadores(
+  return buscarPaginaPrestadores(
     `${API_URL}/prestadores?${params.toString()}`
   );
 }

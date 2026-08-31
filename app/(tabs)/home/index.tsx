@@ -182,6 +182,7 @@ export default function HomeScreen() {
         <SectionHeader
           title="Profissionais próximos"
           subtitle="Ver todos"
+          onSubtitlePress={() => router.push("/nearby-professionals" as Href)}
           style={styles.sectionHeader}
         />
         <View style={styles.professionalsContainer}>

@@ -1,19 +1,30 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/theme';
 
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
+  onSubtitlePress?: () => void;
   style?: any;
 }
 
-export function SectionHeader({ title, subtitle, style }: SectionHeaderProps) {
+export function SectionHeader({ title, subtitle, onSubtitlePress, style }: SectionHeaderProps) {
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.title}>{title}</Text>
-      {subtitle && (
+      {subtitle && onSubtitlePress ? (
+        <TouchableOpacity
+          onPress={onSubtitlePress}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={subtitle}
+          hitSlop={10}
+        >
+          <Text style={styles.subtitle}>{subtitle}</Text>
+        </TouchableOpacity>
+      ) : subtitle ? (
         <Text style={styles.subtitle}>{subtitle}</Text>
-      )}
+      ) : null}
     </View>
   );
 }
