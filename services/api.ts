@@ -1,4 +1,5 @@
 import { API_URL } from "./api_url";
+import { getToken } from "./token-storage";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -152,7 +153,14 @@ export async function updateUserProfile(
 
 export async function getAddressByCep(cep: string): Promise<CepResult> {
   const normalizedCep = cep.replace(/\D/g, "");
-  const response = await fetch(`${API_URL}/enderecos/cep/${normalizedCep}`);
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/enderecos/cep/${normalizedCep}`, {
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
   const json: ApiResponse<CepResult> | ApiError = await response.json();
 
   if (!response.ok) {

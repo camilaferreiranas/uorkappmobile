@@ -26,6 +26,19 @@ export interface LocalizacaoPrestador {
   atualizadaEm: string;
 }
 
+export interface CadastroPrestadorPayload {
+  descricao: string;
+  categoriasIds: number[];
+  endereco: {
+    cep: string;
+    rua: string;
+    numero: string;
+    bairro: string;
+    cidade: string;
+    estado: string;
+  };
+}
+
 export async function verificarCadastroPrestador(): Promise<boolean> {
   const storedToken = await getToken();
 
@@ -49,6 +62,33 @@ export async function verificarCadastroPrestador(): Promise<boolean> {
   }
 
   return json.data === true;
+}
+
+export async function cadastrarPrestador(
+  payload: CadastroPrestadorPayload
+): Promise<void> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/prestadores`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${storedToken.accessToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ??
+        json?.message ??
+        "Não foi possível concluir o cadastro profissional."
+    );
+  }
 }
 
 async function buscarPaginaPrestadores(url: string): Promise<PaginaPrestadores> {

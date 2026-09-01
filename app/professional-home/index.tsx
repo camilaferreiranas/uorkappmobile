@@ -4,7 +4,6 @@ import { type Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -194,12 +193,7 @@ export default function ProfessionalHomeScreen() {
             <Text style={styles.professionalInviteTitle}>Torne-se um profissional</Text>
             <TouchableOpacity
               style={styles.professionalInviteButton}
-              onPress={() =>
-                Alert.alert(
-                  "Cadastro profissional",
-                  "O formulário de cadastro profissional será aberto nesta opção."
-                )
-              }
+              onPress={() => router.push("/professional-registration" as Href)}
               activeOpacity={0.8}
               accessibilityRole="button"
             >
