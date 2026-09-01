@@ -4,6 +4,8 @@ import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  Linking,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -15,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileScreenHeader } from "../components/ui/profile-screen-header";
 import { Colors } from "../constants/theme";
 import {
+  buscarContatoWhatsApp,
   buscarHistoricoDoCliente,
   type HistoricoCliente,
   type StatusProposta,
@@ -71,6 +74,7 @@ export default function ClientHistoryScreen() {
   const [filtro, setFiltro] = useState<FiltroHistorico>("TODOS");
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
+  const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
   const [erro, setErro] = useState("");
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
@@ -130,6 +134,24 @@ export default function ClientHistoryScreen() {
         initialBudget: Number(item.valor).toFixed(2).replace(".", ","),
       },
     });
+  }
+
+  async function conversarNoWhatsApp(item: HistoricoCliente) {
+    setAbrindoWhatsAppId(item.propostaId);
+
+    try {
+      const contato = await buscarContatoWhatsApp(item.propostaId);
+      await Linking.openURL(contato.whatsappUrl);
+    } catch (error) {
+      Alert.alert(
+        "Não foi possível abrir o WhatsApp",
+        error instanceof Error
+          ? error.message
+          : "Tente novamente em alguns instantes."
+      );
+    } finally {
+      setAbrindoWhatsAppId(null);
+    }
   }
 
   return (
@@ -230,6 +252,26 @@ export default function ClientHistoryScreen() {
                       <Text style={styles.dateText}>{formatarData(item.dataCriacao)}</Text>
                     </View>
                   </View>
+
+                  {item.status === "ACEITA" ? (
+                    <TouchableOpacity
+                      style={styles.whatsappButton}
+                      onPress={() => void conversarNoWhatsApp(item)}
+                      disabled={abrindoWhatsAppId === item.propostaId}
+                      activeOpacity={0.8}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Conversar com ${item.nomePrestador} pelo WhatsApp`}
+                    >
+                      {abrindoWhatsAppId === item.propostaId ? (
+                        <ActivityIndicator color="#fff" size="small" />
+                      ) : (
+                        <MaterialIcons name="chat" size={19} color="#fff" />
+                      )}
+                      <Text style={styles.whatsappButtonText}>
+                        Conversar no WhatsApp
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
 
                   <View style={styles.actionsRow}>
                     <TouchableOpacity
@@ -339,6 +381,18 @@ const styles = StyleSheet.create({
   valueText: { color: Colors.primary, fontSize: 16, fontWeight: "800" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5, flexShrink: 1 },
   dateText: { color: "#777780", fontSize: 11 },
+  whatsappButton: {
+    minHeight: 46,
+    borderRadius: 12,
+    backgroundColor: "#1FA855",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 14,
+    paddingHorizontal: 14,
+  },
+  whatsappButtonText: { color: "#fff", fontSize: 13, fontWeight: "800" },
   actionsRow: {
     flexDirection: "row",
     gap: 9,
