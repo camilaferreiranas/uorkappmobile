@@ -131,6 +131,26 @@ export async function buscarPrestadoresCategoria(categoriaId: number): Promise<P
   return buscarPrestadores(`${API_URL}/prestadores?${params.toString()}`);
 }
 
+export async function buscarPrestadoresPorTermo(
+  busca: string,
+  page = 0,
+  size = 30
+): Promise<PaginaPrestadores> {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+  const termo = busca.trim();
+
+  if (termo) {
+    params.set("busca", termo);
+  }
+
+  return buscarPaginaPrestadores(
+    `${API_URL}/prestadores?${params.toString()}`
+  );
+}
+
 export async function atualizarLocalizacaoPrestador(): Promise<LocalizacaoPrestador> {
   const [localizacao, storedToken] = await Promise.all([
     obterLocalizacaoAtual(),
