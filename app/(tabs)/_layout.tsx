@@ -1,11 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
+import { useAuth } from "@/contexts/auth-context";
 
 function TabIcon({
   name,
@@ -34,7 +35,11 @@ function TabIcon({
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { user, loading } = useAuth();
   const bottomPadding = Math.max(insets.bottom, 10);
+
+  if (loading) return null;
+  if (!user) return <Redirect href="/login" />;
 
   return (
     <Tabs

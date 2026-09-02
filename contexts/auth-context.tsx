@@ -25,15 +25,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-async function loadProfile(auth: AuthResponse): Promise<UserProfile> {
-  const profile = await getUserProfile(auth.accessToken);
-
-  // Persiste por último para que uma restauração antiga não apague
-  // o token da sessão que acabou de ser autenticada.
-  await saveToken(auth.accessToken, auth.expiresIn);
-  return profile;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,20 +52,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function authenticate(request: () => Promise<AuthResponse>) {
+    const operation = authOperation.current + 1;
+    authOperation.current = operation;
+    setLoading(true);
+    setUser(null);
+
+    try {
+      // A conta anterior deixa de ser válida antes de iniciar uma nova autenticação.
+      await clearToken();
+
+      const auth = await request();
+      const profile = await getUserProfile(auth.accessToken);
+
+      if (operation !== authOperation.current) {
+        throw new Error("Autenticação cancelada.");
+      }
+
+      await saveToken(auth.accessToken, auth.expiresIn);
+
+      if (operation !== authOperation.current) {
+        throw new Error("Autenticação cancelada.");
+      }
+
+      setUser(profile);
+    } catch (error) {
+      if (operation === authOperation.current) {
+        setUser(null);
+        await clearToken().catch(() => undefined);
+      }
+      throw error;
+    } finally {
+      if (operation === authOperation.current) setLoading(false);
+    }
+  }
+
   async function login(email: string, senha: string) {
-    const auth = await loginRequest({ email, senha });
-    authOperation.current += 1;
-    const profile = await loadProfile(auth);
-    setUser(profile);
-    setLoading(false);
+    await authenticate(() => loginRequest({ email, senha }));
   }
 
   async function loginWithGoogle(payload: GoogleAuthPayload) {
-    const auth = await loginWithGoogleRequest(payload);
-    authOperation.current += 1;
-    const profile = await loadProfile(auth);
-    setUser(profile);
-    setLoading(false);
+    await authenticate(() => loginWithGoogleRequest(payload));
   }
 
   async function updateProfile(payload: UpdateUserProfilePayload) {
@@ -101,8 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function logout() {
     authOperation.current += 1;
-    await clearToken();
     setUser(null);
+    setLoading(false);
+    await clearToken();
   }
 
   return (
