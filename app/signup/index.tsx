@@ -5,7 +5,6 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { AuthHeader } from "../../components/ui/auth-header";
-import { Card } from "../../components/ui/card";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,13 +48,12 @@ export default function SignupScreen() {
 
   return (
     <ScreenContainer>
-      <AuthHeader 
-        title="Criar Conta" 
-        subtitle="Preencha seus dados para criar sua conta." 
+      <AuthHeader
+        title="Criar conta"
+        subtitle="Preencha seus dados para criar sua conta."
       />
 
-      <Card>
-        <Input
+      <Input
           label="Nome completo"
           value={fullName}
           onChangeText={setFullName}
@@ -101,9 +99,9 @@ export default function SignupScreen() {
           title="Criar conta"
           onPress={() => router.replace("/home")}
           disabled={!isFormValid}
+          disabledReason="Preencha nome completo, e-mail válido e senha (mín. 8 caracteres) iguais nos dois campos."
           style={styles.submitButton}
         />
-      </Card>
     </ScreenContainer>
   );
 }

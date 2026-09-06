@@ -1,6 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Colors } from '../../constants/theme';
 
 interface StarRatingProps {
   rating: number;
@@ -10,23 +10,26 @@ interface StarRatingProps {
 
 const ratingLabels = ['Péssimo', 'Ruim', 'Regular', 'Bom', 'Excelente!'];
 
-export function StarRating({ rating, onRatingChange, size = 42 }: StarRatingProps) {
+export function StarRating({ rating, onRatingChange, size = 40 }: StarRatingProps) {
   return (
     <View style={styles.container}>
-      <View style={styles.starsRow}>
+      <View style={styles.starsRow} accessibilityRole="adjustable">
         {[1, 2, 3, 4, 5].map((value) => (
-          <TouchableOpacity
+          <Pressable
             key={value}
+            accessibilityRole="button"
+            accessibilityLabel={`${value} ${value === 1 ? 'estrela' : 'estrelas'}`}
+            accessibilityState={{ selected: rating >= value }}
             onPress={() => onRatingChange(value)}
             style={styles.starButton}
-            activeOpacity={0.7}
+            hitSlop={6}
           >
             <MaterialIcons
               name={rating >= value ? 'star' : 'star-border'}
               size={size}
-              color={rating >= value ? '#FFB800' : Colors.gray}
+              color={rating >= value ? Colors.rating : Colors.textMuted}
             />
-          </TouchableOpacity>
+          </Pressable>
         ))}
       </View>
       <Text style={styles.label}>
@@ -48,11 +51,15 @@ const styles = StyleSheet.create({
   },
   starButton: {
     padding: 4,
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
     marginTop: 12,
     fontSize: 16,
-    color: Colors.gray,
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
 });

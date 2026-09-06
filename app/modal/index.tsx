@@ -1,17 +1,20 @@
-import { Link } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { ThemedText } from '../../components/themed-text';
-import { ThemedView } from '../../components/themed-view';
+import { Button } from '../../components/ui/button';
+import { Colors } from '../../constants/theme';
 
 export default function ModalScreen() {
+  const router = useRouter();
+
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">This is a modal</ThemedText>
-      <Link href="/" dismissTo style={styles.link}>
-        <ThemedText type="link">Go to home screen</ThemedText>
-      </Link>
-    </ThemedView>
+    <View style={styles.container}>
+      <Text style={styles.title}>Uork</Text>
+      <Text style={styles.body}>
+        Simples. Confiável. Feito para você.
+      </Text>
+      <Button title="Fechar" variant="outline" onPress={() => router.back()} style={styles.button} />
+    </View>
   );
 }
 
@@ -20,10 +23,24 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
+    gap: 12,
+    backgroundColor: Colors.surfaceNeutral,
   },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
+  title: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: Colors.brandPrimary,
+    letterSpacing: 1,
+  },
+  body: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+  button: {
+    marginTop: 12,
+    width: 'auto',
+    paddingHorizontal: 32,
   },
 });

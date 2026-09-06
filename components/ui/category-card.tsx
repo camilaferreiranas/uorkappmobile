@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Colors, Radii } from '../../constants/theme';
 
 interface CategoryCardProps {
   title: string;
@@ -10,44 +10,48 @@ interface CategoryCardProps {
 
 export function CategoryCard({ title, icon, onPress }: CategoryCardProps) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      onPress={onPress}
+    >
       <View style={styles.iconWrapper}>
-        <MaterialIcons name={icon as any} size={24} color={Colors.primary} />
+        <MaterialIcons name={icon as any} size={22} color={Colors.brandPrimary} />
       </View>
-      <Text style={styles.label} numberOfLines={1}>{title}</Text>
-    </TouchableOpacity>
+      <Text style={styles.label} numberOfLines={1}>
+        {title}
+      </Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     width: '23%',
-    backgroundColor: Colors.white,
-    borderRadius: 18,
-    paddingVertical: 16,
-    paddingHorizontal: 8,
+    minHeight: 84,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    gap: 8,
     marginBottom: 12,
   },
+  pressed: {
+    opacity: 0.6,
+  },
   iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: '#FFE9E3',
+    width: 52,
+    height: 52,
+    borderRadius: Radii.md,
+    backgroundColor: Colors.surfaceNeutral,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#444',
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
 });

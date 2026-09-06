@@ -1,50 +1,42 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Colors } from "../../../constants/theme";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Chip, ChipRow } from "../../../components/ui/chip";
+import { ListCard } from "../../../components/ui/list-card";
 import { ScreenContainer } from "../../../components/ui/screen-container";
-import { CategoryCard } from "../../../components/ui/category-card";
-import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { SectionHeader } from "../../../components/ui/section-header";
+import { Colors, Radii } from "../../../constants/theme";
 
 const categories = [
-  { title: "Eletrônica", icon: "electrical-services" },
-  { title: "Beleza", icon: "brush" },
-  { title: "Limpeza", icon: "cleaning-services" },
-  { title: "Pintura", icon: "format-paint" },
-  { title: "Serviços", icon: "build" },
-  { title: "Instalação", icon: "plumbing" },
-  { title: "Jardinagem", icon: "grass" },
-  { title: "Reparo", icon: "handyman" },
+  { title: "Todos", icon: "apps" as const },
+  { title: "Eletrônica", icon: "electrical-services" as const },
+  { title: "Limpeza", icon: "cleaning-services" as const },
+  { title: "Pintura", icon: "format-paint" as const },
+  { title: "Jardinagem", icon: "grass" as const },
+  { title: "Reparos", icon: "handyman" as const },
 ];
 
 const professionals = [
   {
     name: "Raquel Oliveira",
-    role: "Técnica em eletricidade",
-    rating: 4.9,
-    distance: "1,2 km",
+    subtitle: "Eletricista · 1,2 km",
+    price: "A partir de R$ 120",
     initials: "RO",
+    rating: 4.9,
   },
   {
     name: "Marcos Costa",
-    role: "Encadernador",
-    rating: 4.7,
-    distance: "2,4 km",
+    subtitle: "Encanador · 2,4 km",
+    price: "A partir de R$ 90",
     initials: "MC",
+    rating: 4.7,
   },
   {
     name: "Lara Mendes",
-    role: "Faxineira",
-    rating: 4.8,
-    distance: "850 m",
+    subtitle: "Diarista · 850 m",
+    price: "A partir de R$ 140",
     initials: "LM",
+    rating: 4.8,
   },
 ];
 
@@ -52,66 +44,74 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <ScreenContainer backgroundColor="#F7F7F7" contentContainerStyle={styles.container}>
-      <View style={styles.header}>
+    <ScreenContainer contentContainerStyle={styles.container}>
+      <View style={styles.topBar}>
         <View>
-          <Text style={styles.welcome}>Olá, Mariana!</Text>
-          <Text style={styles.subtitle}>
-            Precisa de ajuda para encontrar profissionais?
-          </Text>
+          <Text style={styles.hello}>Olá, Mariana</Text>
+          <View style={styles.locationRow}>
+            <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
+            <Text style={styles.location}>Salvador, BA</Text>
+          </View>
         </View>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>MC</Text>
         </View>
       </View>
 
-      <View style={styles.switchRow}>
-        <TouchableOpacity
-          style={[styles.switchButton, styles.switchButtonActive]}
-        >
-          <Text style={[styles.switchLabel, styles.switchLabelActive]}>
-            Cliente
+      <Pressable
+        style={styles.search}
+        onPress={() => router.push("/search")}
+        accessibilityRole="search"
+        accessibilityLabel="Buscar profissionais ou serviços"
+      >
+        <MaterialIcons name="search" size={20} color={Colors.textSecondary} />
+        <Text style={styles.searchText}>Buscar profissionais ou serviços</Text>
+      </Pressable>
+
+      <View style={styles.chips}>
+        <ChipRow>
+          {categories.map((c, i) => (
+            <Chip
+              key={c.title}
+              label={c.title}
+              icon={c.icon}
+              active={i === 0}
+              onPress={() => router.push("/search")}
+            />
+          ))}
+        </ChipRow>
+      </View>
+
+      <View style={styles.demandCta}>
+        <View style={styles.demandCtaText}>
+          <Text style={styles.demandCtaTitle}>Publique uma demanda</Text>
+          <Text style={styles.demandCtaSub}>
+            Descreva o serviço e receba propostas de profissionais.
           </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.switchButton}
-          onPress={() => router.push("/professional-home")}
+        </View>
+        <Pressable
+          style={({ pressed }) => [styles.demandBtn, pressed && styles.demandBtnPressed]}
+          onPress={() => router.push("/publish-demand")}
+          accessibilityRole="button"
         >
-          <Text style={styles.switchLabel}>Profissional</Text>
-        </TouchableOpacity>
+          <MaterialIcons name="add" size={22} color={Colors.textOnBrand} />
+        </Pressable>
       </View>
 
-      <View style={styles.searchCard}>
-        <MaterialIcons name="search" size={20} color={Colors.gray} />
-        <TextInput
-          placeholder="Buscar profissionais, serviços ou categoria"
-          placeholderTextColor={Colors.gray}
-          style={styles.searchInput}
-        />
-      </View>
-
-      <SectionHeader title="Categorias" style={styles.sectionHeader} />
-      <View style={styles.categoriesGrid}>
-        {categories.slice(0, 8).map((category) => (
-          <CategoryCard 
-            key={category.title}
-            title={category.title}
-            icon={category.icon}
-          />
-        ))}
-      </View>
-
-      <SectionHeader 
-        title="Profissionais próximos" 
-        subtitle="Ver todos" 
-        style={styles.sectionHeader} 
+      <SectionHeader
+        title="Profissionais em destaque"
+        actionLabel="Ver todos"
+        onAction={() => router.push("/search")}
       />
-
-      {professionals.map((professional) => (
-        <ProfessionalCard 
-          key={professional.name}
-          {...professional}
-          buttonTitle="Contratar"
+      {professionals.map((p) => (
+        <ListCard
+          key={p.name}
+          title={p.name}
+          subtitle={p.subtitle}
+          subtitleIcon="work-outline"
+          price={p.price}
+          initials={p.initials}
+          rating={p.rating}
           onPress={() => router.push("/profile")}
         />
       ))}
@@ -121,96 +121,89 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 100,
+    paddingBottom: 110,
   },
-  header: {
-    backgroundColor: Colors.primary,
-    borderRadius: 28,
-    padding: 20,
+  topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
   },
-  welcome: {
-    color: Colors.white,
-    fontSize: 24,
+  hello: {
+    fontSize: 22,
     fontWeight: "800",
-    marginBottom: 8,
+    color: Colors.brandDark,
+    marginBottom: 2,
   },
-  subtitle: {
-    color: "#FFECE4",
-    fontSize: 14,
-    lineHeight: 20,
-    maxWidth: 220,
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+  },
+  location: {
+    fontSize: 13,
+    color: Colors.textSecondary,
   },
   avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "rgba(255,255,255,0.25)",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.brandPrimary,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarText: {
-    color: Colors.white,
+    color: Colors.textOnBrand,
     fontWeight: "800",
   },
-  searchCard: {
-    backgroundColor: Colors.white,
-    marginTop: -30,
-    borderRadius: 20,
-    padding: 14,
+  search: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: Colors.surfaceNeutral,
+    borderRadius: Radii.pill,
+    paddingHorizontal: 18,
+    minHeight: 52,
+    marginBottom: 16,
+  },
+  searchText: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+  },
+  chips: {
+    marginBottom: 24,
+  },
+  demandCta: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-    marginBottom: 24,
+    backgroundColor: Colors.brandDark,
+    borderRadius: Radii.xl,
+    padding: 18,
   },
-  searchInput: {
+  demandCtaText: {
     flex: 1,
-    fontSize: 16,
-    color: Colors.black,
   },
-  sectionHeader: {
-    marginHorizontal: 0,
-    marginBottom: 14,
+  demandCtaTitle: {
+    color: Colors.textOnBrand,
+    fontWeight: "800",
+    fontSize: 15,
+    marginBottom: 3,
   },
-  categoriesGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 4,
-    marginBottom: 24,
+  demandCtaSub: {
+    color: Colors.textOnBrandMuted,
+    fontSize: 12,
+    lineHeight: 17,
   },
-  switchRow: {
-    flexDirection: "row",
-    backgroundColor: Colors.white,
-    borderRadius: 18,
-    padding: 4,
-    marginBottom: 24,
-    alignSelf: "center",
-    width: "100%",
-  },
-  switchButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 16,
+  demandBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.brandPrimary,
     alignItems: "center",
     justifyContent: "center",
   },
-  switchButtonActive: {
-    backgroundColor: Colors.primary,
-  },
-  switchLabel: {
-    color: Colors.gray,
-    fontWeight: "700",
-  },
-  switchLabelActive: {
-    color: Colors.white,
+  demandBtnPressed: {
+    opacity: 0.85,
   },
 });

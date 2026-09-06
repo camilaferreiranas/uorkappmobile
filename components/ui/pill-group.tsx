@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Colors, Radii } from '../../constants/theme';
 
 interface PillGroupProps {
   label?: string;
@@ -13,18 +13,24 @@ export function PillGroup({ label, options, value, onSelect }: PillGroupProps) {
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       <View style={styles.row}>
-        {options.map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={[styles.pill, value === option && styles.pillActive]}
-            onPress={() => onSelect(option)}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.text, value === option && styles.textActive]}>
-              {option}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {options.map((option) => {
+          const active = value === option;
+          return (
+            <Pressable
+              key={option}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              style={({ pressed }) => [
+                styles.pill,
+                active && styles.pillActive,
+                pressed && !active && styles.pillPressed,
+              ]}
+              onPress={() => onSelect(option)}
+            >
+              <Text style={[styles.text, active && styles.textActive]}>{option}</Text>
+            </Pressable>
+          );
+        })}
       </View>
     </View>
   );
@@ -37,33 +43,38 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: Colors.black,
+    color: Colors.textPrimary,
     fontWeight: '700',
     marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 10,
   },
   pill: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: '30%',
+    minHeight: 44,
     paddingVertical: 12,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
+    paddingHorizontal: 12,
+    borderRadius: Radii.pill,
     alignItems: 'center',
-    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    backgroundColor: Colors.surfaceNeutral,
   },
   pillActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
+    backgroundColor: Colors.brandPrimary,
+  },
+  pillPressed: {
+    backgroundColor: Colors.brandTint,
   },
   text: {
     fontSize: 14,
-    color: Colors.black,
+    color: Colors.textPrimary,
     fontWeight: '700',
   },
   textActive: {
-    color: Colors.white,
+    color: Colors.textOnBrand,
   },
 });

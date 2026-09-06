@@ -1,12 +1,11 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import { Colors } from "../../constants/theme";
+import { Pressable, StyleSheet, Text } from "react-native";
+import { AuthHeader } from "../../components/ui/auth-header";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
-import { AuthHeader } from "../../components/ui/auth-header";
-import { Card } from "../../components/ui/card";
+import { Colors } from "../../constants/theme";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,13 +31,12 @@ export default function LoginScreen() {
 
   return (
     <ScreenContainer>
-      <AuthHeader 
-        title="Bem-vinda de volta" 
-        subtitle="Entre com seu e-mail e senha para acessar o dashboard." 
+      <AuthHeader
+        title="Acesse sua conta"
+        subtitle="Entre com seu e-mail e senha para continuar."
       />
 
-      <Card>
-        <Input
+      <Input
           label="E-mail"
           value={email}
           onChangeText={setEmail}
@@ -64,25 +62,27 @@ export default function LoginScreen() {
           title="Entrar"
           onPress={() => router.replace("/home")}
           disabled={!isFormValid}
+          disabledReason="Informe um e-mail válido e uma senha de ao menos 8 caracteres."
           style={styles.submitButton}
         />
 
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/forgot-password")}
           style={styles.link}
+          accessibilityRole="link"
+          hitSlop={8}
         >
           <Text style={styles.linkText}>Esqueci minha senha</Text>
-        </TouchableOpacity>
+        </Pressable>
 
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/signup")}
           style={styles.link}
+          accessibilityRole="link"
+          hitSlop={8}
         >
-          <Text style={styles.linkText}>
-            Ainda não tem conta? Criar conta
-          </Text>
-        </TouchableOpacity>
-      </Card>
+          <Text style={styles.linkText}>Ainda não tem conta? Criar conta</Text>
+        </Pressable>
     </ScreenContainer>
   );
 }
@@ -94,9 +94,11 @@ const styles = StyleSheet.create({
   link: {
     marginTop: 18,
     alignItems: "center",
+    minHeight: 44,
+    justifyContent: "center",
   },
   linkText: {
-    color: Colors.primary,
+    color: Colors.brandPrimary,
     fontWeight: "700",
   },
 });

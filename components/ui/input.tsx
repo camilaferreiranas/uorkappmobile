@@ -1,58 +1,88 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TextInputProps,
-  View,
-} from 'react-native';
-import { Colors } from '../../constants/theme';
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { Colors, Radii } from '../../constants/theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
+  /** Optional helper text shown when there is no error. */
+  hint?: string;
 }
 
-export function Input({ label, error, style, ...props }: InputProps) {
+export function Input({ label, error, hint, style, onFocus, onBlur, ...props }: InputProps) {
+  const [focused, setFocused] = useState(false);
+
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextInput
-        style={[styles.input, error ? styles.inputError : null, style]}
-        placeholderTextColor={Colors.gray}
+        style={[
+          styles.input,
+          focused && styles.inputFocused,
+          error ? styles.inputError : null,
+          style,
+        ]}
+        placeholderTextColor={Colors.textMuted}
+        accessibilityLabel={label}
+        onFocus={(e) => {
+          setFocused(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          onBlur?.(e);
+        }}
         {...props}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : hint ? (
+        <Text style={styles.hintText}>{hint}</Text>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 18,
+    marginBottom: 16,
     width: '100%',
   },
   label: {
-    color: Colors.text,
+    color: Colors.textPrimary,
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
   },
   input: {
-    backgroundColor: Colors.lightGray,
-    borderRadius: 16,
+    backgroundColor: Colors.surfaceNeutral,
+    borderRadius: Radii.md,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    color: Colors.black,
+    minHeight: 50,
+    color: Colors.textPrimary,
     fontSize: 16,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: 'transparent',
   },
+  inputFocused: {
+    borderColor: Colors.brandPrimary,
+    backgroundColor: Colors.surfaceWhite,
+  },
   inputError: {
-    borderColor: Colors.primary,
+    borderColor: Colors.error,
+    backgroundColor: Colors.errorSurface,
   },
   errorText: {
     marginTop: 6,
-    color: Colors.error,
+    color: Colors.errorText,
     fontSize: 13,
+    lineHeight: 18,
+  },
+  hintText: {
+    marginTop: 6,
+    color: Colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 18,
   },
 });

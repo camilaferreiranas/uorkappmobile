@@ -20,13 +20,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    color: Colors.white,
-    fontSize: 34,
+    color: Colors.brandDark,
+    fontSize: 32,
     fontWeight: '800',
     marginBottom: 8,
   },
   subtitle: {
-    color: Colors.textLight,
+    color: Colors.textSecondary,
     fontSize: 16,
     lineHeight: 24,
   },

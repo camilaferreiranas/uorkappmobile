@@ -1,37 +1,23 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
-import { ServiceCard } from "../../components/ui/service-card";
-import { ReviewCard } from "../../components/ui/review-card";
-import { SectionHeader } from "../../components/ui/section-header";
 import { Button } from "../../components/ui/button";
+import { ListCard } from "../../components/ui/list-card";
+import { ReviewCard } from "../../components/ui/review-card";
+import { ScreenHeader } from "../../components/ui/screen-header";
+import { SectionHeader } from "../../components/ui/section-header";
+import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
 
 const services = [
-  {
-    title: "Instalação elétrica",
-    price: "R$ 150",
-    subtitle: "Tomada e painel",
-    rating: 4.9,
-  },
-  {
-    title: "Troca de lâmpadas",
-    price: "R$ 90",
-    subtitle: "Residencial e comercial",
-    rating: 4.7,
-  },
-  {
-    title: "Laudo técnico",
-    price: "R$ 250",
-    subtitle: "Inspeção completa",
-    rating: 4.8,
-  },
+  { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
+  { title: "Troca de lâmpadas", price: "R$ 90", subtitle: "Residencial e comercial", rating: 4.7 },
+  { title: "Laudo técnico", price: "R$ 250", subtitle: "Inspeção completa", rating: 4.8 },
 ];
 
 const reviews = [
@@ -39,87 +25,107 @@ const reviews = [
     name: "Mariana Costa",
     comment: "Excelente trabalho e rapidez na entrega. Recomendo!",
     rating: 5.0,
-    distance: "1.0 km",
+    distance: "1,0 km",
   },
   {
     name: "Felipe Alves",
     comment: "Muito profissional e demonstrou conhecimento técnico.",
     rating: 4.8,
-    distance: "3.2 km",
+    distance: "3,2 km",
   },
 ];
 
 export default function ProfileScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.cover}>
-          <View style={styles.coverCircle} />
-        </View>
+        <ScreenHeader
+          onBack={() => router.back()}
+          actionIcon="ios-share"
+          actionLabel="Compartilhar"
+        />
 
-        <View style={styles.avatarContainer}>
+        <View style={styles.identity}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>RO</Text>
           </View>
-        </View>
-
-        <View style={styles.detailsCard}>
-          <Text style={styles.name}>Rafael Oliveira</Text>
+          <View style={styles.nameRow}>
+            <Text style={styles.name}>Rafael Oliveira</Text>
+            <MaterialIcons name="verified" size={18} color={Colors.brandPrimary} />
+          </View>
           <Text style={styles.specialty}>Técnico em Eletrônica</Text>
-          <Text style={styles.location}>Barra, Salvador - BA</Text>
-
-          <View style={styles.statsRow}>
-            <View style={styles.statBlock}>
-              <Text style={styles.statValue}>98%</Text>
-              <Text style={styles.statLabel}>Conclusão</Text>
-            </View>
-            <View style={styles.statBlock}>
-              <View style={styles.ratingRow}>
-                <MaterialIcons name="star" size={16} color="#FFB800" />
-                <Text style={styles.ratingValue}>4.9</Text>
-              </View>
-              <Text style={styles.statLabel}>Avaliação</Text>
-            </View>
-            <View style={styles.statBlock}>
-              <Text style={styles.statValue}>120</Text>
-              <Text style={styles.statLabel}>Avaliações</Text>
-            </View>
-          </View>
-
-          <View style={styles.actionRow}>
-            <Button 
-              title="Contratar" 
-              style={styles.actionButton} 
-              onPress={() => {}} 
-            />
-            <Button 
-              title="Mensagem" 
-              variant="outline" 
-              style={styles.actionButton} 
-              onPress={() => {}} 
-            />
+          <View style={styles.locationRow}>
+            <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
+            <Text style={styles.location}>Barra, Salvador - BA</Text>
           </View>
         </View>
 
-        <SectionHeader 
-          title="Serviços" 
-          subtitle="a partir de R$ 90" 
-          style={styles.servicesHeader} 
+        <View style={styles.stats}>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>98%</Text>
+            <Text style={styles.statLabel}>Conclusão</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <View style={styles.ratingRow}>
+              <MaterialIcons name="star" size={15} color={Colors.rating} />
+              <Text style={styles.statValue}>4.9</Text>
+            </View>
+            <Text style={styles.statLabel}>120 avaliações</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>7 anos</Text>
+            <Text style={styles.statLabel}>Experiência</Text>
+          </View>
+        </View>
+
+        <Button
+          title="Enviar mensagem"
+          variant="outline"
+          onPress={() => {}}
+          style={styles.messageButton}
         />
 
-        {services.map((service) => (
-          <ServiceCard key={service.title} {...service} />
+        <SectionHeader
+          title="Serviços"
+          subtitle="Orçamento fechado antes de contratar"
+          style={styles.section}
+        />
+        {services.map((s) => (
+          <ListCard
+            key={s.title}
+            title={s.title}
+            subtitle={s.subtitle}
+            subtitleIcon="build"
+            price={s.price}
+            priceUnit="preço base"
+            icon="build"
+            rating={s.rating}
+            onPress={() => {}}
+          />
         ))}
 
-        <Text style={styles.reviewTitle}>Avaliações recentes</Text>
-
-        {reviews.map((review) => (
-          <ReviewCard key={review.name} {...review} />
+        <SectionHeader title="Avaliações recentes" style={styles.section} />
+        {reviews.map((r) => (
+          <ReviewCard key={r.name} {...r} />
         ))}
       </ScrollView>
+
+      <View style={styles.ctaBar}>
+        <View>
+          <Text style={styles.ctaLabel}>A partir de</Text>
+          <Text style={styles.ctaValue}>R$ 90</Text>
+        </View>
+        <View style={styles.ctaButton}>
+          <Button title="Contratar" onPress={() => router.push("/review")} />
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -127,116 +133,121 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.surfaceWhite,
   },
   container: {
-    paddingBottom: 50,
+    paddingHorizontal: Spacing.gutter,
+    paddingTop: Spacing.sectionTight,
+    paddingBottom: 150,
   },
-  cover: {
-    height: 180,
-    backgroundColor: Colors.primary,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+  identity: {
     alignItems: "center",
-    justifyContent: "center",
-  },
-  coverCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "rgba(255,255,255,0.18)",
-  },
-  avatarContainer: {
-    alignItems: "center",
-    marginTop: -40,
+    gap: 4,
   },
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    borderWidth: 4,
-    borderColor: "#fff",
-    backgroundColor: "#D94A1A",
+    width: 84,
+    height: 84,
+    borderRadius: 28,
+    backgroundColor: Colors.brandPrimary,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 12,
   },
   avatarText: {
-    color: "#fff",
-    fontSize: 28,
+    color: Colors.textOnBrand,
+    fontSize: 26,
     fontWeight: "800",
   },
-  detailsCard: {
-    marginHorizontal: 20,
-    marginTop: 18,
-    borderRadius: 24,
-    backgroundColor: "#fff",
-    padding: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   name: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
-    color: Colors.black,
+    color: Colors.brandDark,
   },
   specialty: {
     fontSize: 14,
-    color: "#717171",
-    marginTop: 6,
-    marginBottom: 4,
+    color: Colors.textSecondary,
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
   },
   location: {
     fontSize: 13,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
-  statsRow: {
+  stats: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: Colors.surfaceNeutral,
+    borderRadius: Radii.lg,
+    paddingVertical: 16,
     marginTop: 20,
+    marginBottom: 16,
   },
-  statBlock: {
+  stat: {
     flex: 1,
     alignItems: "center",
   },
+  statDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: Colors.border,
+  },
   statValue: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "800",
-    color: Colors.black,
+    color: Colors.brandDark,
   },
   statLabel: {
-    marginTop: 6,
-    color: "#8A8A8A",
-    fontSize: 12,
+    marginTop: 4,
+    color: Colors.textSecondary,
+    fontSize: 11,
+    textAlign: "center",
   },
   ratingRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 3,
   },
-  ratingValue: {
-    color: Colors.black,
-    fontWeight: "800",
-    fontSize: 16,
+  messageButton: {
+    marginBottom: 4,
   },
-  actionRow: {
+  section: {
+    marginTop: 24,
+  },
+  ctaBar: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    bottom: 24,
+    backgroundColor: Colors.surfaceWhite,
+    borderRadius: Radii.pill,
+    paddingLeft: 20,
+    paddingRight: 8,
+    paddingVertical: 8,
     flexDirection: "row",
-    gap: 14,
-    marginTop: 22,
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    ...Shadow.floating,
   },
-  actionButton: {
-    flex: 1,
+  ctaLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
   },
-  servicesHeader: {
-    marginTop: 28,
-  },
-  reviewTitle: {
-    marginTop: 26,
-    marginHorizontal: 20,
+  ctaValue: {
     fontSize: 18,
     fontWeight: "800",
-    color: Colors.black,
+    color: Colors.brandDark,
+  },
+  ctaButton: {
+    flex: 1,
+    maxWidth: 200,
   },
 });

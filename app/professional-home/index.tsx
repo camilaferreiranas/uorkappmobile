@@ -1,54 +1,57 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
-import { MetricCard } from "../../components/ui/metric-card";
-import { DemandCard } from "../../components/ui/demand-card";
+import { Chip, ChipRow } from "../../components/ui/chip";
+import { ListCard } from "../../components/ui/list-card";
 import { SectionHeader } from "../../components/ui/section-header";
+import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
 
-const metrics = [
-  { label: "Novos pedidos", value: "12", note: "Hoje" },
-  { label: "Em andamento", value: "8", note: "Ativos" },
-  { label: "Faturamento", value: "R$ 2.4k", note: "Últimos 30 dias" },
-];
+const filters = ["Todas", "Urgentes", "Perto de mim", "Meu ramo"];
 
-const nearbyDemands = [
+const demands = [
   {
     title: "Instalação elétrica",
-    subtitle: "Apartamento, 3 pontos",
-    budget: "R$ 340",
-    urgency: "Urgente",
-    distance: "1,8 km",
+    subtitle: "Apartamento · 3 pontos · 1,8 km",
+    price: "Orçamento R$ 340",
+    icon: "electrical-services" as const,
+    urgent: true,
   },
   {
     title: "Troca de torneira",
-    subtitle: "Cozinha residencial",
-    budget: "R$ 120",
-    urgency: "Normal",
-    distance: "2,3 km",
+    subtitle: "Cozinha residencial · 2,3 km",
+    price: "Orçamento R$ 120",
+    icon: "plumbing" as const,
+    urgent: false,
   },
   {
     title: "Limpeza pós-obra",
-    subtitle: "Casa térrea",
-    budget: "R$ 420",
-    urgency: "Hoje",
-    distance: "3,1 km",
+    subtitle: "Casa térrea · 3,1 km",
+    price: "Orçamento R$ 420",
+    icon: "cleaning-services" as const,
+    urgent: true,
+  },
+  {
+    title: "Pintura de quarto",
+    subtitle: "1 cômodo · 4,0 km",
+    price: "Orçamento R$ 260",
+    icon: "format-paint" as const,
+    urgent: false,
   },
 ];
 
-const lastReview = {
-  name: "Mariana Costa",
-  comment: "Serviço impecável, pontual e muito atencioso.",
-  rating: 5.0,
-  date: "2 dias atrás",
-};
+const navItems = [
+  { label: "Demandas", icon: "list-alt" as const, active: true },
+  { label: "Propostas", icon: "send" as const },
+  { label: "Agenda", icon: "calendar-today" as const },
+  { label: "Perfil", icon: "person-outline" as const },
+];
 
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
@@ -59,94 +62,93 @@ export default function ProfessionalHomeScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
+        <View style={styles.topBar}>
           <View>
-            <Text style={styles.headerTitle}>Olá, Rafael</Text>
-            <Text style={styles.headerSubtitle}>Disponível</Text>
-          </View>
-          <View style={styles.headerBadge}>
-            <MaterialIcons name="circle" size={12} color="#4CD964" />
-            <Text style={styles.headerBadgeText}>Online</Text>
-          </View>
-        </View>
-
-        <View style={styles.switchRow}>
-          <TouchableOpacity
-            style={styles.switchButton}
-            onPress={() => router.push("/home")}
-          >
-            <Text style={styles.switchLabel}>Cliente</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.switchButton, styles.switchButtonActive]}
-          >
-            <Text style={[styles.switchLabel, styles.switchLabelActive]}>
-              Profissional
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.metricsRow}>
-          {metrics.map((metric) => (
-            <MetricCard 
-              key={metric.label}
-              label={metric.label}
-              value={metric.value}
-              note={metric.note}
-            />
-          ))}
-        </View>
-
-        <SectionHeader 
-          title="Demandas próximas" 
-          subtitle={`${nearbyDemands.length} encontradas`} 
-        />
-
-        {nearbyDemands.map((demand) => (
-          <DemandCard 
-            key={demand.title}
-            {...demand}
-            onPressAction={() => {}}
-          />
-        ))}
-
-        <View style={styles.reviewCard}>
-          <View style={styles.reviewHeader}>
-            <Text style={styles.sectionTitle}>Última avaliação</Text>
-            <View style={styles.reviewBadge}>
-              <MaterialIcons name="star" size={14} color="#227D41" />
-              <Text style={styles.reviewBadgeText}>
-                {lastReview.rating.toFixed(1)}
-              </Text>
+            <Text style={styles.hello}>Olá, Rafael</Text>
+            <View style={styles.statusRow}>
+              <MaterialIcons name="circle" size={9} color={Colors.success} />
+              <Text style={styles.status}>Disponível para novas demandas</Text>
             </View>
           </View>
-          <Text style={styles.reviewAuthor}>
-            {lastReview.name} · {lastReview.date}
-          </Text>
-          <Text style={styles.reviewComment}>{lastReview.comment}</Text>
+          <Pressable
+            style={styles.switch}
+            onPress={() => router.push("/home")}
+            accessibilityRole="button"
+          >
+            <MaterialIcons name="swap-horiz" size={16} color={Colors.brandPrimary} />
+            <Text style={styles.switchText}>Cliente</Text>
+          </Pressable>
         </View>
+
+        <View style={styles.stats}>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statLabel}>Novas hoje</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>8</Text>
+            <Text style={styles.statLabel}>Propostas ativas</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>R$ 2,4k</Text>
+            <Text style={styles.statLabel}>Últimos 30 dias</Text>
+          </View>
+        </View>
+
+        <View style={styles.chips}>
+          <ChipRow>
+            {filters.map((f, i) => (
+              <Chip key={f} label={f} active={i === 0} />
+            ))}
+          </ChipRow>
+        </View>
+
+        <SectionHeader
+          title="Demandas próximas"
+          subtitle={`${demands.length} abertas perto de você`}
+          style={styles.section}
+        />
+
+        {demands.map((d) => (
+          <View key={d.title}>
+            {d.urgent && (
+              <View style={styles.urgentTag}>
+                <MaterialIcons name="bolt" size={12} color={Colors.warningText} />
+                <Text style={styles.urgentText}>Urgente</Text>
+              </View>
+            )}
+            <ListCard
+              title={d.title}
+              subtitle={d.subtitle}
+              subtitleIcon="place"
+              price={d.price}
+              icon={d.icon}
+              onPress={() => router.push("/proposals")}
+            />
+          </View>
+        ))}
       </ScrollView>
 
-      <View style={styles.bottomNav}>
-        {[
-          { label: "Início", icon: "home", active: true },
-          { label: "Demandas", icon: "list" },
-          { label: "Chat", icon: "chat-bubble-outline" },
-          { label: "Relatório", icon: "bar-chart" },
-          { label: "Perfil", icon: "person" },
-        ].map((item) => (
-          <TouchableOpacity key={item.label} style={styles.navItem}>
-            <MaterialIcons
-              name={item.icon as any}
-              size={24}
-              color={item.active ? "#0D3D8B" : "#7A7A95"}
-            />
-            <Text
-              style={[styles.navLabel, item.active && styles.navLabelActive]}
-            >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
+      <View style={styles.tabBar}>
+        {navItems.map((item) => (
+          <Pressable
+            key={item.label}
+            style={styles.tabItem}
+            accessibilityRole="button"
+            accessibilityState={{ selected: !!item.active }}
+            onPress={() => item.label === "Propostas" && router.push("/proposals")}
+          >
+            {item.active ? (
+              <View style={styles.tabActive}>
+                <MaterialIcons name={item.icon} size={20} color={Colors.textOnBrand} />
+                <Text style={styles.tabActiveLabel}>{item.label}</Text>
+              </View>
+            ) : (
+              <MaterialIcons name={item.icon} size={22} color={Colors.textSecondary} />
+            )}
+          </Pressable>
         ))}
       </View>
     </SafeAreaView>
@@ -156,144 +158,129 @@ export default function ProfessionalHomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.surfaceWhite,
   },
   container: {
+    paddingHorizontal: Spacing.gutter,
+    paddingTop: Spacing.section,
     paddingBottom: 120,
   },
-  header: {
-    backgroundColor: "#0D3D8B",
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 24,
+  topBar: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "center",
+    marginBottom: 20,
   },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 24,
+  hello: {
+    fontSize: 22,
     fontWeight: "800",
-    marginBottom: 6,
+    color: Colors.brandDark,
+    marginBottom: 3,
   },
-  headerSubtitle: {
-    color: "#B8CCF6",
-    fontSize: 14,
-  },
-  headerBadge: {
+  statusRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
   },
-  headerBadgeText: {
-    color: "#D1E0FF",
+  status: {
     fontSize: 12,
-    fontWeight: "700",
+    color: Colors.textSecondary,
   },
-  metricsRow: {
+  switch: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginTop: -22,
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: Colors.brandTint,
+    borderRadius: Radii.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  sectionTitle: {
-    fontSize: 18,
+  switchText: {
+    color: Colors.brandPrimary,
     fontWeight: "800",
-    color: "#111",
-  },
-  reviewCard: {
-    backgroundColor: "#E9F7EE",
-    borderRadius: 20,
-    padding: 18,
-    marginHorizontal: 20,
-    marginTop: 24,
-  },
-  reviewHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  reviewBadge: {
-    flexDirection: "row",
-    backgroundColor: "#D6F0D8",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
-    alignItems: "center",
-    gap: 6,
-  },
-  reviewBadgeText: {
-    color: "#227D41",
-    fontWeight: "700",
     fontSize: 13,
   },
-  reviewAuthor: {
-    color: "#2B2B2B",
-    fontWeight: "700",
+  stats: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surfaceNeutral,
+    borderRadius: Radii.lg,
+    paddingVertical: 16,
+    marginBottom: 24,
+  },
+  stat: {
+    flex: 1,
+    alignItems: "center",
+  },
+  statDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: Colors.border,
+  },
+  statValue: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: Colors.brandDark,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 3,
+  },
+  chips: {
     marginBottom: 8,
   },
-  reviewComment: {
-    color: "#505050",
-    fontSize: 14,
-    lineHeight: 20,
+  section: {
+    marginTop: 16,
   },
-  bottomNav: {
+  urgentTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    alignSelf: "flex-start",
+    backgroundColor: Colors.warningSurface,
+    borderRadius: Radii.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginBottom: 6,
+  },
+  urgentText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: Colors.warningText,
+  },
+  tabBar: {
     position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingTop: 12,
-    paddingBottom: 20,
+    left: 16,
+    right: 16,
+    bottom: 24,
+    backgroundColor: Colors.surfaceWhite,
+    borderRadius: Radii.pill,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: -4 },
-    elevation: 12,
+    ...Shadow.floating,
   },
-  navItem: {
+  tabItem: {
+    minHeight: 44,
+    minWidth: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  navLabel: {
-    color: "#7A7A95",
-    fontSize: 10,
-    marginTop: 4,
-  },
-  navLabelActive: {
-    color: "#0D3D8B",
-    fontWeight: "700",
-  },
-  switchRow: {
+  tabActive: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    padding: 4,
-    marginHorizontal: 20,
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  switchButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 16,
     alignItems: "center",
-    justifyContent: "center",
+    gap: 6,
+    backgroundColor: Colors.brandPrimary,
+    borderRadius: Radii.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
   },
-  switchButtonActive: {
-    backgroundColor: "#0D3D8B",
-  },
-  switchLabel: {
-    color: "#7A7A95",
-    fontWeight: "700",
-  },
-  switchLabelActive: {
-    color: "#fff",
+  tabActiveLabel: {
+    color: Colors.textOnBrand,
+    fontWeight: "800",
+    fontSize: 13,
   },
 });

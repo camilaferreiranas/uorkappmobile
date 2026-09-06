@@ -1,9 +1,14 @@
 import { StyleSheet, View, ViewProps } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radii, Shadow } from '../../constants/theme';
 
-export function Card({ style, children, ...props }: ViewProps) {
+interface CardProps extends ViewProps {
+  /** Flat card: hairline border instead of a shadow. */
+  flat?: boolean;
+}
+
+export function Card({ style, children, flat = false, ...props }: CardProps) {
   return (
-    <View style={[styles.card, style]} {...props}>
+    <View style={[styles.card, flat ? styles.flat : styles.raised, style]} {...props}>
       {children}
     </View>
   );
@@ -11,13 +16,17 @@ export function Card({ style, children, ...props }: ViewProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.white,
-    borderRadius: 28,
-    padding: 24,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 8,
+    backgroundColor: Colors.surfaceWhite,
+    borderRadius: Radii.xl,
+    padding: 20,
+  },
+  raised: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadow.card,
+  },
+  flat: {
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 });

@@ -1,26 +1,40 @@
-import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Colors, Radii, Shadow } from '../../constants/theme';
 
 interface SelectProps {
   label?: string;
   value: string;
   options: string[];
   placeholder?: string;
+  error?: string;
   onSelect: (value: string) => void;
 }
 
-export function Select({ label, value, options, placeholder, onSelect }: SelectProps) {
+export function Select({
+  label,
+  value,
+  options,
+  placeholder,
+  error,
+  onSelect,
+}: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <TouchableOpacity
-        style={styles.input}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ expanded: isOpen }}
+        style={[
+          styles.input,
+          isOpen && styles.inputOpen,
+          error ? styles.inputError : null,
+        ]}
         onPress={() => setIsOpen(!isOpen)}
-        activeOpacity={0.7}
       >
         <Text style={[styles.value, !value && styles.placeholder]}>
           {value || placeholder}
@@ -28,23 +42,29 @@ export function Select({ label, value, options, placeholder, onSelect }: SelectP
         <MaterialIcons
           name={isOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
           size={24}
-          color={Colors.gray}
+          color={Colors.textSecondary}
         />
-      </TouchableOpacity>
+      </Pressable>
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       {isOpen && (
         <View style={styles.dropdown}>
           {options.map((option) => (
-            <TouchableOpacity
+            <Pressable
               key={option}
-              style={styles.option}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.option, pressed && styles.optionPressed]}
               onPress={() => {
                 onSelect(option);
                 setIsOpen(false);
               }}
             >
               <Text style={styles.optionText}>{option}</Text>
-            </TouchableOpacity>
+              {value === option && (
+                <MaterialIcons name="check" size={18} color={Colors.brandPrimary} />
+              )}
+            </Pressable>
           ))}
         </View>
       )}
@@ -54,54 +74,70 @@ export function Select({ label, value, options, placeholder, onSelect }: SelectP
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: 16,
     width: '100%',
   },
   label: {
     fontSize: 14,
-    color: Colors.black,
-    fontWeight: '700',
-    marginBottom: 10,
+    color: Colors.textPrimary,
+    fontWeight: '600',
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
+    backgroundColor: Colors.surfaceNeutral,
+    borderRadius: Radii.md,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 14,
+    minHeight: 50,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  inputOpen: {
+    borderColor: Colors.brandPrimary,
+    backgroundColor: Colors.surfaceWhite,
+  },
+  inputError: {
+    borderColor: Colors.error,
+    backgroundColor: Colors.errorSurface,
   },
   value: {
     fontSize: 16,
-    color: Colors.black,
+    color: Colors.textPrimary,
   },
   placeholder: {
-    color: Colors.gray,
+    color: Colors.textMuted,
+  },
+  errorText: {
+    marginTop: 6,
+    color: Colors.errorText,
+    fontSize: 13,
+    lineHeight: 18,
   },
   dropdown: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
+    backgroundColor: Colors.surfaceWhite,
+    borderRadius: Radii.md,
     marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
     overflow: 'hidden',
-    elevation: 4,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    ...Shadow.card,
   },
   option: {
     paddingVertical: 14,
     paddingHorizontal: 16,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.border,
+  },
+  optionPressed: {
+    backgroundColor: Colors.brandTint,
   },
   optionText: {
-    color: Colors.black,
+    color: Colors.textPrimary,
     fontSize: 15,
   },
 });

@@ -1,12 +1,11 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { AuthHeader } from "../../components/ui/auth-header";
-import { Card } from "../../components/ui/card";
 import { SuccessMessage } from "../../components/ui/success-message";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,8 +30,7 @@ export default function ForgotPasswordScreen() {
         subtitle="Informe seu e-mail e enviaremos um link para criar uma nova senha." 
       />
 
-      <Card>
-        <Input
+      <Input
           label="E-mail"
           value={email}
           onChangeText={setEmail}
@@ -48,31 +46,32 @@ export default function ForgotPasswordScreen() {
           title="Enviar link"
           onPress={() => setSent(true)}
           disabled={!isFormValid}
+          disabledReason="Informe um e-mail válido para receber o link de redefinição."
           style={styles.submitButton}
         />
 
         {sent && (
           <>
-            <SuccessMessage 
-              message="Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha." 
+            <SuccessMessage
+              message="Se o e-mail estiver cadastrado, você receberá instruções para redefinir sua senha."
             />
             <Button
-              title="Ir para redefinir senha"
+              title="Já tenho o código, redefinir senha"
+              variant="outline"
               onPress={() => router.push("/reset-password")}
               style={styles.resetLinkButton}
             />
           </>
         )}
 
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/login")}
           style={styles.link}
+          accessibilityRole="link"
+          hitSlop={8}
         >
-          <Text style={styles.linkText}>
-            Lembrei minha senha, voltar ao login
-          </Text>
-        </TouchableOpacity>
-      </Card>
+          <Text style={styles.linkText}>Lembrei minha senha, voltar ao login</Text>
+        </Pressable>
     </ScreenContainer>
   );
 }
@@ -83,14 +82,15 @@ const styles = StyleSheet.create({
   },
   resetLinkButton: {
     marginTop: 14,
-    paddingVertical: 12,
   },
   link: {
     marginTop: 18,
     alignItems: "center",
+    minHeight: 44,
+    justifyContent: "center",
   },
   linkText: {
-    color: Colors.primary,
+    color: Colors.brandPrimary,
     fontWeight: "700",
   },
 });

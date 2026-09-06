@@ -1,116 +1,128 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { StyleSheet, Text, View } from "react-native";
 
-import { Collapsible } from '../../../components/ui/collapsible';
-import { ExternalLink } from '../../../components/external-link';
-import ParallaxScrollView from '../../../components/parallax-scroll-view';
-import { ThemedText } from '../../../components/themed-text';
-import { ThemedView } from '../../../components/themed-view';
-import { IconSymbol } from '../../../components/ui/icon-symbol';
-import { Fonts } from '../../../constants/theme';
+import { CategoryCard } from "../../../components/ui/category-card";
+import { ListCard } from "../../../components/ui/list-card";
+import { ScreenContainer } from "../../../components/ui/screen-container";
+import { SectionHeader } from "../../../components/ui/section-header";
+import { Colors, Radii } from "../../../constants/theme";
 
-export default function TabTwoScreen() {
+const categories = [
+  { title: "Eletrônica", icon: "electrical-services" },
+  { title: "Beleza", icon: "brush" },
+  { title: "Limpeza", icon: "cleaning-services" },
+  { title: "Pintura", icon: "format-paint" },
+  { title: "Serviços", icon: "build" },
+  { title: "Instalação", icon: "plumbing" },
+  { title: "Jardinagem", icon: "grass" },
+  { title: "Reparo", icon: "handyman" },
+  { title: "Mudança", icon: "local-shipping" },
+  { title: "Reformas", icon: "home-repair-service" },
+  { title: "Aulas", icon: "school" },
+  { title: "Pets", icon: "pets" },
+];
+
+const popular = [
+  {
+    title: "Diária de limpeza",
+    subtitle: "Mais contratado esta semana",
+    price: "A partir de R$ 140",
+    icon: "cleaning-services" as const,
+  },
+  {
+    title: "Reparo elétrico",
+    subtitle: "Resposta média em 20 min",
+    price: "A partir de R$ 120",
+    icon: "electrical-services" as const,
+  },
+  {
+    title: "Montagem de móveis",
+    subtitle: "Profissionais verificados",
+    price: "A partir de R$ 90",
+    icon: "handyman" as const,
+  },
+];
+
+export default function ExploreScreen() {
+  const router = useRouter();
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <ScreenContainer contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Explorar</Text>
+      <Text style={styles.description}>
+        Escolha uma categoria ou veja os serviços mais procurados.
+      </Text>
+
+      <View style={styles.grid}>
+        {categories.map((c) => (
+          <CategoryCard
+            key={c.title}
+            title={c.title}
+            icon={c.icon}
+            onPress={() => router.push("/search")}
+          />
+        ))}
+      </View>
+
+      <SectionHeader title="Serviços populares" />
+      {popular.map((p) => (
+        <ListCard
+          key={p.title}
+          title={p.title}
+          subtitle={p.subtitle}
+          subtitleIcon="trending-up"
+          price={p.price}
+          icon={p.icon}
+          onPress={() => router.push("/search")}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <TitleText>app/(tabs)/_layout.tsx</TitleText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('../../../assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      ))}
+
+      <View style={styles.help}>
+        <MaterialIcons name="lightbulb" size={18} color={Colors.brandPrimary} />
+        <Text style={styles.helpText}>
+          Não achou? Publique uma demanda e receba propostas sob medida.
+        </Text>
+      </View>
+    </ScreenContainer>
   );
 }
 
-function TitleText({ children }: { children: React.ReactNode }) {
-    return <ThemedText type="defaultSemiBold">{children}</ThemedText>
-}
-
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    paddingBottom: 110,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  title: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: Colors.brandDark,
+    marginBottom: 4,
+  },
+  description: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  help: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: Colors.brandTint,
+    borderRadius: Radii.md,
+    padding: 14,
+    marginTop: 20,
+  },
+  helpText: {
+    flex: 1,
+    fontSize: 13,
+    color: Colors.brandDark,
+    lineHeight: 18,
   },
 });

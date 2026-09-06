@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Spacing } from '../../constants/theme';
 
 interface ScreenContainerProps {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ interface ScreenContainerProps {
 export function ScreenContainer({
   children,
   contentContainerStyle,
-  backgroundColor = Colors.primary,
+  backgroundColor = Colors.surfaceWhite,
 }: ScreenContainerProps) {
   return (
     <KeyboardAvoidingView
@@ -28,6 +28,7 @@ export function ScreenContainer({
         <ScrollView
           contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
           {children}
         </ScrollView>
@@ -45,8 +46,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: 30,
+    paddingHorizontal: Spacing.gutter,
+    paddingTop: Spacing.section,
     paddingBottom: 40,
   },
 });

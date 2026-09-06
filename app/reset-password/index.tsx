@@ -1,12 +1,11 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { AuthHeader } from "../../components/ui/auth-header";
-import { Card } from "../../components/ui/card";
 import { SuccessMessage } from "../../components/ui/success-message";
 
 export default function ResetPasswordScreen() {
@@ -37,8 +36,7 @@ export default function ResetPasswordScreen() {
         subtitle="Escolha uma nova senha para acessar sua conta." 
       />
 
-      <Card>
-        <Input
+      <Input
           label="Nova senha"
           value={password}
           onChangeText={setPassword}
@@ -62,22 +60,24 @@ export default function ResetPasswordScreen() {
           title="Redefinir senha"
           onPress={() => setSubmitted(true)}
           disabled={!isFormValid}
+          disabledReason="Digite a nova senha (mín. 8 caracteres) e repita-a igual no segundo campo."
           style={styles.submitButton}
         />
 
         {submitted && (
-          <SuccessMessage 
-            message="Sua senha foi redefinida com sucesso. Agora você pode fazer login com sua nova senha." 
+          <SuccessMessage
+            message="Sua senha foi redefinida com sucesso. Agora você pode fazer login com sua nova senha."
           />
         )}
 
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/login")}
           style={styles.link}
+          accessibilityRole="link"
+          hitSlop={8}
         >
           <Text style={styles.linkText}>Voltar ao login</Text>
-        </TouchableOpacity>
-      </Card>
+        </Pressable>
     </ScreenContainer>
   );
 }
@@ -89,9 +89,11 @@ const styles = StyleSheet.create({
   link: {
     marginTop: 18,
     alignItems: "center",
+    minHeight: 44,
+    justifyContent: "center",
   },
   linkText: {
-    color: Colors.primary,
+    color: Colors.brandPrimary,
     fontWeight: "700",
   },
 });

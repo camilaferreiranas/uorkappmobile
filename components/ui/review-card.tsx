@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet, Text, View } from 'react-native';
+import { Colors, Radii } from '../../constants/theme';
 import { Card } from './card';
 
 interface ReviewCardProps {
@@ -20,12 +20,13 @@ export function ReviewCard({ name, comment, rating, date, distance }: ReviewCard
         </View>
         <View style={styles.info}>
           <Text style={styles.name}>{name}</Text>
-          {(date || distance) && (
-            <Text style={styles.meta}>{date || distance}</Text>
-          )}
+          {(date || distance) && <Text style={styles.meta}>{date || distance}</Text>}
         </View>
-        <View style={styles.ratingBadge}>
-          <MaterialIcons name="star" size={14} color="#FFB800" />
+        <View
+          style={styles.ratingBadge}
+          accessibilityLabel={`Avaliação ${rating.toFixed(1)} de 5`}
+        >
+          <MaterialIcons name="star" size={14} color={Colors.rating} />
           <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
         </View>
       </View>
@@ -36,9 +37,9 @@ export function ReviewCard({ name, comment, rating, date, distance }: ReviewCard
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginTop: 14,
-    padding: 18,
+    marginHorizontal: 16,
+    marginTop: 12,
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
@@ -50,12 +51,12 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 14,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.brandPrimary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
-    color: Colors.white,
+    color: Colors.textOnBrand,
     fontWeight: '800',
   },
   info: {
@@ -65,29 +66,29 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 14,
     fontWeight: '800',
-    color: Colors.black,
+    color: Colors.textPrimary,
   },
   meta: {
     fontSize: 12,
-    color: Colors.gray,
+    color: Colors.textSecondary,
   },
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFF4E8',
+    backgroundColor: Colors.ratingSurface,
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 16,
+    paddingVertical: 5,
+    borderRadius: Radii.md,
   },
   ratingText: {
-    color: '#BF6B00',
+    color: Colors.warningText,
     fontWeight: '700',
     fontSize: 13,
   },
   comment: {
     fontSize: 14,
-    color: '#6B6B6B',
+    color: Colors.textSecondary,
     lineHeight: 20,
   },
 });
