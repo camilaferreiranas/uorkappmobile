@@ -167,6 +167,7 @@ export default function BuscarScreen() {
                   : "Distância indisponível"
               }
               initials={professional.nome.substring(0, 2).toUpperCase() || "US"}
+              imageUrl={professional.fotoPerfilUrl}
               style={styles.professionalCard}
               buttonTitle="Ver perfil"
               onPress={() =>

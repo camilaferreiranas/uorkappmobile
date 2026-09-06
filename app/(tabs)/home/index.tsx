@@ -13,6 +13,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { CategoryCard } from "../../../components/ui/category-card";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
+import { ProfileAvatar } from "../../../components/ui/profile-avatar";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors } from "../../../constants/theme";
 import { useAuth } from "../../../contexts/auth-context";
@@ -108,9 +109,12 @@ export default function HomeScreen() {
               accessibilityRole="button"
               accessibilityLabel="Abrir perfil"
             >
-              <Text style={styles.avatarText}>
-                {user?.nome?.substring(0, 2).toUpperCase() ?? "US"}
-              </Text>
+              <ProfileAvatar
+                imageUrl={user?.fotoPerfilUrl}
+                initials={user?.nome?.substring(0, 2).toUpperCase() ?? "US"}
+                size={42}
+                backgroundColor="transparent"
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -202,6 +206,7 @@ export default function HomeScreen() {
               rating={professional.mediaAvaliacoes ?? 0}
               distance={professional.distanciaKm !== null ? `${professional.distanciaKm.toFixed(1)} km` : "Distância indisponível"}
               initials={professional.nome?.substring(0, 2).toUpperCase() || "US"}
+              imageUrl={professional.fotoPerfilUrl}
               buttonTitle="Contratar"
               onPress={() =>
                 router.push({
@@ -289,11 +294,6 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.4)",
     alignItems: "center",
     justifyContent: "center",
-  },
-  avatarText: {
-    color: Colors.white,
-    fontWeight: "800",
-    fontSize: 16,
   },
   notificationCard: {
     marginHorizontal: 22,

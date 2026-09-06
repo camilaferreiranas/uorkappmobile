@@ -3,11 +3,14 @@ import {
   AuthResponse,
   Endereco,
   GoogleAuthPayload,
+  ProfilePhotoAsset,
   UserProfile,
   UpdateUserProfilePayload,
   getUserProfile,
   login as loginRequest,
   loginWithGoogle as loginWithGoogleRequest,
+  removeUserProfilePhoto,
+  uploadUserProfilePhoto,
   updateUserProfile as updateUserProfileRequest,
   updateUserAddress as updateUserAddressRequest,
 } from '../services/api';
@@ -20,6 +23,8 @@ interface AuthContextValue {
   loginWithGoogle: (payload: GoogleAuthPayload) => Promise<void>;
   updateProfile: (payload: UpdateUserProfilePayload) => Promise<UserProfile>;
   updateAddress: (endereco: Endereco) => Promise<UserProfile>;
+  updatePhoto: (photo: ProfilePhotoAsset) => Promise<UserProfile>;
+  removePhoto: () => Promise<UserProfile>;
   logout: () => Promise<void>;
 }
 
@@ -117,6 +122,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile;
   }
 
+  async function updatePhoto(photo: ProfilePhotoAsset) {
+    const stored = await getToken();
+    if (!stored || stored.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const profile = await uploadUserProfilePhoto(stored.accessToken, photo);
+    setUser(profile);
+    return profile;
+  }
+
+  async function removePhoto() {
+    const stored = await getToken();
+    if (!stored || stored.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const profile = await removeUserProfilePhoto(stored.accessToken);
+    setUser(profile);
+    return profile;
+  }
+
   async function logout() {
     authOperation.current += 1;
     setUser(null);
@@ -126,7 +153,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, loginWithGoogle, updateProfile, updateAddress, logout }}
+      value={{
+        user,
+        loading,
+        login,
+        loginWithGoogle,
+        updateProfile,
+        updateAddress,
+        updatePhoto,
+        removePhoto,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -1,6 +1,7 @@
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { Colors } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { ProfileAvatar } from './profile-avatar';
 
 interface ProfessionalCardProps {
   name: string;
@@ -9,6 +10,7 @@ interface ProfessionalCardProps {
   rating: number;
   distance: string;
   initials: string;
+  imageUrl?: string | null;
   onPress?: () => void;
   buttonTitle?: string;
   onButtonPress?: () => void;
@@ -22,6 +24,7 @@ export function ProfessionalCard({
   rating,
   distance,
   initials,
+  imageUrl,
   onPress,
   buttonTitle = 'Ver perfil',
   onButtonPress,
@@ -30,9 +33,13 @@ export function ProfessionalCard({
   return (
     <View style={[styles.card, style]}>
       <View style={styles.row}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+        <ProfileAvatar
+          imageUrl={imageUrl}
+          initials={initials}
+          size={48}
+          backgroundColor={Colors.primary}
+          style={styles.avatar}
+        />
         <View style={styles.info}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.role}>{specialty || role}</Text>
@@ -77,18 +84,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 15,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginRight: 12,
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
   },
   info: {
     flex: 1,

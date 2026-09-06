@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   SafeAreaView,
   ScrollView,
@@ -9,6 +10,7 @@ import {
 } from "react-native";
 import { Colors } from "../../constants/theme";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { useAuth } from "../../contexts/auth-context";
 import { getInitials } from "../../utils/get-initials";
 
@@ -44,15 +46,33 @@ const menuItems = [
 ];
 
 export default function ProfessionalProfileScreen() {
+  const router = useRouter();
   const { user } = useAuth();
+
+  function handleMenuPress(label: string) {
+    if (label === "Editar perfil") {
+      router.push("/edit-profile");
+      return;
+    }
+
+    if (label === "Notificações") {
+      router.push("/professional-notifications");
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
-          </View>
+          <ProfileAvatar
+            imageUrl={user?.fotoPerfilUrl}
+            initials={getInitials(user?.nome, user?.sobrenome)}
+            size={80}
+            backgroundColor="rgba(255,255,255,0.2)"
+            borderColor="rgba(255,255,255,0.5)"
+            borderWidth={3}
+            style={styles.avatar}
+          />
           <Text style={styles.name}>
             {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
           </Text>
@@ -145,6 +165,7 @@ export default function ProfessionalProfileScreen() {
             <TouchableOpacity
               key={item.label}
               style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
+              onPress={() => handleMenuPress(item.label)}
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
@@ -177,20 +198,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.5)",
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 12,
-  },
-  avatarText: {
-    color: "#fff",
-    fontSize: 26,
-    fontWeight: "800",
   },
   name: {
     color: "#fff",

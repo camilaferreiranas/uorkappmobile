@@ -135,6 +135,7 @@ export default function NearbyProfessionalsScreen() {
                 : "Distância indisponível"
             }
             initials={item.nome?.substring(0, 2).toUpperCase() || "US"}
+            imageUrl={item.fotoPerfilUrl}
             buttonTitle="Ver perfil"
             onPress={() => abrirPerfil(item)}
           />

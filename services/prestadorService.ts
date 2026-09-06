@@ -5,6 +5,7 @@ import { getToken } from "./token-storage";
 export interface Prestador {
   id: number;
   nome: string;
+  fotoPerfilUrl: string | null;
   categorias: string[];
   mediaAvaliacoes: number;
   distanciaKm: number | null;
@@ -240,6 +241,7 @@ export interface ServicoPrestador {
 export interface PerfilPrestador {
   id: number;
   nome: string;
+  fotoPerfilUrl: string | null;
   descricao: string;
   cidade: string;
   estado: string;

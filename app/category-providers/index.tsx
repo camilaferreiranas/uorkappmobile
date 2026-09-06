@@ -94,6 +94,7 @@ export default function CategoryProvidersScreen() {
               rating={0}
               distance="0 km"
               initials={professional.nome?.substring(0, 2).toUpperCase() || "US"}
+              imageUrl={professional.fotoPerfilUrl}
               //category={category ?? ""}
               buttonTitle="Ver perfil"
               onPress={() =>

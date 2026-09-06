@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { Colors } from "../../../constants/theme";
+import { ProfileAvatar } from "../../../components/ui/profile-avatar";
 import { useAuth } from "../../../contexts/auth-context";
 import { getInitials } from "../../../utils/get-initials";
 
@@ -57,9 +58,15 @@ export default function PerfilScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
-          </View>
+          <ProfileAvatar
+            imageUrl={user?.fotoPerfilUrl}
+            initials={getInitials(user?.nome, user?.sobrenome)}
+            size={80}
+            backgroundColor="rgba(255,255,255,0.25)"
+            borderColor="rgba(255,255,255,0.6)"
+            borderWidth={3}
+            style={styles.avatar}
+          />
           <Text style={styles.name}>
             {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
           </Text>
@@ -127,20 +134,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.25)",
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.6)",
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 14,
-  },
-  avatarText: {
-    color: Colors.white,
-    fontSize: 28,
-    fontWeight: "800",
   },
   name: {
     color: Colors.white,

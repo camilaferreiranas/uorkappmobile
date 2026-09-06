@@ -13,6 +13,7 @@ import {
 import { Button } from "../../components/ui/button";
 import { SectionHeader } from "../../components/ui/section-header";
 import { ServiceCard } from "../../components/ui/service-card";
+import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { Colors } from "../../constants/theme";
 import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
 
@@ -91,9 +92,14 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          <ProfileAvatar
+            imageUrl={profile.fotoPerfilUrl}
+            initials={initials}
+            size={90}
+            backgroundColor="#D94A1A"
+            borderColor="#fff"
+            borderWidth={4}
+          />
         </View>
 
         <View style={styles.detailsCard}>
@@ -209,21 +215,6 @@ const styles = StyleSheet.create({
   avatarContainer: {
     alignItems: "center",
     marginTop: -40,
-  },
-  avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    borderWidth: 4,
-    borderColor: "#fff",
-    backgroundColor: "#D94A1A",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    color: "#fff",
-    fontSize: 28,
-    fontWeight: "800",
   },
   detailsCard: {
     marginHorizontal: 20,
