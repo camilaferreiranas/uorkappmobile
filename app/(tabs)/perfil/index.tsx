@@ -75,17 +75,14 @@ export default function PerfilScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>14</Text>
+            <Text style={styles.statValue}>{user?.totalServicosFinalizados ?? 0}</Text>
             <Text style={styles.statLabel}>Serviços</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>R$ 1.8k</Text>
-            <Text style={styles.statLabel}>Gasto total</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>4.8</Text>
+            <Text style={styles.statValue}>
+              {(user?.mediaAvaliacoesCliente ?? 0).toFixed(1)}
+            </Text>
             <Text style={styles.statLabel}>Avaliação</Text>
           </View>
         </View>

@@ -50,6 +50,8 @@ export interface DetalheDemanda {
   distancia: number | null;
   descricao: string;
   nomePrestador: string;
+  mediaAvaliacoesCliente: number;
+  totalServicosFinalizados: number;
 }
 
 export interface PropostaResponse {
@@ -77,6 +79,7 @@ export interface DemandaProfissional {
   valor: number;
   status: StatusProposta;
   dataCriacao: string;
+  notaCliente: number | null;
 }
 
 export interface HistoricoCliente {
@@ -182,6 +185,53 @@ export async function aceitarProposta(propostaId: number): Promise<PropostaRespo
   }
 
   return json.data;
+}
+
+export async function finalizarProposta(propostaId: number): Promise<PropostaResponse> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/${propostaId}/finalizar`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível finalizar o serviço."
+    );
+  }
+
+  return json.data;
+}
+
+export async function avaliarCliente(propostaId: number, nota: number): Promise<void> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(
+    `${API_URL}/propostas/${propostaId}/avaliar-cliente`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${storedToken.accessToken}`,
+      },
+      body: JSON.stringify({ nota }),
+    }
+  );
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível avaliar o cliente."
+    );
+  }
 }
 
 export async function buscarDetalheDemanda(propostaId: number): Promise<DetalheDemanda> {

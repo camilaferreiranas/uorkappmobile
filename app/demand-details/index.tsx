@@ -1,18 +1,21 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../constants/theme";
 import { useNotifications } from "../../contexts/notification-context";
-import { aceitarProposta } from "../../services/propostaService";
+import {
+  aceitarProposta,
+  buscarDetalheDemanda,
+} from "../../services/propostaService";
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
   Urgente: { bg: "#FFF0EB", text: "#D86A3F" },
@@ -22,6 +25,7 @@ const urgencyColors: Record<string, { bg: string; text: string }> = {
 
 export default function DemandDetailsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { sincronizarPrestador } = useNotifications();
   const params = useLocalSearchParams<{
     id: string;
@@ -37,6 +41,47 @@ export default function DemandDetailsScreen() {
   const [status, setStatus] = useState<"pending" | "accepted" | "refused">("pending");
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
+  const [resumoCliente, setResumoCliente] = useState<{
+    mediaAvaliacoes: number;
+    totalServicosFinalizados: number;
+  } | null>(null);
+  const [carregandoResumo, setCarregandoResumo] = useState(true);
+  const [erroResumo, setErroResumo] = useState("");
+
+  useEffect(() => {
+    const propostaId = Number(params.id);
+    let telaAtiva = true;
+
+    if (!Number.isInteger(propostaId) || propostaId <= 0) {
+      setCarregandoResumo(false);
+      setErroResumo("Dados do cliente indisponíveis");
+      return () => {
+        telaAtiva = false;
+      };
+    }
+
+    setCarregandoResumo(true);
+    setErroResumo("");
+    buscarDetalheDemanda(propostaId)
+      .then((detalhe) => {
+        if (!telaAtiva) return;
+        setResumoCliente({
+          mediaAvaliacoes: Number(detalhe.mediaAvaliacoesCliente) || 0,
+          totalServicosFinalizados:
+            Number(detalhe.totalServicosFinalizados) || 0,
+        });
+      })
+      .catch(() => {
+        if (telaAtiva) setErroResumo("Dados do cliente indisponíveis");
+      })
+      .finally(() => {
+        if (telaAtiva) setCarregandoResumo(false);
+      });
+
+    return () => {
+      telaAtiva = false;
+    };
+  }, [params.id]);
 
   const urgency = params.urgency ?? "Normal";
   const colors = urgencyColors[urgency] ?? urgencyColors["Normal"];
@@ -64,7 +109,12 @@ export default function DemandDetailsScreen() {
 
   if (status !== "pending") {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View
+        style={[
+          styles.safeArea,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+      >
         <View style={styles.resultContainer}>
           <View style={[styles.resultIcon, { backgroundColor: status === "accepted" ? "#EAFAF1" : "#FFEBEE" }]}>
             <MaterialIcons
@@ -85,17 +135,18 @@ export default function DemandDetailsScreen() {
             <Text style={styles.backHomeText}>Voltar ao início</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <View style={styles.safeArea}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
           <MaterialIcons name="arrow-back" size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detalhes da Demanda</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -147,14 +198,33 @@ export default function DemandDetailsScreen() {
           <View>
             <Text style={styles.clientName}>{params.client}</Text>
             <View style={styles.clientRatingRow}>
-              <MaterialIcons name="star" size={14} color="#FFB800" />
-              <Text style={styles.clientRatingText}>4.7 · 8 serviços contratados</Text>
+              {carregandoResumo ? (
+                <ActivityIndicator size="small" color="#0D3D8B" />
+              ) : erroResumo ? (
+                <Text style={styles.clientRatingText}>{erroResumo}</Text>
+              ) : (
+                <>
+                  <MaterialIcons name="star" size={14} color="#FFB800" />
+                  <Text style={styles.clientRatingText}>
+                    {resumoCliente?.mediaAvaliacoes.toFixed(1) ?? "0.0"} ·{" "}
+                    {resumoCliente?.totalServicosFinalizados ?? 0}{" "}
+                    {(resumoCliente?.totalServicosFinalizados ?? 0) === 1
+                      ? "serviço finalizado"
+                      : "serviços finalizados"}
+                  </Text>
+                </>
+              )}
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View style={styles.actionBar}>
+      <View
+        style={[
+          styles.actionBar,
+          { paddingBottom: Math.max(insets.bottom, 16) },
+        ]}
+      >
         {erro ? <Text style={styles.actionError}>{erro}</Text> : null}
         <TouchableOpacity
           style={[styles.refuseButton, processando && styles.actionButtonDisabled]}
@@ -181,7 +251,7 @@ export default function DemandDetailsScreen() {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -193,11 +263,10 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#0D3D8B",
     paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 20,
+    paddingBottom: 16,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    justifyContent: "space-between",
   },
   backButton: {
     width: 38,
@@ -208,9 +277,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
+    flex: 1,
     color: "#fff",
     fontSize: 18,
     fontWeight: "800",
+    textAlign: "center",
+    marginHorizontal: 12,
+  },
+  headerSpacer: {
+    width: 38,
+    height: 38,
   },
   container: {
     padding: 20,
@@ -352,7 +428,6 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: "#fff",
     padding: 16,
-    paddingBottom: 28,
     flexDirection: "row",
     gap: 12,
     borderTopLeftRadius: 24,

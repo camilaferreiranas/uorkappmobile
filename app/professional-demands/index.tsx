@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Modal,
   RefreshControl,
   SafeAreaView,
   ScrollView,
@@ -14,8 +15,11 @@ import {
   View,
 } from "react-native";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { StarRating } from "../../components/ui/star-rating";
 import {
+  avaliarCliente,
   buscarDemandasDoPrestador,
+  finalizarProposta,
   type DemandaProfissional,
   type StatusProposta,
 } from "../../services/propostaService";
@@ -57,6 +61,12 @@ export default function ProfessionalDemandsScreen() {
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
+  const [processandoId, setProcessandoId] = useState<number | null>(null);
+  const [avaliacaoPendente, setAvaliacaoPendente] =
+    useState<DemandaProfissional | null>(null);
+  const [notaCliente, setNotaCliente] = useState(0);
+  const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
+  const [erroAvaliacao, setErroAvaliacao] = useState("");
   const novas = demandas.filter((demanda) => demanda.status === "PENDENTE").length;
   const emAndamento = demandas.filter((demanda) => demanda.status === "ACEITA").length;
   const concluidas = demandas.filter((demanda) => demanda.status === "FINALIZADA").length;
@@ -88,6 +98,61 @@ export default function ProfessionalDemandsScreen() {
   function atualizar() {
     setAtualizando(true);
     void carregar(false);
+  }
+
+  async function finalizar(demanda: DemandaProfissional) {
+    setProcessandoId(demanda.propostaId);
+    setErro("");
+    try {
+      await finalizarProposta(demanda.propostaId);
+      const finalizada = { ...demanda, status: "FINALIZADA" as const };
+      setDemandas((atuais) =>
+        atuais.map((item) =>
+          item.propostaId === demanda.propostaId ? finalizada : item
+        )
+      );
+      abrirAvaliacao(finalizada);
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível finalizar o serviço."
+      );
+    } finally {
+      setProcessandoId(null);
+    }
+  }
+
+  function abrirAvaliacao(demanda: DemandaProfissional) {
+    setAvaliacaoPendente(demanda);
+    setNotaCliente(0);
+    setErroAvaliacao("");
+  }
+
+  async function enviarAvaliacao() {
+    if (!avaliacaoPendente || notaCliente === 0) return;
+
+    setEnviandoAvaliacao(true);
+    setErroAvaliacao("");
+    try {
+      await avaliarCliente(avaliacaoPendente.propostaId, notaCliente);
+      setDemandas((atuais) =>
+        atuais.map((item) =>
+          item.propostaId === avaliacaoPendente.propostaId
+            ? { ...item, notaCliente }
+            : item
+        )
+      );
+      setAvaliacaoPendente(null);
+    } catch (error) {
+      setErroAvaliacao(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível enviar a avaliação."
+      );
+    } finally {
+      setEnviandoAvaliacao(false);
+    }
   }
 
   return (
@@ -170,6 +235,9 @@ export default function ProfessionalDemandsScreen() {
             demandas.map((demanda) => {
               const status = statusConfig[demanda.status];
               const pendente = demanda.status === "PENDENTE";
+              const emAndamento = demanda.status === "ACEITA";
+              const aguardandoAvaliacao =
+                demanda.status === "FINALIZADA" && demanda.notaCliente == null;
 
               return (
               <TouchableOpacity
@@ -218,6 +286,31 @@ export default function ProfessionalDemandsScreen() {
                   <Text style={styles.pendingHint}>Toque para responder à proposta</Text>
                 ) : null}
 
+                {emAndamento ? (
+                  <TouchableOpacity
+                    style={styles.finishButton}
+                    onPress={() => void finalizar(demanda)}
+                    disabled={processandoId === demanda.propostaId}
+                  >
+                    {processandoId === demanda.propostaId ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <MaterialIcons name="check-circle" size={18} color="#fff" />
+                    )}
+                    <Text style={styles.finishButtonText}>Finalizar serviço</Text>
+                  </TouchableOpacity>
+                ) : null}
+
+                {aguardandoAvaliacao ? (
+                  <TouchableOpacity
+                    style={styles.rateButton}
+                    onPress={() => abrirAvaliacao(demanda)}
+                  >
+                    <MaterialIcons name="star-outline" size={18} color="#0D3D8B" />
+                    <Text style={styles.rateButtonText}>Avaliar cliente</Text>
+                  </TouchableOpacity>
+                ) : null}
+
                 <View style={styles.cardBottom}>
                   <View>
                     <Text style={styles.metaLabel}>Valor da proposta</Text>
@@ -234,6 +327,50 @@ export default function ProfessionalDemandsScreen() {
           )}
         </ScrollView>
       )}
+
+      <Modal
+        visible={avaliacaoPendente != null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAvaliacaoPendente(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIcon}>
+              <MaterialIcons name="person" size={30} color="#0D3D8B" />
+            </View>
+            <Text style={styles.modalTitle}>Avalie o cliente</Text>
+            <Text style={styles.modalText}>
+              Como foi trabalhar com {avaliacaoPendente?.nomeCliente} neste serviço?
+            </Text>
+            <StarRating rating={notaCliente} onRatingChange={setNotaCliente} size={38} />
+            {erroAvaliacao ? (
+              <Text style={styles.modalError}>{erroAvaliacao}</Text>
+            ) : null}
+            <TouchableOpacity
+              style={[
+                styles.submitRatingButton,
+                (notaCliente === 0 || enviandoAvaliacao) && styles.disabledButton,
+              ]}
+              disabled={notaCliente === 0 || enviandoAvaliacao}
+              onPress={() => void enviarAvaliacao()}
+            >
+              {enviandoAvaliacao ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.submitRatingText}>Enviar avaliação</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.laterButton}
+              onPress={() => setAvaliacaoPendente(null)}
+              disabled={enviandoAvaliacao}
+            >
+              <Text style={styles.laterButtonText}>Avaliar depois</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <ProfessionalNavBar active="demandas" />
     </SafeAreaView>
@@ -449,6 +586,105 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "700",
     marginTop: 10,
+  },
+  finishButton: {
+    marginTop: 13,
+    borderRadius: 12,
+    paddingVertical: 11,
+    backgroundColor: "#0D3D8B",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+  },
+  finishButtonText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  rateButton: {
+    marginTop: 13,
+    borderRadius: 12,
+    paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: "#0D3D8B",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+  },
+  rateButtonText: {
+    color: "#0D3D8B",
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.48)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 22,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    padding: 24,
+    alignItems: "center",
+  },
+  modalIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: "#E8EDFA",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  modalTitle: {
+    color: "#111",
+    fontSize: 21,
+    fontWeight: "800",
+  },
+  modalText: {
+    color: "#6B6B7A",
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+    marginTop: 7,
+    marginBottom: 18,
+  },
+  modalError: {
+    color: "#B3261E",
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  submitRatingButton: {
+    width: "100%",
+    minHeight: 48,
+    borderRadius: 14,
+    backgroundColor: "#0D3D8B",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  submitRatingText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  disabledButton: {
+    opacity: 0.55,
+  },
+  laterButton: {
+    paddingHorizontal: 18,
+    paddingTop: 15,
+  },
+  laterButtonText: {
+    color: "#6B6B7A",
+    fontSize: 13,
+    fontWeight: "700",
   },
   cardBottom: {
     flexDirection: "row",

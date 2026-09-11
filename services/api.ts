@@ -29,6 +29,21 @@ export interface UserProfile {
   telefone: string | null;
   tipoPessoa: "CPF" | "CNPJ";
   endereco: Endereco;
+  fotoPerfilUrl: string | null;
+  totalServicosFinalizados: number;
+  mediaAvaliacoesCliente: number;
+}
+
+export interface ProfilePhotoAsset {
+  uri: string;
+  contentType: "image/jpeg" | "image/png" | "image/webp";
+  size: number;
+}
+
+interface ProfilePhotoUploadAuthorization {
+  uploadUrl: string;
+  objectKey: string;
+  expiresAt: string;
 }
 
 export interface UpdateUserProfilePayload {
