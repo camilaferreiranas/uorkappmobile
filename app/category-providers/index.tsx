@@ -2,14 +2,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfessionalCard } from "../../components/ui/professional-card";
+import { ProfileScreenHeader } from "../../components/ui/profile-screen-header";
 import { Colors } from "../../constants/theme";
 import { buscarPrestadoresCategoria, Prestador } from "../../services/prestadorService";
 /*
@@ -60,17 +60,17 @@ export default function CategoryProvidersScreen() {
     }
   }, [categoriaId]);
 
+  const subtitulo = carregando
+    ? "Carregando profissionais..."
+    : `${prestadores.length} ${
+        prestadores.length === 1
+          ? "profissional disponível"
+          : "profissionais disponíveis"
+      }`;
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.white} />
-        </TouchableOpacity>
-        <View>
-          <Text style={styles.headerTitle}>{category}</Text>
-          <Text style={styles.headerSubtitle}>{prestadores.length} profissionais disponíveis</Text>
-        </View>
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <ProfileScreenHeader title={category ?? "Categoria"} subtitle={subtitulo} />
 
       <ScrollView
         contentContainerStyle={styles.container}
@@ -115,33 +115,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#F7F7F7",
-  },
-  header: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    color: Colors.white,
-    fontSize: 22,
-    fontWeight: "800",
-    marginBottom: 2,
-  },
-  headerSubtitle: {
-    color: "#FFE5D9",
-    fontSize: 13,
   },
   container: {
     paddingTop: 14,
