@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
+    Alert,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -14,6 +15,7 @@ import { ScreenContainer } from "../../components/ui/screen-container";
 import { Card } from "../../components/ui/card";
 import { StarRating } from "../../components/ui/star-rating";
 import { PillGroup } from "../../components/ui/pill-group";
+import { avaliarPrestador } from "../../services/propostaService";
 
 const qualityTags = [
   "Pontualidade",
@@ -24,7 +26,10 @@ const qualityTags = [
 
 export default function ReviewScreen() {
   const router = useRouter();
-  const { professional } = useLocalSearchParams<{ professional?: string }>();
+  const { professional, propostaId } = useLocalSearchParams<{
+    professional?: string;
+    propostaId?: string;
+  }>();
   const professionalName = professional?.trim() || "Prestador";
   const partesNome = professionalName.split(/\s+/);
   const initials = `${partesNome[0]?.[0] ?? "P"}${
@@ -33,6 +38,40 @@ export default function ReviewScreen() {
   const [rating, setRating] = useState(0);
   const [selectedTag, setSelectedTag] = useState("");
   const [comment, setComment] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function enviarAvaliacao() {
+    const id = Number(propostaId);
+    if (!Number.isInteger(id) || id <= 0) {
+      setErro("Não foi possível identificar o serviço avaliado.");
+      return;
+    }
+
+    setEnviando(true);
+    setErro("");
+    try {
+      await avaliarPrestador(id, {
+        nota: rating,
+        destaque: selectedTag || null,
+        comentario: comment.trim() || null,
+      });
+
+      Alert.alert(
+        "Avaliação enviada!",
+        "Obrigado por compartilhar sua experiência.",
+        [{ text: "Voltar ao histórico", onPress: () => router.back() }]
+      );
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível enviar a avaliação."
+      );
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   return (
     <ScreenContainer backgroundColor="#F7F7F7">
@@ -75,6 +114,8 @@ export default function ReviewScreen() {
         onChangeText={setComment}
         placeholder="Compartilhe sua experiência (opcional)"
         multiline
+        maxLength={500}
+        editable={!enviando}
         style={[styles.whiteInput, styles.textArea]}
       />
 
@@ -86,10 +127,13 @@ export default function ReviewScreen() {
         </Text>
       </View>
 
+      {erro ? <Text style={styles.submitError}>{erro}</Text> : null}
+
       <Button
         title="Enviar avaliação"
-        disabled={rating === 0}
-        onPress={() => {}}
+        loading={enviando}
+        disabled={rating === 0 || enviando}
+        onPress={() => void enviarAvaliacao()}
         style={styles.submitButton}
       />
     </ScreenContainer>
@@ -183,5 +227,11 @@ const styles = StyleSheet.create({
   submitButton: {
     borderRadius: 18,
     paddingVertical: 18,
+  },
+  submitError: {
+    color: Colors.error,
+    fontSize: 13,
+    textAlign: "center",
+    marginBottom: 12,
   },
 });

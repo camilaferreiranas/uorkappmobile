@@ -91,6 +91,17 @@ export interface HistoricoCliente {
   valor: number;
   status: StatusProposta;
   dataCriacao: string;
+  notaPrestador: number | null;
+}
+
+export interface AvaliacaoPrestadorPayload {
+  nota: number;
+  destaque: string | null;
+  comentario: string | null;
+}
+
+export interface AvaliacaoPrestadorResponse extends AvaliacaoPrestadorPayload {
+  propostaId: number;
 }
 
 export interface ContatoWhatsApp {
@@ -232,6 +243,39 @@ export async function avaliarCliente(propostaId: number, nota: number): Promise<
       json?.erros?.[0] ?? json?.message ?? "Não foi possível avaliar o cliente."
     );
   }
+}
+
+export async function avaliarPrestador(
+  propostaId: number,
+  avaliacao: AvaliacaoPrestadorPayload
+): Promise<AvaliacaoPrestadorResponse> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(
+    `${API_URL}/propostas/${propostaId}/avaliar-prestador`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${storedToken.accessToken}`,
+      },
+      body: JSON.stringify(avaliacao),
+    }
+  );
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ??
+        json?.message ??
+        "Não foi possível enviar a avaliação."
+    );
+  }
+
+  return json.data;
 }
 
 export async function buscarDetalheDemanda(propostaId: number): Promise<DetalheDemanda> {

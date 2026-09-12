@@ -274,18 +274,27 @@ export default function ClientHistoryScreen() {
                   ) : null}
 
                   <View style={styles.actionsRow}>
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.reviewButton]}
-                      onPress={() => avaliarPrestador(item)}
-                      activeOpacity={0.75}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Avaliar ${item.nomePrestador}`}
-                    >
-                      <MaterialIcons name="star-outline" size={18} color={Colors.primary} />
-                      <Text style={styles.reviewButtonText} numberOfLines={1}>
-                        Avaliar prestador
-                      </Text>
-                    </TouchableOpacity>
+                    {item.status === "FINALIZADA" && item.notaPrestador == null ? (
+                      <TouchableOpacity
+                        style={[styles.actionButton, styles.reviewButton]}
+                        onPress={() => avaliarPrestador(item)}
+                        activeOpacity={0.75}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Avaliar ${item.nomePrestador}`}
+                      >
+                        <MaterialIcons name="star-outline" size={18} color={Colors.primary} />
+                        <Text style={styles.reviewButtonText} numberOfLines={1}>
+                          Avaliar prestador
+                        </Text>
+                      </TouchableOpacity>
+                    ) : item.status === "FINALIZADA" && item.notaPrestador != null ? (
+                      <View style={[styles.actionButton, styles.reviewCompleted]}>
+                        <MaterialIcons name="star" size={18} color="#FFB800" />
+                        <Text style={styles.reviewCompletedText} numberOfLines={1}>
+                          Avaliado: {Number(item.notaPrestador).toFixed(1)}
+                        </Text>
+                      </View>
+                    ) : null}
 
                     <TouchableOpacity
                       style={[styles.actionButton, styles.hireAgainButton]}
@@ -414,6 +423,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   reviewButtonText: { color: Colors.primary, fontSize: 11, fontWeight: "800" },
+  reviewCompleted: {
+    backgroundColor: "#FFF8E6",
+    borderWidth: 1,
+    borderColor: "#FFE0A3",
+  },
+  reviewCompletedText: { color: "#8A6200", fontSize: 11, fontWeight: "800" },
   hireAgainButton: { backgroundColor: Colors.primary },
   hireAgainButtonText: { color: "#fff", fontSize: 11, fontWeight: "800" },
   emptyCard: {
