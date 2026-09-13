@@ -20,6 +20,8 @@ export function ProfileAvatar({
   borderWidth = 0,
   style,
 }: ProfileAvatarProps) {
+  const imageCacheKey = imageUrl?.replace(/[?#].*$/, "");
+
   return (
     <View
       style={[
@@ -37,9 +39,11 @@ export function ProfileAvatar({
     >
       {imageUrl ? (
         <Image
-          source={{ uri: imageUrl }}
+          source={{ uri: imageUrl, cacheKey: imageCacheKey }}
           style={styles.image}
           contentFit="cover"
+          cachePolicy="memory-disk"
+          recyclingKey={imageCacheKey}
           transition={180}
         />
       ) : (
