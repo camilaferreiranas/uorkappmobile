@@ -4,16 +4,16 @@ import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  FlatList,
   Modal,
   RefreshControl,
-  SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { StarRating } from "../../components/ui/star-rating";
 import {
@@ -55,8 +55,10 @@ function formatarData(data: string) {
 
 export default function ProfessionalDemandsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
+  const wide = width >= 700;
   const [demandas, setDemandas] = useState<DemandaProfissional[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
@@ -156,8 +158,14 @@ export default function ProfessionalDemandsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={[styles.header, compact && styles.headerCompact]}>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <View
+        style={[
+          styles.header,
+          { paddingTop: insets.top + 16 },
+          compact && styles.headerCompact,
+        ]}
+      >
         <Text style={[styles.headerTitle, compact && styles.headerTitleCompact]}>
           Todas as demandas
         </Text>
@@ -182,7 +190,12 @@ export default function ProfessionalDemandsScreen() {
           </TouchableOpacity>
         </View>
       ) : (
-        <ScrollView
+        <FlatList
+          key={wide ? "duas-colunas" : "uma-coluna"}
+          data={demandas}
+          keyExtractor={(demanda) => String(demanda.propostaId)}
+          numColumns={wide ? 2 : 1}
+          columnWrapperStyle={wide ? styles.demandRow : undefined}
           contentContainerStyle={[
             styles.container,
             compact && styles.containerCompact,
@@ -197,31 +210,31 @@ export default function ProfessionalDemandsScreen() {
               tintColor="#0D3D8B"
             />
           }
-        >
-          <View style={[styles.summaryRow, compact && styles.summaryRowCompact]}>
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
-                {novas}
-              </Text>
-              <Text style={styles.summaryLabel}>Novas</Text>
+          ListHeaderComponent={
+            <View style={[styles.summaryRow, compact && styles.summaryRowCompact]}>
+              <View style={styles.summaryItem}>
+                <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
+                  {novas}
+                </Text>
+                <Text style={styles.summaryLabel}>Novas</Text>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryItem}>
+                <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
+                  {emAndamento}
+                </Text>
+                <Text style={styles.summaryLabel}>Em andamento</Text>
+              </View>
+              <View style={styles.summaryDivider} />
+              <View style={styles.summaryItem}>
+                <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
+                  {concluidas}
+                </Text>
+                <Text style={styles.summaryLabel}>Concluídas</Text>
+              </View>
             </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
-                {emAndamento}
-              </Text>
-              <Text style={styles.summaryLabel}>Em andamento</Text>
-            </View>
-            <View style={styles.summaryDivider} />
-            <View style={styles.summaryItem}>
-              <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
-                {concluidas}
-              </Text>
-              <Text style={styles.summaryLabel}>Concluídas</Text>
-            </View>
-          </View>
-
-          {demandas.length === 0 ? (
+          }
+          ListEmptyComponent={
             <View style={styles.emptyCard}>
               <View style={styles.emptyIcon}>
                 <MaterialIcons name="assignment-turned-in" size={38} color="#0D3D8B" />
@@ -231,17 +244,16 @@ export default function ProfessionalDemandsScreen() {
                 As propostas recebidas aparecerão aqui, independentemente do status.
               </Text>
             </View>
-          ) : (
-            demandas.map((demanda) => {
-              const status = statusConfig[demanda.status];
-              const pendente = demanda.status === "PENDENTE";
-              const emAndamento = demanda.status === "ACEITA";
-              const aguardandoAvaliacao =
-                demanda.status === "FINALIZADA" && demanda.notaCliente == null;
+          }
+          renderItem={({ item: demanda }) => {
+            const status = statusConfig[demanda.status];
+            const pendente = demanda.status === "PENDENTE";
+            const demandaEmAndamento = demanda.status === "ACEITA";
+            const aguardandoAvaliacao =
+              demanda.status === "FINALIZADA" && demanda.notaCliente == null;
 
-              return (
+            return (
               <TouchableOpacity
-                key={demanda.propostaId}
                 style={styles.demandCard}
                 activeOpacity={pendente ? 0.75 : 1}
                 disabled={!pendente}
@@ -286,7 +298,7 @@ export default function ProfessionalDemandsScreen() {
                   <Text style={styles.pendingHint}>Toque para responder à proposta</Text>
                 ) : null}
 
-                {emAndamento ? (
+                {demandaEmAndamento ? (
                   <TouchableOpacity
                     style={styles.finishButton}
                     onPress={() => void finalizar(demanda)}
@@ -322,10 +334,9 @@ export default function ProfessionalDemandsScreen() {
                   </View>
                 </View>
               </TouchableOpacity>
-              );
-            })
-          )}
-        </ScrollView>
+            );
+          }}
+        />
       )}
 
       <Modal
@@ -385,12 +396,11 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: "#0D3D8B",
     paddingHorizontal: 20,
-    paddingTop: 22,
     paddingBottom: 22,
   },
   headerCompact: {
     paddingHorizontal: 16,
-    paddingVertical: 18,
+    paddingBottom: 18,
   },
   headerTitle: {
     color: "#fff",
@@ -406,6 +416,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   container: {
+    width: "100%",
+    maxWidth: 1000,
+    alignSelf: "center",
     padding: 20,
     paddingTop: 22,
     paddingBottom: 120,
@@ -521,6 +534,7 @@ const styles = StyleSheet.create({
     marginTop: 7,
   },
   demandCard: {
+    flex: 1,
     backgroundColor: "#fff",
     borderRadius: 18,
     padding: 17,
@@ -530,6 +544,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
+  },
+  demandRow: {
+    gap: 14,
   },
   cardTop: {
     flexDirection: "row",

@@ -15,7 +15,7 @@ interface NavItem {
 const items: NavItem[] = [
   { label: "Início", icon: "home", tab: "inicio", route: "/professional-home" },
   { label: "Demandas", icon: "list-alt", tab: "demandas", route: "/professional-demands" },
-  { label: "Relatório", icon: "bar-chart", tab: "relatorio", route: "/professional-report" },
+  // { label: "Relatório", icon: "bar-chart", tab: "relatorio", route: "/professional-report" },
   { label: "Perfil", icon: "person", tab: "perfil", route: "/professional-profile" },
 ];
 
