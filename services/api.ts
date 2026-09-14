@@ -214,3 +214,93 @@ export async function updateUserAddress(
 
   return (json as ApiResponse<UserProfile>).data;
 }
+
+export async function uploadUserProfilePhoto(
+  accessToken: string,
+  photo: ProfilePhotoAsset
+): Promise<UserProfile> {
+  const authorizationResponse = await fetch(
+    `${API_URL}/usuario/perfil/foto/upload-url`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        contentType: photo.contentType,
+        tamanhoBytes: photo.size,
+      }),
+    }
+  );
+
+  const authorizationJson =
+    (await authorizationResponse.json()) as
+      | ApiResponse<ProfilePhotoUploadAuthorization>
+      | ApiError;
+
+  if (!authorizationResponse.ok) {
+    throw new Error(
+      ("erros" in authorizationJson ? authorizationJson.erros?.[0] : undefined) ??
+        authorizationJson.message ??
+        "Não foi possível preparar o envio da foto."
+    );
+  }
+
+  const authorization = (
+    authorizationJson as ApiResponse<ProfilePhotoUploadAuthorization>
+  ).data;
+  const localResponse = await fetch(photo.uri);
+  const imageBlob = await localResponse.blob();
+
+  const uploadResponse = await fetch(authorization.uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": photo.contentType },
+    body: imageBlob,
+  });
+
+  if (!uploadResponse.ok) {
+    throw new Error("Não foi possível enviar a foto para o armazenamento.");
+  }
+
+  const confirmationResponse = await fetch(`${API_URL}/usuario/perfil/foto`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ objectKey: authorization.objectKey }),
+  });
+  const confirmationJson =
+    (await confirmationResponse.json()) as ApiResponse<UserProfile> | ApiError;
+
+  if (!confirmationResponse.ok) {
+    throw new Error(
+      ("erros" in confirmationJson ? confirmationJson.erros?.[0] : undefined) ??
+        confirmationJson.message ??
+        "A foto foi enviada, mas não foi possível atualizar o perfil."
+    );
+  }
+
+  return (confirmationJson as ApiResponse<UserProfile>).data;
+}
+
+export async function removeUserProfilePhoto(
+  accessToken: string
+): Promise<UserProfile> {
+  const response = await fetch(`${API_URL}/usuario/perfil/foto`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const json = (await response.json()) as ApiResponse<UserProfile> | ApiError;
+
+  if (!response.ok) {
+    throw new Error(
+      ("erros" in json ? json.erros?.[0] : undefined) ??
+        json.message ??
+        "Não foi possível remover a foto de perfil."
+    );
+  }
+
+  return (json as ApiResponse<UserProfile>).data;
+}

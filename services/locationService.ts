@@ -7,6 +7,10 @@ export interface Coordenadas {
   longitude: number;
 }
 
+export interface LocalizacaoDetalhada extends Coordenadas {
+  descricao: string;
+}
+
 interface LocalizacaoSalva extends Coordenadas {
   capturadaEm: number;
 }
@@ -94,5 +98,38 @@ export async function obterLocalizacaoAtual(): Promise<Coordenadas | null> {
   } catch (error) {
     console.warn("Não foi possível obter a localização atual:", error);
     return null;
+  }
+}
+
+export async function obterLocalizacaoDetalhadaAtual(): Promise<LocalizacaoDetalhada | null> {
+  const coordenadas = await obterLocalizacaoAtual();
+  if (!coordenadas) return null;
+
+  try {
+    const [endereco] = await Location.reverseGeocodeAsync(coordenadas);
+    const descricao = endereco
+      ? [
+          endereco.street,
+          endereco.streetNumber,
+          endereco.district,
+          endereco.city,
+          endereco.region,
+          endereco.postalCode,
+        ]
+          .filter((parte): parte is string => Boolean(parte?.trim()))
+          .join(", ")
+      : "";
+
+    return {
+      ...coordenadas,
+      descricao:
+        descricao ||
+        `${coordenadas.latitude.toFixed(6)}, ${coordenadas.longitude.toFixed(6)}`,
+    };
+  } catch {
+    return {
+      ...coordenadas,
+      descricao: `${coordenadas.latitude.toFixed(6)}, ${coordenadas.longitude.toFixed(6)}`,
+    };
   }
 }

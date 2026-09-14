@@ -2,16 +2,16 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import {
     Animated,
-    SafeAreaView,
     StyleSheet,
     Text,
-    View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme";
 import { Button } from "../components/ui/button";
 
 export default function SplashScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -31,7 +31,12 @@ export default function SplashScreen() {
         </Text>
       </Animated.View>
 
-      <Animated.View style={[styles.actions, { opacity: fadeAnim }]}>
+      <Animated.View
+        style={[
+          styles.actions,
+          { opacity: fadeAnim, paddingBottom: Math.max(insets.bottom + 24, 56) },
+        ]}
+      >
         <Button
           title="Criar conta"
           variant="secondary"
@@ -79,7 +84,6 @@ const styles = StyleSheet.create({
     maxWidth: 280,
   },
   actions: {
-    paddingBottom: 40,
     gap: 12,
   },
   primaryButton: {

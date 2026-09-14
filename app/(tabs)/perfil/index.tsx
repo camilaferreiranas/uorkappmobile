@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import {
   SafeAreaView,
   ScrollView,
@@ -14,6 +14,7 @@ import { useAuth } from "../../../contexts/auth-context";
 import { getInitials } from "../../../utils/get-initials";
 
 const menuItems = [
+  { icon: "assignment", label: "Minhas demandas" },
   { icon: "edit", label: "Editar perfil" },
   { icon: "location-on", label: "Meu endereço" },
   { icon: "notifications", label: "Notificações" },
@@ -28,6 +29,11 @@ export default function PerfilScreen() {
   const { user, logout } = useAuth();
 
   async function handleMenuPress(label: string) {
+    if (label === "Minhas demandas") {
+      router.push("/my-demands" as Href);
+      return;
+    }
+
     if (label === "Editar perfil") {
       router.push("/edit-profile");
       return;
