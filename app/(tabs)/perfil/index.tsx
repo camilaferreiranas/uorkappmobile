@@ -15,6 +15,7 @@ import { getInitials } from "../../../utils/get-initials";
 
 const menuItems = [
   { icon: "assignment", label: "Minhas demandas" },
+  { icon: "send", label: "Minhas propostas" },
   { icon: "edit", label: "Editar perfil" },
   { icon: "location-on", label: "Meu endereço" },
   { icon: "notifications", label: "Notificações" },
@@ -31,6 +32,11 @@ export default function PerfilScreen() {
   async function handleMenuPress(label: string) {
     if (label === "Minhas demandas") {
       router.push("/my-demands" as Href);
+      return;
+    }
+
+    if (label === "Minhas propostas") {
+      router.push("/my-proposals" as Href);
       return;
     }
 

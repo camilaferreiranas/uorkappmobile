@@ -1,9 +1,11 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -13,15 +15,67 @@ import {
 } from "react-native";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { PillGroup } from "../../components/ui/pill-group";
 import { Select } from "../../components/ui/select";
 import { Colors } from "../../constants/theme";
-import { enviarProposta } from "../../services/propostaService";
+import { obterLocalizacaoDetalhadaAtual } from "../../services/locationService";
+import { enviarProposta, type NovaProposta } from "../../services/propostaService";
 
-const professionalServices = [
-  "Instalação elétrica",
-  "Troca de lâmpadas",
-  "Laudo técnico",
-];
+const OUTROS = "Outros";
+const URGENCIAS = ["Normal", "Urgente", "Hoje"];
+const URGENCIA_API: Record<string, NovaProposta["urgencia"]> = {
+  Normal: "NORMAL",
+  Urgente: "URGENTE",
+  Hoje: "HOJE",
+};
+const MAX_FOTO_BYTES = 5 * 1024 * 1024;
+const MAX_TIPO_SERVICO = 60;
+const MAX_DESCRICAO = 500;
+const MAX_LOCALIZACAO = 255;
+
+type FotoProposta = NonNullable<NovaProposta["foto"]>;
+
+interface ErrosFormulario {
+  tipoServico?: string;
+  descricao?: string;
+  localizacao?: string;
+  urgencia?: string;
+}
+
+function tipoDaFoto(
+  asset: ImagePicker.ImagePickerAsset
+): FotoProposta["contentType"] | null {
+  const mimeType = asset.mimeType?.toLowerCase();
+  if (
+    mimeType === "image/jpeg" ||
+    mimeType === "image/png" ||
+    mimeType === "image/webp"
+  ) {
+    return mimeType;
+  }
+
+  const extensao = (asset.fileName ?? asset.uri)
+    .split(/[?#]/, 1)[0]
+    .split(".")
+    .pop()
+    ?.toLowerCase();
+  if (extensao === "jpg" || extensao === "jpeg") return "image/jpeg";
+  if (extensao === "png") return "image/png";
+  if (extensao === "webp") return "image/webp";
+  return null;
+}
+
+function lerServicos(valor?: string): string[] {
+  if (!valor) return [];
+  try {
+    const itens = JSON.parse(valor) as unknown;
+    return Array.isArray(itens)
+      ? itens.filter((item): item is string => typeof item === "string" && Boolean(item.trim()))
+      : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function SendProposalScreen() {
   const router = useRouter();
@@ -29,81 +83,171 @@ export default function SendProposalScreen() {
     prestadorId,
     professional,
     service,
-    initialTitle,
+    serviceOptions,
     initialDescription,
-    initialBudget,
+    initialLocation,
+    initialUrgency,
   } = useLocalSearchParams<{
     prestadorId: string;
     professional: string;
-    service: string;
-    initialTitle?: string;
+    service?: string;
+    serviceOptions?: string;
     initialDescription?: string;
-    initialBudget?: string;
+    initialLocation?: string;
+    initialUrgency?: string;
   }>();
 
-  const [title, setTitle] = useState(initialTitle ?? "");
-  const [description, setDescription] = useState(initialDescription ?? "");
-  const [selectedService, setSelectedService] = useState(service ?? "");
-  const [budget, setBudget] = useState(initialBudget ?? "");
+  const opcoesServico = useMemo(() => {
+    const opcoes = [service ?? "", ...lerServicos(serviceOptions)]
+      .map((item) => item.trim())
+      .filter((item) => item && item.toLowerCase() !== OUTROS.toLowerCase());
+    return [...new Set(opcoes), OUTROS];
+  }, [service, serviceOptions]);
+
+  const [servicoSelecionado, setServicoSelecionado] = useState(service ?? "");
+  const [outroServico, setOutroServico] = useState("");
+  const [descricao, setDescricao] = useState(initialDescription ?? "");
+  const [localizacao, setLocalizacao] = useState(initialLocation ?? "");
+  const [urgencia, setUrgencia] = useState(
+    URGENCIAS.includes(initialUrgency ?? "") ? initialUrgency! : "Normal"
+  );
+  const [foto, setFoto] = useState<FotoProposta | undefined>();
+  const [erros, setErros] = useState<ErrosFormulario>({});
+  const [erroEnvio, setErroEnvio] = useState("");
+  const [obtendoLocalizacao, setObtendoLocalizacao] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [enviada, setEnviada] = useState(false);
 
-  const handleSubmit = async () => {
-    
-    if (!title.trim()) {
-      Alert.alert("Atenção", "Informe um título para a proposta.");
-      return;
-    }
+  const tipoServico =
+    servicoSelecionado === OUTROS ? outroServico.trim() : servicoSelecionado.trim();
 
-    if (!description.trim()) {
-      Alert.alert("Atenção", "Descreva o que você precisa.");
-      return;
-    }
-
-    const valorNumerico = Number(
-      budget.replace("R$", "").trim().replace(".", "").replace(",", ".")
-    );
-
-    if (!budget || isNaN(valorNumerico) || valorNumerico <= 0) {
-      Alert.alert("Atenção", "Informe um orçamento válido.");
-      return;
-    }
-
-    if (!prestadorId) {
-      Alert.alert("Erro", "Prestador não identificado. Volte e tente novamente.");
-      return;
-    }
-
+  async function usarLocalizacaoAtual() {
+    setObtendoLocalizacao(true);
+    setErroEnvio("");
     try {
-      setEnviando(true);
+      const atual = await obterLocalizacaoDetalhadaAtual();
+      if (!atual) {
+        Alert.alert(
+          "Localização não disponível",
+          "Permita o acesso à localização ou informe o endereço do serviço."
+        );
+        return;
+      }
+      setLocalizacao(atual.descricao);
+      setErros((atuais) => ({ ...atuais, localizacao: undefined }));
+    } finally {
+      setObtendoLocalizacao(false);
+    }
+  }
 
+  async function selecionarFoto() {
+    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissao.granted) {
+      Alert.alert(
+        "Permissão necessária",
+        "Autorize o acesso às fotos para anexar uma imagem à proposta."
+      );
+      return;
+    }
+
+    const resultado = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsMultipleSelection: false,
+      quality: 0.8,
+    });
+    if (resultado.canceled) return;
+
+    const asset = resultado.assets[0];
+    const contentType = tipoDaFoto(asset);
+    if (!contentType || (asset.fileSize != null && asset.fileSize > MAX_FOTO_BYTES)) {
+      Alert.alert(
+        "Foto inválida",
+        "Use uma imagem JPEG, PNG ou WebP com até 5 MB."
+      );
+      return;
+    }
+
+    setFoto({
+      uri: asset.uri,
+      nome: asset.fileName ?? `proposta-${Date.now()}.jpg`,
+      contentType,
+    });
+  }
+
+  function validar(): boolean {
+    const novosErros: ErrosFormulario = {};
+    const descricaoNormalizada = descricao.trim();
+    const localizacaoNormalizada = localizacao.trim();
+
+    if (!tipoServico) {
+      novosErros.tipoServico =
+        servicoSelecionado === OUTROS
+          ? "Informe qual tipo de serviço você precisa."
+          : "Selecione o tipo de serviço.";
+    } else if (tipoServico.length < 2 || tipoServico.length > MAX_TIPO_SERVICO) {
+      novosErros.tipoServico = "O tipo de serviço deve ter entre 2 e 60 caracteres.";
+    }
+
+    if (!descricaoNormalizada) {
+      novosErros.descricao = "A descrição é obrigatória.";
+    } else if (descricaoNormalizada.length < 10) {
+      novosErros.descricao = "A descrição deve ter pelo menos 10 caracteres.";
+    }
+
+    if (!localizacaoNormalizada) {
+      novosErros.localizacao = "A localização do serviço é obrigatória.";
+    }
+
+    if (!URGENCIA_API[urgencia]) {
+      novosErros.urgencia = "Selecione a urgência da demanda.";
+    }
+
+    setErros(novosErros);
+    return Object.keys(novosErros).length === 0;
+  }
+
+  async function enviar() {
+    setErroEnvio("");
+    if (!validar()) return;
+
+    const id = Number(prestadorId);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      setErroEnvio("Prestador não identificado. Volte e tente novamente.");
+      return;
+    }
+
+    setEnviando(true);
+    try {
       await enviarProposta({
-        prestadorId: Number(prestadorId),
-        titulo: title.trim(),
-        descricao: description.trim(),
-        valor: valorNumerico,
+        prestadorId: id,
+        tipoServico,
+        descricao: descricao.trim(),
+        localizacao: localizacao.trim(),
+        urgencia: URGENCIA_API[urgencia] ?? "NORMAL",
+        foto,
       });
-
-      setSubmitted(true);
-      setTimeout(() => router.back(), 2000);
-    } catch {
-      Alert.alert("Erro", "Não foi possível enviar a proposta. Tente novamente.");
+      setEnviada(true);
+    } catch (error) {
+      setErroEnvio(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível enviar a proposta."
+      );
     } finally {
       setEnviando(false);
     }
-  };
+  }
 
-  if (submitted) {
+  if (enviada) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.successContainer}>
-          <View style={styles.successIcon}>
-            <MaterialIcons name="check-circle" size={64} color="#2E7D32" />
-          </View>
+          <MaterialIcons name="check-circle" size={70} color="#2E7D32" />
           <Text style={styles.successTitle}>Proposta enviada!</Text>
           <Text style={styles.successText}>
-            Sua proposta foi enviada para {professional}. Aguarde o retorno.
+            {professional} recebeu sua solicitação e poderá analisar os detalhes do serviço.
           </Text>
+          <Button title="Voltar ao perfil" onPress={() => router.back()} style={styles.successButton} />
         </View>
       </SafeAreaView>
     );
@@ -112,12 +256,12 @@ export default function SendProposalScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-          <MaterialIcons name="arrow-back" size={22} color={Colors.white} />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <MaterialIcons name="arrow-back" size={22} color="#fff" />
         </TouchableOpacity>
-        <View>
-          <Text style={styles.headerTitle}>Enviar Proposta</Text>
-          <Text style={styles.headerSubtitle}>{professional}</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>Enviar proposta</Text>
+          <Text style={styles.headerSubtitle} numberOfLines={1}>{professional}</Text>
         </View>
       </View>
 
@@ -126,67 +270,119 @@ export default function SendProposalScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.infoCard}>
-          <MaterialIcons name="info-outline" size={18} color={Colors.primary} />
-          <Text style={styles.infoText}>
-            Preencha os detalhes da sua proposta. O profissional receberá uma notificação.
-          </Text>
-        </View>
-
-        <Input
-          label="Título da proposta"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Ex: Preciso trocar 3 lâmpadas na sala"
-          maxLength={80}
-          style={styles.input}
+        <Select
+          label="Tipo de serviço"
+          value={servicoSelecionado}
+          options={opcoesServico}
+          placeholder="Selecione o tipo de serviço"
+          onSelect={(valor) => {
+            setServicoSelecionado(valor);
+            setErros((atuais) => ({ ...atuais, tipoServico: undefined }));
+          }}
         />
+        {servicoSelecionado === OUTROS ? (
+          <Input
+            label="Qual serviço você precisa?"
+            value={outroServico}
+            onChangeText={(valor) => {
+              setOutroServico(valor);
+              setErros((atuais) => ({ ...atuais, tipoServico: undefined }));
+            }}
+            placeholder="Ex: Montagem de móveis"
+            maxLength={MAX_TIPO_SERVICO}
+            error={erros.tipoServico}
+            style={styles.input}
+          />
+        ) : erros.tipoServico ? (
+          <Text style={styles.fieldError}>{erros.tipoServico}</Text>
+        ) : null}
 
         <Input
           label="Descrição"
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Descreva o que você precisa com detalhes..."
+          value={descricao}
+          onChangeText={(valor) => {
+            setDescricao(valor);
+            setErros((atuais) => ({ ...atuais, descricao: undefined }));
+          }}
+          placeholder="Descreva com detalhes o serviço que você precisa"
           multiline
-          numberOfLines={5}
+          numberOfLines={6}
+          maxLength={MAX_DESCRICAO}
+          error={erros.descricao}
           style={[styles.input, styles.textArea]}
         />
 
-        <Select
-          label="Tipo de serviço"
-          value={selectedService}
-          options={professionalServices}
-          placeholder="Selecione o serviço"
-          onSelect={setSelectedService}
-        />
-
         <Input
-          label="Orçamento disponível"
-          value={budget}
-          onChangeText={setBudget}
-          placeholder="R$ 0,00"
-          keyboardType="numeric"
+          label="Localização do serviço"
+          value={localizacao}
+          onChangeText={(valor) => {
+            setLocalizacao(valor);
+            setErros((atuais) => ({ ...atuais, localizacao: undefined }));
+          }}
+          placeholder="CEP, endereço ou ponto de referência"
+          maxLength={MAX_LOCALIZACAO}
+          error={erros.localizacao}
           style={styles.input}
         />
-
         <Button
-          title={enviando ? "Enviando..." : "Enviar proposta"}
-          onPress={handleSubmit}
-          style={styles.submitButton}
-          disabled={enviando}
+          title={obtendoLocalizacao ? "Obtendo localização..." : "Usar localização atual"}
+          onPress={() => void usarLocalizacaoAtual()}
+          loading={obtendoLocalizacao}
+          disabled={obtendoLocalizacao || enviando}
+          style={styles.locationButton}
         />
 
-        {enviando && <ActivityIndicator style={{ marginTop: 16 }} color={Colors.primary} />}
+        <PillGroup
+          label="Urgência da demanda"
+          options={URGENCIAS}
+          value={urgencia}
+          onSelect={(valor) => {
+            setUrgencia(valor);
+            setErros((atuais) => ({ ...atuais, urgencia: undefined }));
+          }}
+        />
+        {erros.urgencia ? <Text style={styles.fieldError}>{erros.urgencia}</Text> : null}
+
+        <View style={styles.photoSection}>
+          <Text style={styles.label}>Foto (opcional)</Text>
+          {foto ? (
+            <View style={styles.photoPreviewContainer}>
+              <Image source={{ uri: foto.uri }} style={styles.photoPreview} />
+              <TouchableOpacity
+                style={styles.removePhotoButton}
+                onPress={() => setFoto(undefined)}
+                accessibilityLabel="Remover foto"
+              >
+                <MaterialIcons name="close" size={18} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <Text style={styles.photoHint}>Você pode anexar uma imagem de até 5 MB.</Text>
+          )}
+          <Button
+            title={foto ? "Trocar foto" : "Adicionar foto"}
+            variant="outline"
+            onPress={() => void selecionarFoto()}
+            disabled={enviando}
+            style={styles.photoButton}
+          />
+        </View>
+
+        {erroEnvio ? <Text style={styles.submitError}>{erroEnvio}</Text> : null}
+        <Button
+          title={enviando ? "Enviando..." : "Enviar proposta"}
+          onPress={() => void enviar()}
+          disabled={enviando}
+          style={styles.submitButton}
+        />
+        {enviando ? <ActivityIndicator style={styles.loading} color={Colors.primary} /> : null}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#F7F7F7",
-  },
+  safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
   header: {
     backgroundColor: Colors.primary,
     paddingHorizontal: 20,
@@ -204,71 +400,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: {
-    color: Colors.white,
-    fontSize: 20,
-    fontWeight: "800",
+  headerContent: { flex: 1 },
+  headerTitle: { color: "#fff", fontSize: 20, fontWeight: "800" },
+  headerSubtitle: { color: "#FFE5D9", fontSize: 13, marginTop: 2 },
+  container: { padding: 22, paddingTop: 26, paddingBottom: 60 },
+  input: { backgroundColor: "#fff", borderColor: "#E5E5E5" },
+  textArea: { minHeight: 130, textAlignVertical: "top" },
+  fieldError: { color: Colors.error, fontSize: 13, marginTop: -14, marginBottom: 16 },
+  locationButton: {
+    alignSelf: "flex-start",
+    width: "auto",
+    minWidth: 210,
+    marginTop: -8,
+    marginBottom: 22,
+    borderRadius: 15,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
   },
-  headerSubtitle: {
-    color: "#FFE5D9",
-    fontSize: 13,
-    marginTop: 2,
-  },
-  container: {
-    padding: 22,
-    paddingTop: 26,
-    paddingBottom: 60,
-  },
-  infoCard: {
-    flexDirection: "row",
-    backgroundColor: "#FFF5F2",
+  photoSection: { marginTop: 2, marginBottom: 8 },
+  label: { color: Colors.black, fontSize: 14, fontWeight: "700", marginBottom: 10 },
+  photoHint: { color: "#7A7A85", fontSize: 13, lineHeight: 18 },
+  photoPreviewContainer: { alignSelf: "flex-start", position: "relative" },
+  photoPreview: { width: 120, height: 120, borderRadius: 18, backgroundColor: "#EFEFF2" },
+  removePhotoButton: {
+    position: "absolute",
+    top: -7,
+    right: -7,
+    width: 28,
+    height: 28,
     borderRadius: 14,
-    padding: 16,
-    marginBottom: 26,
-    gap: 10,
-    alignItems: "flex-start",
-    borderWidth: 1,
-    borderColor: "#FFD5C8",
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#5A3020",
-    lineHeight: 18,
-  },
-  input: {
-    backgroundColor: Colors.white,
-    borderColor: "#E5E5E5",
-  },
-  textArea: {
-    minHeight: 120,
-    textAlignVertical: "top",
-  },
-  submitButton: {
-    marginTop: 12,
-    borderRadius: 18,
-    paddingVertical: 18,
-  },
-  successContainer: {
-    flex: 1,
+    backgroundColor: Colors.primary,
+    borderWidth: 2,
+    borderColor: "#F7F7F7",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 40,
   },
-  successIcon: {
-    marginBottom: 20,
-  },
-  successTitle: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: Colors.black,
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  successText: {
-    fontSize: 15,
-    color: "#6B6B6B",
-    textAlign: "center",
-    lineHeight: 22,
-  },
+  photoButton: { marginTop: 14, borderRadius: 15, borderColor: "#DFDFE4" },
+  submitError: { color: Colors.error, textAlign: "center", fontSize: 13, lineHeight: 18, marginTop: 12 },
+  submitButton: { marginTop: 18, borderRadius: 18, paddingVertical: 18 },
+  loading: { marginTop: 14 },
+  successContainer: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 36 },
+  successTitle: { fontSize: 26, fontWeight: "800", color: "#111", marginTop: 18 },
+  successText: { fontSize: 15, color: "#666", textAlign: "center", lineHeight: 22, marginTop: 10 },
+  successButton: { marginTop: 28, borderRadius: 16 },
 });

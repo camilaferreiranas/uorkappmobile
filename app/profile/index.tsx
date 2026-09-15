@@ -56,6 +56,9 @@ export default function ProfileScreen() {
       prestadorId: id,
       professional: profile?.nome ?? "",
       service: serviceTitle ?? "",
+      serviceOptions: JSON.stringify(
+        profile?.servicos.map((item) => item.titulo) ?? []
+      ),
     },
   });
 };

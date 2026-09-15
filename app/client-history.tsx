@@ -61,6 +61,12 @@ function formatarData(data: string) {
   });
 }
 
+function urgenciaParaTela(urgencia: HistoricoCliente["urgencia"]) {
+  if (urgencia === "URGENTE") return "Urgente";
+  if (urgencia === "HOJE") return "Hoje";
+  return "Normal";
+}
+
 function pertenceAoFiltro(status: StatusProposta, filtro: FiltroHistorico) {
   if (filtro === "TODOS") return true;
   if (filtro === "ATIVOS") return status === "PENDENTE" || status === "ACEITA";
@@ -129,9 +135,10 @@ export default function ClientHistoryScreen() {
         prestadorId: String(item.prestadorId),
         professional: item.nomePrestador,
         service: item.titulo,
-        initialTitle: item.titulo,
+        serviceOptions: JSON.stringify([item.titulo]),
         initialDescription: item.descricao,
-        initialBudget: Number(item.valor).toFixed(2).replace(".", ","),
+        initialLocation: item.localizacao ?? "",
+        initialUrgency: urgenciaParaTela(item.urgencia),
       },
     });
   }
@@ -243,10 +250,12 @@ export default function ClientHistoryScreen() {
                   </Text>
 
                   <View style={styles.cardBottom}>
-                    <View>
-                      <Text style={styles.metaLabel}>Valor da proposta</Text>
-                      <Text style={styles.valueText}>{formatarValor(item.valor)}</Text>
-                    </View>
+                    {item.valor != null ? (
+                      <View>
+                        <Text style={styles.metaLabel}>Valor da proposta</Text>
+                        <Text style={styles.valueText}>{formatarValor(item.valor)}</Text>
+                      </View>
+                    ) : <View />}
                     <View style={styles.dateRow}>
                       <MaterialIcons name="event" size={16} color="#888892" />
                       <Text style={styles.dateText}>{formatarData(item.dataCriacao)}</Text>

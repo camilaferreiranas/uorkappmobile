@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,9 +32,9 @@ export default function DemandDetailsScreen() {
     id: string;
     title: string;
     subtitle: string;
-    budget: string;
     urgency: string;
-    distance: string;
+    location: string;
+    photoUrl?: string;
     client: string;
     description: string;
   }>();
@@ -163,23 +164,16 @@ export default function DemandDetailsScreen() {
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
             <MaterialIcons name="person" size={20} color={Colors.primary} />
-            <View>
+            <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Cliente</Text>
               <Text style={styles.infoValue}>{params.client}</Text>
             </View>
           </View>
           <View style={styles.infoItem}>
-            <MaterialIcons name="attach-money" size={20} color="#2E7D32" />
-            <View>
-              <Text style={styles.infoLabel}>Orçamento</Text>
-              <Text style={[styles.infoValue, { color: "#2E7D32" }]}>{params.budget}</Text>
-            </View>
-          </View>
-          <View style={styles.infoItem}>
             <MaterialIcons name="location-on" size={20} color="#C62828" />
-            <View>
-              <Text style={styles.infoLabel}>Distância</Text>
-              <Text style={styles.infoValue}>{params.distance}</Text>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Localização do serviço</Text>
+              <Text style={styles.infoValue}>{params.location}</Text>
             </View>
           </View>
         </View>
@@ -188,6 +182,17 @@ export default function DemandDetailsScreen() {
           <Text style={styles.descriptionLabel}>Descrição</Text>
           <Text style={styles.descriptionText}>{params.description}</Text>
         </View>
+
+        {params.photoUrl ? (
+          <View style={styles.photoCard}>
+            <Text style={styles.descriptionLabel}>Foto do serviço</Text>
+            <Image
+              source={{ uri: params.photoUrl }}
+              style={styles.servicePhoto}
+              resizeMode="cover"
+            />
+          </View>
+        ) : null}
 
         <View style={styles.clientCard}>
           <View style={styles.clientAvatar}>
@@ -346,6 +351,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
+  infoContent: {
+    flex: 1,
+  },
   infoLabel: {
     fontSize: 11,
     color: "#8A8A8A",
@@ -379,6 +387,23 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#333",
     lineHeight: 22,
+  },
+  photoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  servicePhoto: {
+    width: "100%",
+    aspectRatio: 4 / 3,
+    borderRadius: 14,
+    backgroundColor: "#EFEFF2",
   },
   clientCard: {
     backgroundColor: "#fff",

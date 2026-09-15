@@ -297,9 +297,9 @@ export default function ProfessionalDemandsScreen() {
                       id: String(demanda.propostaId),
                       title: demanda.titulo,
                       subtitle: "Proposta recebida",
-                      budget: formatarValor(demanda.valor),
-                      urgency: "Normal",
-                      distance: "Distância indisponível",
+                      urgency: demanda.urgencia === "URGENTE" ? "Urgente" : demanda.urgencia === "HOJE" ? "Hoje" : "Normal",
+                      location: demanda.localizacao ?? "Localização não informada",
+                      photoUrl: demanda.fotoUrl ?? "",
                       client: demanda.nomeCliente,
                       description: demanda.descricao,
                     },
@@ -326,6 +326,13 @@ export default function ProfessionalDemandsScreen() {
                 <Text style={styles.description} numberOfLines={3}>
                   {demanda.descricao}
                 </Text>
+
+                {demanda.localizacao ? (
+                  <View style={styles.locationRow}>
+                    <MaterialIcons name="location-on" size={16} color="#7A7A95" />
+                    <Text style={styles.locationText} numberOfLines={2}>{demanda.localizacao}</Text>
+                  </View>
+                ) : null}
 
                 {pendente ? (
                   <Text style={styles.pendingHint}>Toque para responder à proposta</Text>
@@ -357,10 +364,12 @@ export default function ProfessionalDemandsScreen() {
                 ) : null}
 
                 <View style={styles.cardBottom}>
-                  <View>
-                    <Text style={styles.metaLabel}>Valor da proposta</Text>
-                    <Text style={styles.budgetText}>{formatarValor(demanda.valor)}</Text>
-                  </View>
+                  {demanda.valor != null ? (
+                    <View>
+                      <Text style={styles.metaLabel}>Valor da candidatura</Text>
+                      <Text style={styles.budgetText}>{formatarValor(demanda.valor)}</Text>
+                    </View>
+                  ) : <View />}
                   <View style={styles.dateBox}>
                     <MaterialIcons name="event" size={15} color="#7A7A95" />
                     <Text style={styles.dateText}>{formatarData(demanda.dataCriacao)}</Text>
@@ -635,6 +644,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
     marginTop: 12,
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 5,
+    marginTop: 9,
+  },
+  locationText: {
+    flex: 1,
+    color: "#7A7A95",
+    fontSize: 11,
+    lineHeight: 16,
   },
   pendingHint: {
     color: "#C05A19",

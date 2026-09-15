@@ -3,9 +3,15 @@ import { getToken } from "./token-storage";
 
 export interface NovaProposta {
   prestadorId: number;
-  titulo: string;
+  tipoServico: string;
   descricao: string;
-  valor: number;
+  localizacao: string;
+  urgencia: "NORMAL" | "URGENTE" | "HOJE";
+  foto?: {
+    uri: string;
+    nome: string;
+    contentType: "image/jpeg" | "image/png" | "image/webp";
+  };
 }
 
 export async function enviarProposta(proposta: NovaProposta): Promise<void> {
@@ -17,24 +23,36 @@ export async function enviarProposta(proposta: NovaProposta): Promise<void> {
       throw new Error("Sessão expirada. Entre novamente.");
     }
 
+    const form = new FormData();
+    form.append("prestadorId", String(proposta.prestadorId));
+    form.append("tipoServico", proposta.tipoServico);
+    form.append("descricao", proposta.descricao);
+    form.append("localizacao", proposta.localizacao);
+    form.append("urgencia", proposta.urgencia);
+    if (proposta.foto) {
+      form.append("foto", {
+        uri: proposta.foto.uri,
+        name: proposta.foto.nome,
+        type: proposta.foto.contentType,
+      } as unknown as Blob);
+    }
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${storedToken.accessToken}`,
       },
-      body: JSON.stringify(proposta),
+      body: form,
     });
 
+    const json = await response.json().catch(() => null);
 
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
-    }
-
-    const json = await response.json();
-
-    if (!json.success) {
-      throw new Error(json.message ?? "Falha ao enviar proposta");
+    if (!response.ok || !json?.success) {
+      throw new Error(
+        json?.erros?.[0] ??
+          json?.message ??
+          "Não foi possível enviar a proposta."
+      );
     }
   } catch (error) {
     console.error("Erro ao enviar proposta:", error);
@@ -46,7 +64,10 @@ export interface DetalheDemanda {
   propostaId: number;
   titulo: string;
   nomeCliente: string;
-  orcamento: number;
+  orcamento: number | null;
+  localizacao: string | null;
+  urgencia: "NORMAL" | "URGENTE" | "HOJE" | null;
+  fotoUrl: string | null;
   distancia: number | null;
   descricao: string;
   nomePrestador: string;
@@ -59,7 +80,7 @@ export interface PropostaResponse {
   nomeUsuario: string;
   nomePrestador: string;
   descricao: string;
-  valor: number;
+  valor: number | null;
   status: string;
   dataCriacao: string;
 }
@@ -75,8 +96,11 @@ export interface DemandaProfissional {
   propostaId: number;
   titulo: string;
   descricao: string;
+  localizacao: string | null;
+  urgencia: "NORMAL" | "URGENTE" | "HOJE" | null;
+  fotoUrl: string | null;
   nomeCliente: string;
-  valor: number;
+  valor: number | null;
   status: StatusProposta;
   dataCriacao: string;
   notaCliente: number | null;
@@ -87,8 +111,11 @@ export interface HistoricoCliente {
   prestadorId: number;
   titulo: string;
   descricao: string;
+  localizacao: string | null;
+  urgencia: "NORMAL" | "URGENTE" | "HOJE" | null;
+  fotoUrl: string | null;
   nomePrestador: string;
-  valor: number;
+  valor: number | null;
   status: StatusProposta;
   dataCriacao: string;
   notaPrestador: number | null;
@@ -146,6 +173,28 @@ export async function buscarHistoricoDoCliente(): Promise<HistoricoCliente[]> {
       json?.erros?.[0] ??
         json?.message ??
         "Não foi possível carregar o histórico de serviços."
+    );
+  }
+
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function buscarMinhasPropostas(): Promise<HistoricoCliente[]> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/cliente/minhas`, {
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ??
+        json?.message ??
+        "Não foi possível carregar suas propostas."
     );
   }
 
