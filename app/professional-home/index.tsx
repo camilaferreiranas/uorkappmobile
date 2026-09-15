@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { SectionHeader } from "../../components/ui/section-header";
+import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponiveis";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
 import { useNotifications } from "../../contexts/notification-context";
@@ -27,50 +27,11 @@ const metrics = [
   { label: "Faturamento", value: "R$2.4k", note: "Últ. 30 dias", icon: "account-balance-wallet", color: "#2E7D32", bg: "#EAFAF1" },
 ];
 
-const nearbyDemands = [
-  {
-    id: "1",
-    title: "Instalação elétrica",
-    subtitle: "Apartamento, 3 pontos",
-    budget: "R$ 340",
-    urgency: "Urgente",
-    distance: "1,8 km",
-    client: "João Melo",
-    description: "Preciso instalar 3 novos pontos elétricos no apartamento. Sala e dois quartos.",
-  },
-  {
-    id: "2",
-    title: "Troca de torneira",
-    subtitle: "Cozinha residencial",
-    budget: "R$ 120",
-    urgency: "Normal",
-    distance: "2,3 km",
-    client: "Ana Lima",
-    description: "Torneira da cozinha com vazamento. Precisa de troca completa com peça.",
-  },
-  {
-    id: "3",
-    title: "Limpeza pós-obra",
-    subtitle: "Casa térrea",
-    budget: "R$ 420",
-    urgency: "Hoje",
-    distance: "3,1 km",
-    client: "Pedro Santos",
-    description: "Casa após reforma. Limpeza pesada em todos os cômodos, aproximadamente 120m².",
-  },
-];
-
 const lastReview = {
   name: "Mariana Costa",
   comment: "Serviço impecável, pontual e muito atencioso.",
   rating: 5.0,
   date: "2 dias atrás",
-};
-
-const urgencyStyle: Record<string, { bg: string; text: string }> = {
-  Urgente: { bg: "#FFF0EB", text: "#D86A3F" },
-  Normal:  { bg: "#EAFAF1", text: "#2E7D32" },
-  Hoje:    { bg: "#FFEBEE", text: "#C62828" },
 };
 
 export default function ProfessionalHomeScreen() {
@@ -338,67 +299,7 @@ export default function ProfessionalHomeScreen() {
           ))}
         </View>
 
-        {/* ── Demandas próximas ── */}
-        <SectionHeader
-          title="Demandas próximas"
-          subtitle={`${nearbyDemands.length} novas`}
-          style={styles.sectionHeader}
-        />
-
-        {nearbyDemands.map((demand) => {
-          const us = urgencyStyle[demand.urgency] ?? urgencyStyle.Normal;
-          return (
-            <TouchableOpacity
-              key={demand.id}
-              style={styles.demandCard}
-              activeOpacity={0.75}
-              onPress={() =>
-                router.push({
-                  pathname: "/demand-details" as any,
-                  params: {
-                    id: demand.id,
-                    title: demand.title,
-                    subtitle: demand.subtitle,
-                    budget: demand.budget,
-                    urgency: demand.urgency,
-                    distance: demand.distance,
-                    client: demand.client,
-                    description: demand.description,
-                  },
-                })
-              }
-            >
-              {/* linha superior */}
-              <View style={styles.demandTop}>
-                <Text style={styles.demandTitle} numberOfLines={1}>
-                  {demand.title}
-                </Text>
-                <Text style={styles.demandBudget}>{demand.budget}</Text>
-              </View>
-
-              {/* subtítulo */}
-              <Text style={styles.demandSubtitle} numberOfLines={1}>
-                {demand.subtitle}
-              </Text>
-
-              {/* linha inferior */}
-              <View style={styles.demandBottom}>
-                <View style={[styles.urgencyTag, { backgroundColor: us.bg }]}>
-                  <Text style={[styles.urgencyText, { color: us.text }]}>
-                    {demand.urgency}
-                  </Text>
-                </View>
-                <View style={styles.distanceRow}>
-                  <MaterialIcons name="location-on" size={12} color="#8A8A8A" />
-                  <Text style={styles.demandDistance}>{demand.distance}</Text>
-                </View>
-                <View style={styles.demandArrow}>
-                  <MaterialIcons name="arrow-forward-ios" size={12} color="#0D3D8B" />
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+        <DemandasDisponiveisPreview />
 
         {/* ── Última avaliação ── */}
         <View style={styles.reviewCard}>

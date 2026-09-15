@@ -46,6 +46,47 @@ export interface DemandaPublicada {
   }[];
 }
 
+export interface DemandaDisponivel extends DemandaPublicada {
+  nomeCliente: string;
+  candidaturaId: number | null;
+  statusCandidatura: StatusCandidatura | null;
+}
+
+export type StatusCandidatura =
+  | "PENDENTE"
+  | "ACEITA"
+  | "RECUSADA"
+  | "CANCELADA"
+  | "FINALIZADA";
+
+export interface CandidaturaDemanda {
+  id: number;
+  demandaId: number;
+  prestadorId: number;
+  nomePrestador: string;
+  mensagem: string;
+  valor: number;
+  status: StatusCandidatura;
+  mediaAvaliacoes: number;
+  totalAvaliacoes: number;
+  criadaEm: string;
+}
+
+export interface CandidaturasDaDemanda {
+  demandaId: number;
+  titulo: string;
+  status: DemandaPublicada["status"];
+  candidaturas: CandidaturaDemanda[];
+}
+
+export interface PaginaDemandasDisponiveis {
+  content: DemandaDisponivel[];
+  number: number;
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+}
+
 interface ApiResponse<T> {
   success: boolean;
   message?: string;
@@ -149,4 +190,134 @@ export async function buscarMinhasDemandas(): Promise<DemandaPublicada[]> {
   }
 
   return json.data;
+}
+
+async function consultarDemandaDisponivel<T>(
+  caminho: string,
+  signal?: AbortSignal
+): Promise<T> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/demandas/disponiveis${caminho}`, {
+    method: "GET",
+    signal,
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${storedToken.accessToken}`,
+    },
+  });
+  const json = (await response.json().catch(() => null)) as
+    | ApiResponse<T>
+    | ApiError
+    | null;
+
+  if (!response.ok || !json || !("data" in json)) {
+    throw new Error(
+      (json && "erros" in json ? json.erros?.[0] : undefined) ??
+        json?.message ??
+        "Não foi possível carregar as demandas disponíveis."
+    );
+  }
+  if (!json.success || !json.data) {
+    throw new Error(json.message ?? "Não foi possível carregar as demandas disponíveis.");
+  }
+  return json.data;
+}
+
+export async function buscarDemandasDisponiveis(
+  pagina = 0,
+  tamanho = 20,
+  signal?: AbortSignal
+): Promise<PaginaDemandasDisponiveis> {
+  if (!Number.isInteger(pagina) || pagina < 0 || !Number.isInteger(tamanho) || tamanho < 1 || tamanho > 50) {
+    throw new Error("Paginação inválida.");
+  }
+  const data = await consultarDemandaDisponivel<PaginaDemandasDisponiveis>(
+    `?page=${pagina}&size=${tamanho}`,
+    signal
+  );
+  if (!Array.isArray(data.content) || !Number.isInteger(data.number) || typeof data.last !== "boolean") {
+    throw new Error("Resposta inválida ao carregar as demandas disponíveis.");
+  }
+  return data;
+}
+
+export async function buscarDemandaDisponivel(
+  id: number,
+  signal?: AbortSignal
+): Promise<DemandaDisponivel> {
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    throw new Error("Demanda inválida.");
+  }
+  return consultarDemandaDisponivel<DemandaDisponivel>(`/${id}`, signal);
+}
+
+async function tokenValido() {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+  return storedToken.accessToken;
+}
+
+async function lerResposta<T>(response: Response, mensagemPadrao: string): Promise<T> {
+  const json = (await response.json().catch(() => null)) as ApiResponse<T> | ApiError | null;
+  if (!response.ok || !json || !("data" in json) || !json.success || !json.data) {
+    throw new Error(
+      (json && "erros" in json ? json.erros?.[0] : undefined) ??
+        json?.message ??
+        mensagemPadrao
+    );
+  }
+  return json.data;
+}
+
+export async function enviarCandidatura(
+  demandaId: number,
+  valor: number,
+  mensagem: string
+): Promise<CandidaturaDemanda> {
+  if (!Number.isSafeInteger(demandaId) || demandaId <= 0) throw new Error("Demanda inválida.");
+  if (!Number.isFinite(valor) || valor <= 0) throw new Error("Informe um valor válido para a proposta.");
+  if (mensagem.trim().length > 500) throw new Error("A mensagem deve ter no máximo 500 caracteres.");
+  const token = await tokenValido();
+  const response = await fetch(`${API_URL}/demandas/${demandaId}/candidaturas`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ valor, mensagem: mensagem.trim() || null }),
+  });
+  return lerResposta(response, "Não foi possível enviar sua candidatura.");
+}
+
+export async function buscarCandidaturasDaDemanda(
+  demandaId: number,
+  signal?: AbortSignal
+): Promise<CandidaturasDaDemanda> {
+  if (!Number.isSafeInteger(demandaId) || demandaId <= 0) throw new Error("Demanda inválida.");
+  const token = await tokenValido();
+  const response = await fetch(`${API_URL}/demandas/${demandaId}/candidaturas`, {
+    signal,
+    headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
+  });
+  const data = await lerResposta<CandidaturasDaDemanda>(response, "Não foi possível carregar as candidaturas.");
+  if (!Array.isArray(data.candidaturas)) throw new Error("Resposta inválida ao carregar as candidaturas.");
+  return data;
+}
+
+export async function selecionarCandidatura(
+  demandaId: number,
+  candidaturaId: number
+): Promise<CandidaturaDemanda> {
+  if (!Number.isSafeInteger(demandaId) || demandaId <= 0 || !Number.isSafeInteger(candidaturaId) || candidaturaId <= 0) {
+    throw new Error("Candidatura inválida.");
+  }
+  const token = await tokenValido();
+  const response = await fetch(
+    `${API_URL}/demandas/${demandaId}/candidaturas/${candidaturaId}/selecionar`,
+    { method: "PATCH", headers: { Authorization: `Bearer ${token}` } }
+  );
+  return lerResposta(response, "Não foi possível selecionar este prestador.");
 }

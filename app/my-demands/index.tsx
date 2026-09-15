@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
+import { type Href, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -85,15 +85,22 @@ function formatarData(data: string) {
 
 interface DemandCardProps {
   demanda: DemandaPublicada;
+  onPress: () => void;
 }
 
-function DemandCard({ demanda }: DemandCardProps) {
+function DemandCard({ demanda, onPress }: DemandCardProps) {
   const status = statusConfig[demanda.status];
   const urgencia = urgenciaConfig[demanda.urgencia];
   const primeiraFoto = demanda.fotos?.[0]?.url;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={onPress}
+      activeOpacity={0.82}
+      accessibilityRole="button"
+      accessibilityLabel={`Ver candidaturas da demanda ${demanda.titulo}`}
+    >
       {primeiraFoto ? (
         <Image
           source={{ uri: primeiraFoto }}
@@ -151,8 +158,13 @@ function DemandCard({ demanda }: DemandCardProps) {
           <MaterialIcons name="event" size={16} color="#85858F" />
           <Text style={styles.dateText}>Publicada em {formatarData(demanda.criadoEm)}</Text>
         </View>
+        <View style={styles.candidatesRow}>
+          <MaterialIcons name="groups" size={19} color={Colors.primary} />
+          <Text style={styles.candidatesText}>Ver prestadores candidatos</Text>
+          <MaterialIcons name="chevron-right" size={21} color={Colors.primary} />
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -228,7 +240,12 @@ export default function MyDemandsScreen() {
         <FlatList
           data={demandas}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => <DemandCard demanda={item} />}
+          renderItem={({ item }) => (
+            <DemandCard
+              demanda={item}
+              onPress={() => router.push(`/demand-candidates?id=${item.id}` as Href)}
+            />
+          )}
           contentContainerStyle={[
             styles.listContent,
             wide && styles.listContentWide,
@@ -386,6 +403,8 @@ const styles = StyleSheet.create({
   urgencyText: { fontSize: 10, fontWeight: "800" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 13 },
   dateText: { color: "#85858F", fontSize: 11 },
+  candidatesRow: { flexDirection: "row", alignItems: "center", gap: 7, borderTopWidth: 1, borderTopColor: "#EEEEF2", marginTop: 13, paddingTop: 13 },
+  candidatesText: { flex: 1, color: Colors.primary, fontSize: 13, fontWeight: "800" },
   emptyCard: {
     alignItems: "center",
     backgroundColor: "#fff",

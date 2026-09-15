@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { DemandasDisponiveisLista } from "../../components/ui/demandas-disponiveis";
 import { StarRating } from "../../components/ui/star-rating";
 import {
   avaliarCliente,
@@ -55,6 +56,10 @@ function formatarData(data: string) {
 
 export default function ProfessionalDemandsScreen() {
   const router = useRouter();
+  const { aba: abaInicial } = useLocalSearchParams<{ aba?: string }>();
+  const [aba, setAba] = useState<"disponiveis" | "recebidas">(
+    abaInicial === "recebidas" ? "recebidas" : "disponiveis"
+  );
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
@@ -69,33 +74,45 @@ export default function ProfessionalDemandsScreen() {
   const [notaCliente, setNotaCliente] = useState(0);
   const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
   const [erroAvaliacao, setErroAvaliacao] = useState("");
+  const carregamentoId = useRef(0);
   const novas = demandas.filter((demanda) => demanda.status === "PENDENTE").length;
   const emAndamento = demandas.filter((demanda) => demanda.status === "ACEITA").length;
   const concluidas = demandas.filter((demanda) => demanda.status === "FINALIZADA").length;
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
+    const id = ++carregamentoId.current;
     if (exibirCarregamento) setCarregando(true);
     setErro("");
 
     try {
-      setDemandas(await buscarDemandasDoPrestador());
+      const resultado = await buscarDemandasDoPrestador();
+      if (id === carregamentoId.current) setDemandas(resultado);
     } catch (error) {
-      setErro(
+      if (id === carregamentoId.current) setErro(
         error instanceof Error
           ? error.message
           : "Não foi possível carregar as demandas."
       );
     } finally {
-      setCarregando(false);
-      setAtualizando(false);
+      if (id === carregamentoId.current) {
+        setCarregando(false);
+        setAtualizando(false);
+      }
     }
   }, []);
 
   useFocusEffect(
     useCallback(() => {
-      void carregar();
-    }, [carregar])
+      if (aba === "recebidas") void carregar();
+      return () => {
+        carregamentoId.current += 1;
+      };
+    }, [aba, carregar])
   );
+
+  useEffect(() => {
+    if (abaInicial === "disponiveis" || abaInicial === "recebidas") setAba(abaInicial);
+  }, [abaInicial]);
 
   function atualizar() {
     setAtualizando(true);
@@ -167,16 +184,32 @@ export default function ProfessionalDemandsScreen() {
         ]}
       >
         <Text style={[styles.headerTitle, compact && styles.headerTitleCompact]}>
-          Todas as demandas
+          Demandas
         </Text>
         <Text style={styles.headerSubtitle}>
-          {demandas.length === 1
+          {aba === "disponiveis" ? "Veja todas as publicações abertas" : demandas.length === 1
             ? "1 demanda encontrada"
             : `${demandas.length} demandas encontradas`}
         </Text>
       </View>
 
-      {carregando ? (
+      <View style={styles.tabs}>
+        {(["disponiveis", "recebidas"] as const).map((item) => (
+          <TouchableOpacity
+            key={item}
+            style={[styles.tab, aba === item && styles.tabActive]}
+            onPress={() => setAba(item)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: aba === item }}
+          >
+            <Text style={[styles.tabText, aba === item && styles.tabTextActive]}>
+              {item === "disponiveis" ? "Disponíveis" : "Recebidas"}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {aba === "disponiveis" ? <DemandasDisponiveisLista /> : carregando ? (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color="#0D3D8B" />
           <Text style={styles.stateText}>Carregando demandas...</Text>
@@ -389,6 +422,11 @@ export default function ProfessionalDemandsScreen() {
 }
 
 const styles = StyleSheet.create({
+  tabs: { flexDirection: "row", marginHorizontal: 16, marginTop: 14, marginBottom: 2, padding: 4, borderRadius: 16, backgroundColor: "#E2E8F0", gap: 4 },
+  tab: { flex: 1, paddingVertical: 13, paddingHorizontal: 8, borderRadius: 12, alignItems: "center" },
+  tabActive: { backgroundColor: "#0D3D8B" },
+  tabText: { color: "#475569", fontSize: 15, fontWeight: "700" },
+  tabTextActive: { color: "#fff" },
   safeArea: {
     flex: 1,
     backgroundColor: "#F2F4FB",

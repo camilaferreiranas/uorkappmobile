@@ -8,6 +8,7 @@ export interface Notificacao {
   lida: boolean;
   dataCriacao: string;
   propostaId: number;
+  demandaId: number | null;
 }
 
 export interface NotificacoesData {

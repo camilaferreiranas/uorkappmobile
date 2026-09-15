@@ -50,6 +50,14 @@ export default function ProfessionalNotificationsScreen() {
         await marcarComoLida("prestador", notificacao.id);
       }
 
+      if (notificacao.demandaId) {
+        router.push({
+          pathname: "/professional-demands",
+          params: { aba: "recebidas" },
+        });
+        return;
+      }
+
       const detalhe = await buscarDetalheDemanda(notificacao.propostaId);
       router.push({
         pathname: "/demand-details",
@@ -110,7 +118,7 @@ export default function ProfessionalNotificationsScreen() {
             >
               <View style={[styles.icon, !notificacao.lida && styles.iconUnread]}>
                 <MaterialIcons
-                  name="description"
+                  name={notificacao.demandaId ? "emoji-events" : "description"}
                   size={22}
                   color={notificacao.lida ? "#7A7A95" : "#0D3D8B"}
                 />

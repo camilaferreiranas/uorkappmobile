@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
+import { type Href, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -22,6 +23,7 @@ import {
 } from "../services/notificacaoService";
 
 export default function ClientNotificationsScreen() {
+  const router = useRouter();
   const {
     notificacoesCliente: notificacoes,
     sincronizarCliente,
@@ -57,10 +59,13 @@ export default function ClientNotificationsScreen() {
   );
 
   async function abrir(notificacao: Notificacao) {
-    if (notificacao.lida) return;
-
     try {
-      await marcarComoLida("cliente", notificacao.id);
+      if (!notificacao.lida) {
+        await marcarComoLida("cliente", notificacao.id);
+      }
+      if (notificacao.demandaId) {
+        router.push(`/demand-candidates?id=${notificacao.demandaId}` as Href);
+      }
     } catch (error) {
       setErro(
         error instanceof Error
@@ -116,7 +121,7 @@ export default function ClientNotificationsScreen() {
         <View style={styles.centerState}>
           <MaterialIcons name="notifications-none" size={52} color="#A4A4AD" />
           <Text style={styles.emptyTitle}>Nenhuma notificação</Text>
-          <Text style={styles.emptyText}>As atualizações das suas propostas aparecerão aqui.</Text>
+          <Text style={styles.emptyText}>As atualizações das suas demandas e propostas aparecerão aqui.</Text>
         </View>
       ) : (
         <ScrollView
@@ -138,12 +143,12 @@ export default function ClientNotificationsScreen() {
             >
               <TouchableOpacity
                 style={styles.notificationRow}
-                activeOpacity={notificacao.lida ? 1 : 0.75}
+                activeOpacity={notificacao.lida && !notificacao.demandaId ? 1 : 0.75}
                 onPress={() => void abrir(notificacao)}
               >
                 <View style={[styles.icon, !notificacao.lida && styles.iconUnread]}>
                   <MaterialIcons
-                    name="check-circle-outline"
+                    name={notificacao.demandaId ? "groups" : "check-circle-outline"}
                     size={23}
                     color={notificacao.lida ? "#85858F" : Colors.primary}
                   />
@@ -164,23 +169,36 @@ export default function ClientNotificationsScreen() {
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.whatsappButton}
-                onPress={() => void conversarNoWhatsApp(notificacao)}
-                disabled={abrindoWhatsAppId === notificacao.id}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel="Conversar com o prestador pelo WhatsApp"
-              >
-                {abrindoWhatsAppId === notificacao.id ? (
-                  <ActivityIndicator color="#fff" size="small" />
-                ) : (
-                  <MaterialIcons name="chat" size={18} color="#fff" />
-                )}
-                <Text style={styles.whatsappButtonText}>
-                  Conversar no WhatsApp
-                </Text>
-              </TouchableOpacity>
+              {notificacao.demandaId ? (
+                <TouchableOpacity
+                  style={styles.candidatesButton}
+                  onPress={() => void abrir(notificacao)}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ver os candidatos da demanda"
+                >
+                  <MaterialIcons name="groups" size={19} color="#fff" />
+                  <Text style={styles.whatsappButtonText}>Ver candidatos</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.whatsappButton}
+                  onPress={() => void conversarNoWhatsApp(notificacao)}
+                  disabled={abrindoWhatsAppId === notificacao.id}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Conversar com o prestador pelo WhatsApp"
+                >
+                  {abrindoWhatsAppId === notificacao.id ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <MaterialIcons name="chat" size={18} color="#fff" />
+                  )}
+                  <Text style={styles.whatsappButtonText}>
+                    Conversar no WhatsApp
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           ))}
         </ScrollView>
@@ -244,6 +262,17 @@ const styles = StyleSheet.create({
     minHeight: 44,
     borderRadius: 12,
     backgroundColor: "#1FA855",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 13,
+    paddingHorizontal: 14,
+  },
+  candidatesButton: {
+    minHeight: 44,
+    borderRadius: 12,
+    backgroundColor: Colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

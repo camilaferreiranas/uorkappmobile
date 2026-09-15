@@ -23,7 +23,8 @@ function formatCurrency(value: number) {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, modo } = useLocalSearchParams<{ id: string; modo?: string }>();
+  const somenteConsulta = modo === "candidatura";
 
   const [profile, setProfile] = useState<PerfilPrestador | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,11 +128,13 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          <Button
-            title="Contratar"
-            style={styles.contractButton}
-            onPress={() => openProposal()}
-          />
+          {!somenteConsulta && (
+            <Button
+              title="Contratar"
+              style={styles.contractButton}
+              onPress={() => openProposal()}
+            />
+          )}
         </View>
 
         <SectionHeader
@@ -153,7 +156,7 @@ export default function ProfileScreen() {
             subtitle={service.descricao}
             price={formatCurrency(service.valorMedio)}
             rating={service.avaliacao}
-            onPress={() => openProposal(service.titulo)}
+            onPress={somenteConsulta ? undefined : () => openProposal(service.titulo)}
           />
         ))}
 

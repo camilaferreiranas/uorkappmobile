@@ -41,6 +41,8 @@ export default function RootLayout() {
           <Stack.Screen name="category-providers/index" />
           <Stack.Screen name="send-proposal/index" />
           <Stack.Screen name="demand-details/index" />
+          <Stack.Screen name="available-demand-details/index" />
+          <Stack.Screen name="demand-candidates/index" />
           <Stack.Screen name="professional-demands/index" />
           <Stack.Screen name="professional-report/index" />
           <Stack.Screen name="professional-profile/index" />
