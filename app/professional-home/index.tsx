@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { type Href, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -16,16 +16,18 @@ import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponi
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
 import { useNotifications } from "../../contexts/notification-context";
+import { buscarResumoPrestador, type ResumoPrestador } from "../../services/propostaService";
 import {
   atualizarLocalizacaoPrestador,
   verificarCadastroPrestador,
 } from "../../services/prestadorService";
 
-const metrics = [
-  { label: "Novos pedidos", value: "12", note: "Hoje", icon: "inbox", color: "#0D3D8B", bg: "#E8EDFA" },
-  { label: "Em andamento", value: "8", note: "Ativos", icon: "pending-actions", color: "#D86A3F", bg: "#FFF0EB" },
-  { label: "Faturamento", value: "R$2.4k", note: "Últ. 30 dias", icon: "account-balance-wallet", color: "#2E7D32", bg: "#EAFAF1" },
-];
+function formatarValor(valor: number) {
+  return valor.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
 const lastReview = {
   name: "Mariana Costa",
@@ -54,8 +56,34 @@ export default function ProfessionalHomeScreen() {
   const [cadastroStatus, setCadastroStatus] = useState<
     "carregando" | "prestador" | "cliente" | "erro"
   >("carregando");
+  const [resumo, setResumo] = useState<ResumoPrestador | null>(null);
+  const [carregandoResumo, setCarregandoResumo] = useState(false);
+  const [erroResumo, setErroResumo] = useState("");
+  const resumoRequestId = useRef(0);
+  const valorIndisponivel = carregandoResumo ? "…" : "—";
+  const metrics = [
+    { label: "Novos pedidos", value: resumo ? String(resumo.novasDemandas) : valorIndisponivel, note: "Hoje", icon: "inbox", color: "#0D3D8B", bg: "#E8EDFA" },
+    { label: "Em andamento", value: resumo ? String(resumo.emAndamento) : valorIndisponivel, note: "Ativos", icon: "pending-actions", color: "#D86A3F", bg: "#FFF0EB" },
+    { label: "Faturamento", value: resumo ? formatarValor(resumo.faturamentoUltimos30Dias) : valorIndisponivel, note: "Últ. 30 dias", icon: "account-balance-wallet", color: "#2E7D32", bg: "#EAFAF1", isCurrency: true },
+  ];
   const ultimaNotificacao =
     notificacoesPrestador.find((notificacao) => !notificacao.lida) ?? null;
+
+  const carregarResumo = useCallback(async () => {
+    const requestId = ++resumoRequestId.current;
+    setCarregandoResumo(true);
+    setErroResumo("");
+    try {
+      const dados = await buscarResumoPrestador();
+      if (requestId === resumoRequestId.current) setResumo(dados);
+    } catch (error) {
+      if (requestId === resumoRequestId.current) {
+        setErroResumo(error instanceof Error ? error.message : "Não foi possível carregar os indicadores.");
+      }
+    } finally {
+      if (requestId === resumoRequestId.current) setCarregandoResumo(false);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -103,8 +131,14 @@ export default function ProfessionalHomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      if (cadastroStatus === "prestador") void sincronizarPrestador();
-    }, [cadastroStatus, sincronizarPrestador])
+      if (cadastroStatus === "prestador") {
+        void sincronizarPrestador();
+        void carregarResumo();
+      }
+      return () => {
+        resumoRequestId.current += 1;
+      };
+    }, [cadastroStatus, carregarResumo, sincronizarPrestador])
   );
 
   if (cadastroStatus === "carregando") {
@@ -286,18 +320,41 @@ export default function ProfessionalHomeScreen() {
               <View style={[styles.metricIconWrap, { backgroundColor: m.color + "22" }]}>
                 <MaterialIcons name={m.icon as any} size={20} color={m.color} />
               </View>
-              <Text
-                style={[styles.metricValue, { color: m.color }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {m.value}
-              </Text>
+              <View style={styles.metricValueSlot}>
+                {m.isCurrency && resumo ? (
+                  <View style={styles.revenueValue}>
+                    <Text style={styles.revenueCurrency}>R$</Text>
+                    <Text
+                      style={[styles.revenueAmount, isSmall && styles.revenueAmountSmall]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.7}
+                    >
+                      {m.value}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text
+                    style={[styles.metricValue, { color: m.color }]}
+                    numberOfLines={1}
+                  >
+                    {m.value}
+                  </Text>
+                )}
+              </View>
               <Text style={styles.metricLabel} numberOfLines={2}>{m.label}</Text>
               <Text style={styles.metricNote}>{m.note}</Text>
             </View>
           ))}
         </View>
+        {erroResumo ? (
+          <View style={styles.metricsError}>
+            <Text style={styles.metricsErrorText}>{erroResumo}</Text>
+            <TouchableOpacity onPress={() => void carregarResumo()} accessibilityRole="button">
+              <Text style={styles.metricsRetryText}>Tentar novamente</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         <DemandasDisponiveisPreview />
 
@@ -607,6 +664,29 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     minWidth: 0,
   },
+  metricValueSlot: {
+    minHeight: 32,
+    justifyContent: "flex-end",
+  },
+  revenueValue: {
+    minWidth: 0,
+  },
+  revenueCurrency: {
+    color: "#2E7D32",
+    fontSize: 11,
+    fontWeight: "700",
+    lineHeight: 13,
+  },
+  revenueAmount: {
+    color: "#2E7D32",
+    fontSize: 16,
+    fontWeight: "800",
+    lineHeight: 19,
+  },
+  revenueAmountSmall: {
+    fontSize: 14,
+    lineHeight: 17,
+  },
   metricLabel: {
     fontSize: 10,
     color: "#555",
@@ -618,6 +698,20 @@ const styles = StyleSheet.create({
     color: "#888",
     fontWeight: "500",
     marginTop: 1,
+  },
+  metricsError: {
+    marginHorizontal: 20,
+    marginTop: 10,
+    gap: 4,
+  },
+  metricsErrorText: {
+    color: "#B3261E",
+    fontSize: 12,
+  },
+  metricsRetryText: {
+    color: "#0D3D8B",
+    fontSize: 12,
+    fontWeight: "700",
   },
 
   /* Section header */

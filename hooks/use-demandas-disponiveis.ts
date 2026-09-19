@@ -1,10 +1,10 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useRef, useState } from "react";
-import { buscarDemandasDisponiveis, type DemandaDisponivel } from "../services/demandaService";
+import { buscarDemandasDisponiveis, type DemandaDisponivel, type OrdenacaoDemanda } from "../services/demandaService";
 
 type ModoCarregamento = "inicial" | "atualizar" | "mais";
 
-export function useDemandasDisponiveis(tamanhoPagina = 20) {
+export function useDemandasDisponiveis(tamanhoPagina = 20, categoriaId: number | null = null, ordenacao: OrdenacaoDemanda = "RECENTES") {
   const [demandas, setDemandas] = useState<DemandaDisponivel[]>([]);
   const [total, setTotal] = useState(0);
   const [temMais, setTemMais] = useState(false);
@@ -35,7 +35,7 @@ export function useDemandasDisponiveis(tamanhoPagina = 20) {
     }
 
     try {
-      const resultado = await buscarDemandasDisponiveis(pagina, tamanhoPagina, controller.signal);
+      const resultado = await buscarDemandasDisponiveis(pagina, tamanhoPagina, controller.signal, categoriaId, ordenacao);
       if (controller.signal.aborted) return;
       setDemandas((atuais) => modo === "mais"
         ? [...atuais, ...resultado.content.filter((item) => !atuais.some((atual) => atual.id === item.id))]
@@ -61,7 +61,7 @@ export function useDemandasDisponiveis(tamanhoPagina = 20) {
         setCarregandoMais(false);
       }
     }
-  }, [tamanhoPagina]);
+  }, [tamanhoPagina, categoriaId, ordenacao]);
 
   useFocusEffect(useCallback(() => {
     void carregar(0, "inicial");

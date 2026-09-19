@@ -81,6 +81,7 @@ export interface PropostaResponse {
   nomePrestador: string;
   descricao: string;
   valor: number | null;
+  valorCobrado: number | null;
   status: string;
   dataCriacao: string;
 }
@@ -101,9 +102,17 @@ export interface DemandaProfissional {
   fotoUrl: string | null;
   nomeCliente: string;
   valor: number | null;
+  valorCobrado: number | null;
   status: StatusProposta;
   dataCriacao: string;
   notaCliente: number | null;
+}
+
+export interface ResumoPrestador {
+  novasDemandas: number;
+  emAndamento: number;
+  concluido: number;
+  faturamentoUltimos30Dias: number;
 }
 
 export interface HistoricoCliente {
@@ -116,6 +125,7 @@ export interface HistoricoCliente {
   fotoUrl: string | null;
   nomePrestador: string;
   valor: number | null;
+  valorCobrado: number | null;
   status: StatusProposta;
   dataCriacao: string;
   notaPrestador: number | null;
@@ -135,6 +145,33 @@ export interface ContatoWhatsApp {
   nomePrestador: string;
   mensagem: string;
   whatsappUrl: string;
+}
+
+export async function buscarResumoPrestador(): Promise<ResumoPrestador> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/prestador/resumo`, {
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success || !json.data) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível carregar os indicadores."
+    );
+  }
+
+  const dados = json.data;
+  if (!Number.isInteger(dados.novasDemandas)
+    || !Number.isInteger(dados.emAndamento)
+    || !Number.isFinite(dados.faturamentoUltimos30Dias)) {
+    throw new Error("Os indicadores recebidos são inválidos. Tente novamente.");
+  }
+
+  return dados as ResumoPrestador;
 }
 
 export async function buscarDemandasDoPrestador(): Promise<DemandaProfissional[]> {
@@ -247,7 +284,7 @@ export async function aceitarProposta(propostaId: number): Promise<PropostaRespo
   return json.data;
 }
 
-export async function finalizarProposta(propostaId: number): Promise<PropostaResponse> {
+export async function finalizarProposta(propostaId: number, valorCobrado: number): Promise<PropostaResponse> {
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
@@ -255,7 +292,11 @@ export async function finalizarProposta(propostaId: number): Promise<PropostaRes
 
   const response = await fetch(`${API_URL}/propostas/${propostaId}/finalizar`, {
     method: "PATCH",
-    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${storedToken.accessToken}`,
+    },
+    body: JSON.stringify({ valorCobrado }),
   });
   const json = await response.json().catch(() => null);
 

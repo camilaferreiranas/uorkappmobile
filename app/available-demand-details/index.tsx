@@ -233,6 +233,25 @@ export default function AvailableDemandDetailsScreen() {
               </View>
             </View>
             <View style={styles.infoRow}>
+              <MaterialIcons name="star-outline" size={24} color={BLUE} />
+              <View style={styles.infoContent}>
+                <Text style={styles.label}>Avaliação do cliente</Text>
+                {demanda.totalAvaliacoesCliente != null && demanda.totalAvaliacoesCliente > 0 ? (
+                  <View style={styles.ratingLine}>
+                    <MaterialIcons name="star" size={18} color="#E5A000" />
+                    <Text style={styles.ratingValue}>
+                      {Number(demanda.mediaAvaliacoesCliente ?? 0).toFixed(1).replace(".", ",")} / 5
+                    </Text>
+                    <Text style={styles.ratingCount}>
+                      · {demanda.totalAvaliacoesCliente} {demanda.totalAvaliacoesCliente === 1 ? "avaliação" : "avaliações"}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text style={styles.noRating}>Ainda sem avaliações</Text>
+                )}
+              </View>
+            </View>
+            <View style={styles.infoRow}>
               <MaterialIcons name="payments" size={23} color={BLUE} />
               <View style={styles.infoContent}>
                 <Text style={styles.label}>Orçamento</Text>
@@ -374,6 +393,10 @@ const styles = StyleSheet.create({
   infoContent: { flex: 1, gap: 5 },
   label: { color: "#738098", fontSize: 12 },
   infoValue: { color: "#23344A", fontSize: 16, lineHeight: 23, fontWeight: "600" },
+  ratingLine: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 4 },
+  ratingValue: { color: "#23344A", fontSize: 16, fontWeight: "700" },
+  ratingCount: { color: "#647086", fontSize: 13 },
+  noRating: { color: "#647086", fontSize: 14 },
   sectionTitle: { color: "#23344A", fontSize: 17, fontWeight: "700" },
   description: { color: "#4B586C", fontSize: 15, lineHeight: 24 },
   photos: { gap: 14 },

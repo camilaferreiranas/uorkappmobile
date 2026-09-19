@@ -250,7 +250,12 @@ export default function ClientHistoryScreen() {
                   </Text>
 
                   <View style={styles.cardBottom}>
-                    {item.valor != null ? (
+                    {item.status === "FINALIZADA" && item.valorCobrado != null ? (
+                      <View>
+                        <Text style={styles.metaLabel}>Valor cobrado (informado pelo prestador)</Text>
+                        <Text style={styles.valueText}>{formatarValor(item.valorCobrado)}</Text>
+                      </View>
+                    ) : item.valor != null ? (
                       <View>
                         <Text style={styles.metaLabel}>Valor da proposta</Text>
                         <Text style={styles.valueText}>{formatarValor(item.valor)}</Text>

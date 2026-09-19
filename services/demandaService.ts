@@ -50,7 +50,11 @@ export interface DemandaDisponivel extends DemandaPublicada {
   nomeCliente: string;
   candidaturaId: number | null;
   statusCandidatura: StatusCandidatura | null;
+  mediaAvaliacoesCliente: number | null;
+  totalAvaliacoesCliente: number | null;
 }
+
+export type OrdenacaoDemanda = "RECENTES" | "MAIOR_ORCAMENTO" | "MENOR_ORCAMENTO";
 
 export type StatusCandidatura =
   | "PENDENTE"
@@ -230,13 +234,19 @@ async function consultarDemandaDisponivel<T>(
 export async function buscarDemandasDisponiveis(
   pagina = 0,
   tamanho = 20,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  categoriaId?: number | null,
+  ordenacao: OrdenacaoDemanda = "RECENTES"
 ): Promise<PaginaDemandasDisponiveis> {
   if (!Number.isInteger(pagina) || pagina < 0 || !Number.isInteger(tamanho) || tamanho < 1 || tamanho > 50) {
     throw new Error("Paginação inválida.");
   }
+  if (categoriaId != null && (!Number.isSafeInteger(categoriaId) || categoriaId <= 0)) {
+    throw new Error("Selecione uma categoria válida.");
+  }
+  const filtroCategoria = categoriaId == null ? "" : `&categoriaId=${categoriaId}`;
   const data = await consultarDemandaDisponivel<PaginaDemandasDisponiveis>(
-    `?page=${pagina}&size=${tamanho}`,
+    `?page=${pagina}&size=${tamanho}${filtroCategoria}&ordenacao=${ordenacao}`,
     signal
   );
   if (!Array.isArray(data.content) || !Number.isInteger(data.number) || typeof data.last !== "boolean") {

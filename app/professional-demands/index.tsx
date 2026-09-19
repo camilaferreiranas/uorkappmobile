@@ -5,10 +5,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -17,6 +21,8 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { DemandasDisponiveisLista } from "../../components/ui/demandas-disponiveis";
 import { StarRating } from "../../components/ui/star-rating";
+import { type Categoria } from "../../services/categoriaService";
+import { type OrdenacaoDemanda } from "../../services/demandaService";
 import {
   avaliarCliente,
   buscarDemandasDoPrestador,
@@ -60,6 +66,8 @@ export default function ProfessionalDemandsScreen() {
   const [aba, setAba] = useState<"disponiveis" | "recebidas">(
     abaInicial === "recebidas" ? "recebidas" : "disponiveis"
   );
+  const [categoriaFiltro, setCategoriaFiltro] = useState<Categoria | null>(null);
+  const [ordenacaoFiltro, setOrdenacaoFiltro] = useState<OrdenacaoDemanda>("RECENTES");
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 360;
@@ -69,6 +77,10 @@ export default function ProfessionalDemandsScreen() {
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
   const [processandoId, setProcessandoId] = useState<number | null>(null);
+  const [finalizacaoPendente, setFinalizacaoPendente] =
+    useState<DemandaProfissional | null>(null);
+  const [valorCobradoTexto, setValorCobradoTexto] = useState("");
+  const [erroFinalizacao, setErroFinalizacao] = useState("");
   const [avaliacaoPendente, setAvaliacaoPendente] =
     useState<DemandaProfissional | null>(null);
   const [notaCliente, setNotaCliente] = useState(0);
@@ -119,20 +131,40 @@ export default function ProfessionalDemandsScreen() {
     void carregar(false);
   }
 
-  async function finalizar(demanda: DemandaProfissional) {
+  function abrirFinalizacao(demanda: DemandaProfissional) {
+    setFinalizacaoPendente(demanda);
+    setValorCobradoTexto("");
+    setErroFinalizacao("");
+  }
+
+  async function finalizar() {
+    const demanda = finalizacaoPendente;
+    if (!demanda) return;
+
+    const texto = valorCobradoTexto.trim();
+    const valorCobrado = Number(texto.replace(",", "."));
+    if (!/^\d+(?:[,.]\d{1,2})?$/.test(texto)
+      || !Number.isFinite(valorCobrado)
+      || valorCobrado > 99999999.99) {
+      setErroFinalizacao("Informe um valor válido em reais (ex.: 150,00). Use 0,00 se não houve cobrança.");
+      return;
+    }
+
     setProcessandoId(demanda.propostaId);
-    setErro("");
+    setErroFinalizacao("");
     try {
-      await finalizarProposta(demanda.propostaId);
-      const finalizada = { ...demanda, status: "FINALIZADA" as const };
+      await finalizarProposta(demanda.propostaId, valorCobrado);
+      const finalizada = { ...demanda, valorCobrado, status: "FINALIZADA" as const };
       setDemandas((atuais) =>
         atuais.map((item) =>
           item.propostaId === demanda.propostaId ? finalizada : item
         )
       );
+      Keyboard.dismiss();
+      setFinalizacaoPendente(null);
       abrirAvaliacao(finalizada);
     } catch (error) {
-      setErro(
+      setErroFinalizacao(
         error instanceof Error
           ? error.message
           : "Não foi possível finalizar o serviço."
@@ -209,7 +241,14 @@ export default function ProfessionalDemandsScreen() {
         ))}
       </View>
 
-      {aba === "disponiveis" ? <DemandasDisponiveisLista /> : carregando ? (
+      {aba === "disponiveis" ? (
+        <DemandasDisponiveisLista
+          categoriaSelecionada={categoriaFiltro}
+          onSelecionarCategoria={setCategoriaFiltro}
+          ordenacaoSelecionada={ordenacaoFiltro}
+          onSelecionarOrdenacao={setOrdenacaoFiltro}
+        />
+      ) : carregando ? (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color="#0D3D8B" />
           <Text style={styles.stateText}>Carregando demandas...</Text>
@@ -341,7 +380,7 @@ export default function ProfessionalDemandsScreen() {
                 {demandaEmAndamento ? (
                   <TouchableOpacity
                     style={styles.finishButton}
-                    onPress={() => void finalizar(demanda)}
+                    onPress={() => abrirFinalizacao(demanda)}
                     disabled={processandoId === demanda.propostaId}
                   >
                     {processandoId === demanda.propostaId ? (
@@ -364,7 +403,12 @@ export default function ProfessionalDemandsScreen() {
                 ) : null}
 
                 <View style={styles.cardBottom}>
-                  {demanda.valor != null ? (
+                  {demanda.status === "FINALIZADA" && demanda.valorCobrado != null ? (
+                    <View>
+                      <Text style={styles.metaLabel}>Valor cobrado</Text>
+                      <Text style={styles.budgetText}>{formatarValor(demanda.valorCobrado)}</Text>
+                    </View>
+                  ) : demanda.valor != null ? (
                     <View>
                       <Text style={styles.metaLabel}>Valor da candidatura</Text>
                       <Text style={styles.budgetText}>{formatarValor(demanda.valor)}</Text>
@@ -382,47 +426,102 @@ export default function ProfessionalDemandsScreen() {
       )}
 
       <Modal
-        visible={avaliacaoPendente != null}
+        visible={finalizacaoPendente != null || avaliacaoPendente != null}
         transparent
         animationType="fade"
-        onRequestClose={() => setAvaliacaoPendente(null)}
+        onRequestClose={() => {
+          if (processandoId != null || enviandoAvaliacao) return;
+          setFinalizacaoPendente(null);
+          setAvaliacaoPendente(null);
+        }}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
           <View style={styles.modalCard}>
-            <View style={styles.modalIcon}>
-              <MaterialIcons name="person" size={30} color="#0D3D8B" />
-            </View>
-            <Text style={styles.modalTitle}>Avalie o cliente</Text>
-            <Text style={styles.modalText}>
-              Como foi trabalhar com {avaliacaoPendente?.nomeCliente} neste serviço?
-            </Text>
-            <StarRating rating={notaCliente} onRatingChange={setNotaCliente} size={38} />
-            {erroAvaliacao ? (
-              <Text style={styles.modalError}>{erroAvaliacao}</Text>
-            ) : null}
-            <TouchableOpacity
-              style={[
-                styles.submitRatingButton,
-                (notaCliente === 0 || enviandoAvaliacao) && styles.disabledButton,
-              ]}
-              disabled={notaCliente === 0 || enviandoAvaliacao}
-              onPress={() => void enviarAvaliacao()}
-            >
-              {enviandoAvaliacao ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.submitRatingText}>Enviar avaliação</Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.laterButton}
-              onPress={() => setAvaliacaoPendente(null)}
-              disabled={enviandoAvaliacao}
-            >
-              <Text style={styles.laterButtonText}>Avaliar depois</Text>
-            </TouchableOpacity>
+            {finalizacaoPendente ? (
+              <>
+                <View style={styles.modalIcon}>
+                  <MaterialIcons name="payments" size={30} color="#0D3D8B" />
+                </View>
+                <Text style={styles.modalTitle}>Finalizar serviço</Text>
+                <Text style={styles.modalText}>
+                  Quanto foi cobrado por este serviço? Depois você poderá avaliar o cliente.
+                </Text>
+                <Text style={styles.amountLabel}>Valor cobrado (R$)</Text>
+                <TextInput
+                  style={styles.amountInput}
+                  value={valorCobradoTexto}
+                  onChangeText={(texto) => {
+                    setValorCobradoTexto(texto);
+                    setErroFinalizacao("");
+                  }}
+                  keyboardType="decimal-pad"
+                  placeholder="Ex.: 150,00"
+                  accessibilityLabel="Valor cobrado pelo serviço em reais"
+                  maxLength={12}
+                  editable={processandoId == null}
+                />
+                <Text style={styles.amountHint}>Se não houve cobrança, informe 0,00.</Text>
+                {erroFinalizacao ? <Text style={styles.modalError}>{erroFinalizacao}</Text> : null}
+                <TouchableOpacity
+                  style={[styles.submitRatingButton, processandoId != null && styles.disabledButton]}
+                  disabled={processandoId != null}
+                  onPress={() => void finalizar()}
+                >
+                  {processandoId != null ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.submitRatingText}>Confirmar finalização</Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.laterButton}
+                  onPress={() => setFinalizacaoPendente(null)}
+                  disabled={processandoId != null}
+                >
+                  <Text style={styles.laterButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <View style={styles.modalIcon}>
+                  <MaterialIcons name="person" size={30} color="#0D3D8B" />
+                </View>
+                <Text style={styles.modalTitle}>Avalie o cliente</Text>
+                <Text style={styles.modalText}>
+                  Como foi trabalhar com {avaliacaoPendente?.nomeCliente} neste serviço?
+                </Text>
+                <StarRating rating={notaCliente} onRatingChange={setNotaCliente} size={38} />
+                {erroAvaliacao ? (
+                  <Text style={styles.modalError}>{erroAvaliacao}</Text>
+                ) : null}
+                <TouchableOpacity
+                  style={[
+                    styles.submitRatingButton,
+                    (notaCliente === 0 || enviandoAvaliacao) && styles.disabledButton,
+                  ]}
+                  disabled={notaCliente === 0 || enviandoAvaliacao}
+                  onPress={() => void enviarAvaliacao()}
+                >
+                  {enviandoAvaliacao ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Text style={styles.submitRatingText}>Enviar avaliação</Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.laterButton}
+                  onPress={() => setAvaliacaoPendente(null)}
+                  disabled={enviandoAvaliacao}
+                >
+                  <Text style={styles.laterButtonText}>Avaliar depois</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       <ProfessionalNavBar active="demandas" />
@@ -736,6 +835,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     marginBottom: 12,
+  },
+  amountLabel: {
+    alignSelf: "flex-start",
+    color: "#111",
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+  amountInput: {
+    width: "100%",
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    color: "#111",
+    fontSize: 17,
+    marginBottom: 7,
+  },
+  amountHint: {
+    alignSelf: "flex-start",
+    color: "#6B6B7A",
+    fontSize: 12,
+    marginBottom: 18,
   },
   submitRatingButton: {
     width: "100%",
