@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 
 interface SelectProps {
@@ -28,7 +28,7 @@ export function Select({ label, value, options, placeholder, onSelect }: SelectP
         <MaterialIcons
           name={isOpen ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
           size={24}
-          color={Colors.gray}
+          color={Colors.textSecondary}
         />
       </TouchableOpacity>
 
@@ -59,49 +59,50 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: Colors.black,
-    fontWeight: '700',
-    marginBottom: 10,
+    color: Colors.ink,
+    fontWeight: '600',
+    marginBottom: 8,
   },
   input: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
+    borderRadius: Radius.sm,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 14,
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: Colors.border,
   },
   value: {
     fontSize: 16,
-    color: Colors.black,
+    color: Colors.ink,
   },
   placeholder: {
-    color: Colors.gray,
+    color: Colors.textSecondary,
   },
   dropdown: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
+    borderRadius: Radius.sm,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: Colors.border,
     overflow: 'hidden',
-    elevation: 4,
-    shadowColor: Colors.black,
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    elevation: 1,
+    shadowColor: Colors.ink,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
   },
   option: {
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.border,
   },
   optionText: {
-    color: Colors.black,
+    color: Colors.ink,
     fontSize: 15,
   },
 });

@@ -100,8 +100,8 @@ export default function ProfileScreen() {
             imageUrl={profile.fotoPerfilUrl}
             initials={initials}
             size={90}
-            backgroundColor="#D94A1A"
-            borderColor="#fff"
+            backgroundColor={Colors.primary}
+            borderColor={Colors.white}
             borderWidth={4}
           />
         </View>
@@ -120,7 +120,7 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.statBlock}>
               <View style={styles.ratingRow}>
-                <MaterialIcons name="star" size={16} color="#FFB800" />
+                <MaterialIcons name="star" size={16} color={Colors.warning} />
                 <Text style={styles.ratingValue}>{profile.notaMedia.toFixed(1)}</Text>
               </View>
               <Text style={styles.statLabel}>Avaliação</Text>
@@ -177,7 +177,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.background,
   },
   centered: {
     justifyContent: "center",
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     textAlign: "center",
   },
   backButton: {
@@ -241,13 +241,13 @@ const styles = StyleSheet.create({
   },
   specialty: {
     fontSize: 14,
-    color: "#717171",
+    color: Colors.textSecondary,
     marginTop: 6,
     marginBottom: 4,
   },
   location: {
     fontSize: 13,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   statsRow: {
     flexDirection: "row",
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     marginTop: 6,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     fontSize: 12,
   },
   ratingRow: {

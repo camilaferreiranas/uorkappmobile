@@ -319,7 +319,7 @@ export default function PublicarScreen() {
 
   return (
     <ScreenContainer
-      backgroundColor="#F7F7F7"
+      backgroundColor={Colors.background}
       contentContainerStyle={styles.container}
     >
       <Text style={styles.pageTitle}>Publicar demanda</Text>
@@ -450,7 +450,7 @@ export default function PublicarScreen() {
         )}
         <Button
           title={fotos.length >= MAX_FOTOS ? "Limite de 4 fotos atingido" : "Adicionar foto"}
-          variant="outline"
+          variant="secondary"
           onPress={() => void adicionarFotos()}
           disabled={fotos.length >= MAX_FOTOS || publicando}
           style={styles.photoButton}
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   pageDescription: {
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 24,
@@ -500,7 +500,7 @@ const styles = StyleSheet.create({
   },
   whiteInput: {
     backgroundColor: Colors.white,
-    borderColor: "#E5E5E5",
+    borderColor: Colors.border,
   },
   textArea: {
     minHeight: 120,
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
     width: 78,
     height: 78,
     borderRadius: 16,
-    backgroundColor: "#F3F3F3",
+    backgroundColor: Colors.background,
   },
   removePhotoButton: {
     position: "absolute",
@@ -572,10 +572,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#F7F7F7",
+    borderColor: Colors.background,
   },
   photoHint: {
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#E5E5E5",
+    borderColor: Colors.border,
   },
   submitError: {
     color: Colors.error,

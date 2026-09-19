@@ -24,11 +24,11 @@ import {
 } from "../../services/demandaService";
 
 const statusConfig = {
-  PENDENTE: { label: "Aguardando escolha", color: "#9A6700", background: "#FFF4CE" },
-  ACEITA: { label: "Selecionado", color: "#24753A", background: "#EAF7ED" },
-  RECUSADA: { label: "Não selecionado", color: "#64748B", background: "#EEF2F6" },
-  CANCELADA: { label: "Cancelado", color: "#B3261E", background: "#FDECEA" },
-  FINALIZADA: { label: "Serviço finalizado", color: "#174C8F", background: "#EAF1FC" },
+  PENDENTE: { label: "Aguardando escolha", color: Colors.warning, background: "#FFF7EA" },
+  ACEITA: { label: "Selecionado", color: Colors.primary, background: Colors.primaryLight },
+  RECUSADA: { label: "Não selecionado", color: Colors.textSecondary, background: Colors.background },
+  CANCELADA: { label: "Cancelado", color: Colors.error, background: "#FDECEA" },
+  FINALIZADA: { label: "Serviço finalizado", color: Colors.success, background: "#EAF7ED" },
 };
 
 function formatarValor(valor: number) {
@@ -72,7 +72,7 @@ function CandidatoCard({
           <View style={styles.professionalInfo}>
             <Text style={styles.professionalName}>{candidato.nomePrestador}</Text>
             <View style={styles.ratingRow}>
-              <MaterialIcons name="star" size={16} color="#F4B400" />
+              <MaterialIcons name="star" size={16} color={Colors.warning} />
               <Text style={styles.ratingText}>
                 {Number(candidato.mediaAvaliacoes || 0).toFixed(1)} · {candidato.totalAvaliacoes || 0} avaliações
               </Text>
@@ -101,9 +101,9 @@ function CandidatoCard({
           accessibilityRole="button"
           activeOpacity={0.8}
         >
-          {processando ? <ActivityIndicator color="#fff" /> : (
+          {processando ? <ActivityIndicator color={Colors.white} /> : (
             <>
-              <MaterialIcons name="check-circle" size={20} color="#fff" />
+              <MaterialIcons name="check-circle" size={20} color={Colors.white} />
               <Text style={styles.selectButtonText}>Selecionar prestador</Text>
             </>
           )}
@@ -185,7 +185,7 @@ export default function DemandCandidatesScreen() {
       <StatusBar style="light" />
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()} accessibilityRole="button">
-          <MaterialIcons name="arrow-back" size={25} color="#fff" />
+          <MaterialIcons name="arrow-back" size={25} color={Colors.white} />
         </TouchableOpacity>
         <View style={styles.headerText}>
           <Text style={styles.headerTitle}>Prestadores candidatos</Text>
@@ -197,7 +197,7 @@ export default function DemandCandidatesScreen() {
         <View style={styles.center}><ActivityIndicator color={Colors.primary} size="large" /><Text style={styles.centerText}>Carregando candidaturas...</Text></View>
       ) : erro && !dados ? (
         <View style={styles.center}>
-          <MaterialIcons name="error-outline" size={43} color="#B3261E" />
+          <MaterialIcons name="error-outline" size={43} color={Colors.error} />
           <Text style={styles.centerTitle}>Não foi possível carregar</Text>
           <Text style={styles.centerText}>{erro}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => void carregar()}><Text style={styles.retryText}>Tentar novamente</Text></TouchableOpacity>
@@ -281,50 +281,50 @@ export default function DemandCandidatesScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F7F7F9" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   header: { backgroundColor: Colors.primary, paddingHorizontal: 17, paddingBottom: 20, flexDirection: "row", alignItems: "center", gap: 12 },
-  backButton: { width: 45, height: 45, borderRadius: 14, backgroundColor: "#FFFFFF24", alignItems: "center", justifyContent: "center" },
+  backButton: { width: 45, height: 45, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.14)", alignItems: "center", justifyContent: "center" },
   headerText: { flex: 1 },
-  headerTitle: { color: "#fff", fontSize: 21, fontWeight: "800" },
-  headerSubtitle: { color: "#FFE1D7", fontSize: 12, lineHeight: 17, marginTop: 3 },
+  headerTitle: { color: Colors.white, fontSize: 21, fontWeight: "800" },
+  headerSubtitle: { color: Colors.primaryLight, fontSize: 12, lineHeight: 17, marginTop: 3 },
   center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 28, gap: 12 },
-  centerTitle: { color: "#171717", fontSize: 18, fontWeight: "800", textAlign: "center" },
-  centerText: { color: "#6B7280", fontSize: 14, lineHeight: 20, textAlign: "center" },
+  centerTitle: { color: Colors.ink, fontSize: 18, fontWeight: "700", textAlign: "center" },
+  centerText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20, textAlign: "center" },
   retryButton: { backgroundColor: Colors.primary, borderRadius: 13, paddingHorizontal: 21, paddingVertical: 13 },
-  retryText: { color: "#fff", fontWeight: "800" },
+  retryText: { color: Colors.white, fontWeight: "800" },
   content: { padding: 17, paddingBottom: 40, width: "100%", maxWidth: 760, alignSelf: "center" },
   emptyContent: { flexGrow: 1 },
   summary: { gap: 6, marginBottom: 15 },
-  summaryTitle: { color: "#111827", fontSize: 18, fontWeight: "800" },
-  summaryText: { color: "#6B7280", fontSize: 13, lineHeight: 19 },
-  errorText: { color: "#B3261E", fontSize: 13, lineHeight: 19 },
-  card: { backgroundColor: "#fff", borderRadius: 20, padding: 17, marginBottom: 14, gap: 14, borderWidth: 1, borderColor: "#ECECF0" },
+  summaryTitle: { color: Colors.ink, fontSize: 18, fontWeight: "700" },
+  summaryText: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
+  errorText: { color: Colors.error, fontSize: 13, lineHeight: 19 },
+  card: { backgroundColor: Colors.white, borderRadius: 20, padding: 17, marginBottom: 14, gap: 14, borderWidth: 1, borderColor: Colors.border },
   profileArea: { gap: 14 },
-  selectedCard: { borderColor: "#70B982", borderWidth: 2 },
+  selectedCard: { borderColor: Colors.success, borderWidth: 2 },
   cardHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
-  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#FFF0EB", alignItems: "center", justifyContent: "center" },
+  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.primaryLight, alignItems: "center", justifyContent: "center" },
   avatarText: { color: Colors.primary, fontSize: 16, fontWeight: "800" },
   professionalInfo: { flex: 1, minWidth: 0 },
-  professionalName: { color: "#111827", fontSize: 16, fontWeight: "800" },
+  professionalName: { color: Colors.ink, fontSize: 16, fontWeight: "700" },
   ratingRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
-  ratingText: { color: "#6B7280", fontSize: 11 },
+  ratingText: { color: Colors.textSecondary, fontSize: 11 },
   statusBadge: { maxWidth: "38%", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, fontSize: 10, fontWeight: "800", overflow: "hidden" },
-  offerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 13, borderRadius: 14, backgroundColor: "#FFF8F5" },
-  label: { color: "#7A7A82", fontSize: 11 },
+  offerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 13, borderRadius: 14, backgroundColor: "#EFF6FF" },
+  label: { color: Colors.textSecondary, fontSize: 11 },
   value: { color: Colors.primary, fontSize: 19, fontWeight: "800", marginTop: 2 },
-  message: { color: "#4B5563", fontSize: 14, lineHeight: 21 },
+  message: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21 },
   selectButton: { minHeight: 50, borderRadius: 14, backgroundColor: Colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  selectButtonText: { color: "#fff", fontSize: 14, fontWeight: "800" },
+  selectButtonText: { color: Colors.white, fontSize: 14, fontWeight: "800" },
   disabled: { opacity: 0.65 },
-  emptyCard: { flex: 1, minHeight: 260, backgroundColor: "#fff", borderRadius: 20, padding: 26, alignItems: "center", justifyContent: "center", gap: 12 },
+  emptyCard: { flex: 1, minHeight: 260, backgroundColor: Colors.white, borderRadius: 20, padding: 26, alignItems: "center", justifyContent: "center", gap: 12 },
   modalOverlay: { flex: 1, backgroundColor: "rgba(15, 23, 42, 0.55)", alignItems: "center", justifyContent: "center", padding: 22 },
-  modalCard: { width: "100%", maxWidth: 430, borderRadius: 22, backgroundColor: "#fff", padding: 22, alignItems: "center" },
-  modalIcon: { width: 62, height: 62, borderRadius: 20, backgroundColor: "#FFF0EB", alignItems: "center", justifyContent: "center", marginBottom: 14 },
-  modalTitle: { color: "#111827", fontSize: 20, fontWeight: "800", textAlign: "center" },
-  modalText: { color: "#64748B", fontSize: 14, lineHeight: 21, textAlign: "center", marginTop: 9 },
+  modalCard: { width: "100%", maxWidth: 430, borderRadius: 22, backgroundColor: Colors.white, padding: 22, alignItems: "center" },
+  modalIcon: { width: 62, height: 62, borderRadius: 20, backgroundColor: Colors.primaryLight, alignItems: "center", justifyContent: "center", marginBottom: 14 },
+  modalTitle: { color: Colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
+  modalText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21, textAlign: "center", marginTop: 9 },
   modalActions: { width: "100%", flexDirection: "row", gap: 10, marginTop: 22 },
-  cancelButton: { flex: 1, minHeight: 49, borderRadius: 14, borderWidth: 1, borderColor: "#CBD5E1", alignItems: "center", justifyContent: "center" },
-  cancelButtonText: { color: "#475569", fontSize: 14, fontWeight: "800" },
+  cancelButton: { flex: 1, minHeight: 49, borderRadius: 14, borderWidth: 1, borderColor: Colors.border, alignItems: "center", justifyContent: "center" },
+  cancelButtonText: { color: Colors.textSecondary, fontSize: 14, fontWeight: "700" },
   confirmButton: { flex: 1, minHeight: 49, borderRadius: 14, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
-  confirmButtonText: { color: "#fff", fontSize: 14, fontWeight: "800" },
+  confirmButtonText: { color: Colors.white, fontSize: 14, fontWeight: "800" },
 });

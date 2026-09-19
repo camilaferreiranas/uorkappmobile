@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Colors } from "../../constants/theme";
 
 interface ProfileAvatarProps {
   imageUrl?: string | null;
@@ -15,7 +16,7 @@ export function ProfileAvatar({
   imageUrl,
   initials,
   size = 80,
-  backgroundColor = "#0D3D8B",
+  backgroundColor = Colors.primary,
   borderColor = "transparent",
   borderWidth = 0,
   style,
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   initials: {
-    color: "#fff",
-    fontWeight: "800",
+    color: Colors.white,
+    fontWeight: "700",
   },
 });

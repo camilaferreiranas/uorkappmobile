@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { Colors } from "../../constants/theme";
 
 const summary = {
   totalReceived: "R$ 8.240",
@@ -46,7 +47,7 @@ export default function ProfessionalReportScreen() {
           <Text style={styles.balanceValue}>{summary.totalReceived}</Text>
           <View style={styles.balanceRow}>
             <View style={styles.balanceSub}>
-              <MaterialIcons name="trending-up" size={16} color="#2E7D32" />
+              <MaterialIcons name="trending-up" size={16} color={Colors.success} />
               <Text style={styles.balanceSubText}>Mês atual: {summary.monthReceived}</Text>
             </View>
           </View>
@@ -54,17 +55,17 @@ export default function ProfessionalReportScreen() {
 
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <MaterialIcons name="assignment-turned-in" size={24} color="#0D3D8B" />
+            <MaterialIcons name="assignment-turned-in" size={24} color={Colors.primary} />
             <Text style={styles.statValue}>{summary.completedDemands}</Text>
             <Text style={styles.statLabel}>Concluídas</Text>
           </View>
           <View style={styles.statCard}>
-            <MaterialIcons name="pending-actions" size={24} color="#D86A3F" />
+            <MaterialIcons name="pending-actions" size={24} color={Colors.warning} />
             <Text style={styles.statValue}>{summary.inProgressDemands}</Text>
             <Text style={styles.statLabel}>Em andamento</Text>
           </View>
           <View style={styles.statCard}>
-            <MaterialIcons name="star" size={24} color="#FFB800" />
+            <MaterialIcons name="star" size={24} color={Colors.warning} />
             <Text style={styles.statValue}>{summary.avgRating}</Text>
             <Text style={styles.statLabel}>Avaliação</Text>
           </View>
@@ -98,7 +99,7 @@ export default function ProfessionalReportScreen() {
                 <MaterialIcons
                   name="flash-on"
                   size={18}
-                  color="#0D3D8B"
+                  color={Colors.primary}
                 />
               </View>
               <View style={styles.transactionInfo}>
@@ -126,22 +127,22 @@ export default function ProfessionalReportScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 22,
   },
   headerTitle: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 4,
   },
   headerSubtitle: {
-    color: "#B8CCF6",
+    color: Colors.primaryLight,
     fontSize: 13,
   },
   container: {
@@ -150,19 +151,19 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
   balanceCard: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     borderRadius: 20,
     padding: 22,
     marginBottom: 16,
     alignItems: "center",
   },
   balanceLabel: {
-    color: "#B8CCF6",
+    color: Colors.primaryLight,
     fontSize: 13,
     marginBottom: 6,
   },
   balanceValue: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 36,
     fontWeight: "800",
     marginBottom: 10,
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   balanceSubText: {
-    color: "#D1E0FF",
+    color: Colors.primaryLight,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -191,12 +192,12 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 16,
     alignItems: "center",
     gap: 8,
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
@@ -205,11 +206,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: "800",
-    color: "#111",
+    color: Colors.ink,
   },
   statLabel: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     textAlign: "center",
   },
   sectionHeader: {
@@ -218,14 +219,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: "800",
-    color: "#111",
+    color: Colors.ink,
   },
   monthlyCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 18,
     padding: 16,
     marginBottom: 20,
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
@@ -239,44 +240,44 @@ const styles = StyleSheet.create({
   },
   monthRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: Colors.border,
   },
   monthName: {
     width: 30,
     fontSize: 13,
     fontWeight: "700",
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   monthBar: {
     flex: 1,
     height: 8,
-    backgroundColor: "#F0F0F0",
+    backgroundColor: Colors.background,
     borderRadius: 4,
     overflow: "hidden",
   },
   monthBarFill: {
     height: "100%",
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     borderRadius: 4,
   },
   monthDemands: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     width: 70,
     textAlign: "right",
   },
   monthValue: {
     fontSize: 13,
     fontWeight: "800",
-    color: "#111",
+    color: Colors.ink,
     width: 50,
     textAlign: "right",
   },
   transactionsCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 18,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
@@ -290,13 +291,13 @@ const styles = StyleSheet.create({
   },
   transactionBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: Colors.border,
   },
   transactionIcon: {
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -306,12 +307,12 @@ const styles = StyleSheet.create({
   transactionService: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#111",
+    color: Colors.ink,
     marginBottom: 3,
   },
   transactionClient: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   transactionRight: {
     alignItems: "flex-end",
@@ -320,23 +321,23 @@ const styles = StyleSheet.create({
   transactionValue: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#111",
+    color: Colors.ink,
   },
   transactionStatus: {
-    backgroundColor: "#EAFAF1",
+    backgroundColor: "#EAF7ED",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
   },
   transactionStatusPending: {
-    backgroundColor: "#FFF5E6",
+    backgroundColor: "#FFF7EA",
   },
   transactionStatusText: {
     fontSize: 10,
     fontWeight: "700",
-    color: "#2E7D32",
+    color: Colors.success,
   },
   transactionStatusTextPending: {
-    color: "#D86A3F",
+    color: Colors.warning,
   },
 });

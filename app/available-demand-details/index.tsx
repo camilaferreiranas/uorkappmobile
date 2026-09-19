@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/theme";
 import {
   buscarDemandaDisponivel,
   enviarCandidatura,
@@ -23,11 +24,11 @@ import {
   type UrgenciaDemanda,
 } from "../../services/demandaService";
 
-const BLUE = "#174583";
+const BLUE = Colors.primary;
 const urgencyConfig: Record<UrgenciaDemanda, { label: string; color: string; background: string }> = {
-  NORMAL: { label: "Normal", color: "#24753A", background: "#EAF7ED" },
-  URGENTE: { label: "Urgente", color: "#B3261E", background: "#FDECEA" },
-  HOJE: { label: "Para hoje", color: "#986600", background: "#FFF4CE" },
+  NORMAL: { label: "Normal", color: Colors.success, background: "#EAF7ED" },
+  URGENTE: { label: "Urgente", color: Colors.warning, background: "#FFF7EA" },
+  HOJE: { label: "Para hoje", color: Colors.error, background: "#FDECEA" },
 };
 
 function formatarData(value: string) {
@@ -46,7 +47,7 @@ function FotoDemanda({ foto, index }: { foto: DemandaDisponivel["fotos"][number]
     <View style={styles.photoFrame}>
       {falhou ? (
         <View style={styles.photoError}>
-          <MaterialIcons name="broken-image" size={32} color="#738098" />
+          <MaterialIcons name="broken-image" size={32} color={Colors.textSecondary} />
           <Text style={styles.photoErrorText}>Não foi possível carregar esta foto.</Text>
         </View>
       ) : (
@@ -170,7 +171,7 @@ export default function AvailableDemandDetailsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Voltar para demandas"
           >
-            <MaterialIcons name="arrow-back" size={25} color="#fff" />
+            <MaterialIcons name="arrow-back" size={25} color={Colors.white} />
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.headerTitle}>Detalhes da demanda</Text>
@@ -195,7 +196,7 @@ export default function AvailableDemandDetailsScreen() {
             accessibilityRole="button"
             activeOpacity={0.8}
           >
-            <MaterialIcons name="refresh" size={20} color="#fff" />
+            <MaterialIcons name="refresh" size={20} color={Colors.white} />
             <Text style={styles.retryText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
@@ -277,7 +278,7 @@ export default function AvailableDemandDetailsScreen() {
 
             {demanda.candidaturaId ? (
               <View style={styles.applicationSent}>
-                <MaterialIcons name="check-circle" size={20} color="#24753A" />
+                <MaterialIcons name="check-circle" size={20} color={Colors.success} />
                 <Text style={styles.applicationSentText}>
                   {demanda.statusCandidatura === "PENDENTE"
                     ? "Aguardando a escolha do cliente"
@@ -300,7 +301,7 @@ export default function AvailableDemandDetailsScreen() {
                     }}
                     keyboardType="decimal-pad"
                     placeholder="0,00"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor={Colors.textSecondary}
                     maxLength={15}
                     accessibilityLabel="Valor da proposta"
                   />
@@ -317,7 +318,7 @@ export default function AvailableDemandDetailsScreen() {
                   textAlignVertical="top"
                   maxLength={500}
                   placeholder="Conte brevemente por que você é uma boa opção para este serviço."
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={Colors.textSecondary}
                   accessibilityLabel="Mensagem da candidatura"
                 />
                 <Text style={styles.characterCount}>{mensagem.length}/500</Text>
@@ -330,10 +331,10 @@ export default function AvailableDemandDetailsScreen() {
                   activeOpacity={0.8}
                 >
                   {enviandoCandidatura ? (
-                    <ActivityIndicator color="#fff" />
+                    <ActivityIndicator color={Colors.white} />
                   ) : (
                     <>
-                      <MaterialIcons name="send" size={20} color="#fff" />
+                      <MaterialIcons name="send" size={20} color={Colors.white} />
                       <Text style={styles.applyButtonText}>Enviar candidatura</Text>
                     </>
                   )}
@@ -348,52 +349,52 @@ export default function AvailableDemandDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F3F5F9" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   header: { backgroundColor: BLUE, paddingHorizontal: 18, paddingBottom: 21 },
   headerContent: { flexDirection: "row", alignItems: "center", gap: 13, width: "100%", maxWidth: 760, alignSelf: "center" },
-  backButton: { width: 46, height: 46, borderRadius: 15, backgroundColor: "#FFFFFF1F", alignItems: "center", justifyContent: "center" },
+  backButton: { width: 46, height: 46, borderRadius: 15, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
   headerText: { flex: 1 },
-  headerTitle: { color: "#fff", fontSize: 21, fontWeight: "800" },
-  headerSubtitle: { color: "#D2DEF1", fontSize: 12, marginTop: 4 },
+  headerTitle: { color: Colors.white, fontSize: 21, fontWeight: "800" },
+  headerSubtitle: { color: Colors.primaryLight, fontSize: 12, marginTop: 4 },
   centerState: { flex: 1, alignItems: "center", justifyContent: "center", padding: 26, gap: 13 },
-  stateTitle: { fontSize: 18, color: "#192B43", fontWeight: "700", textAlign: "center" },
-  stateText: { color: "#647086", fontSize: 14, lineHeight: 21, textAlign: "center" },
+  stateTitle: { fontSize: 18, color: Colors.ink, fontWeight: "700", textAlign: "center" },
+  stateText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21, textAlign: "center" },
   retryButton: { marginTop: 6, minHeight: 48, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: BLUE, flexDirection: "row", alignItems: "center", gap: 8 },
-  retryText: { color: "#fff", fontSize: 14, fontWeight: "700" },
+  retryText: { color: Colors.white, fontSize: 14, fontWeight: "700" },
   content: { padding: 18, paddingBottom: 32, gap: 16, width: "100%", maxWidth: 796, alignSelf: "center" },
-  card: { backgroundColor: "#fff", padding: 20, borderRadius: 21, gap: 14, borderWidth: 1, borderColor: "#E8ECF3" },
+  card: { backgroundColor: Colors.white, padding: 20, borderRadius: 21, gap: 14, borderWidth: 1, borderColor: Colors.border },
   category: { color: BLUE, fontSize: 12, fontWeight: "700", textTransform: "uppercase" },
-  title: { color: "#162439", fontSize: 25, lineHeight: 32, fontWeight: "800" },
+  title: { color: Colors.ink, fontSize: 25, lineHeight: 32, fontWeight: "700" },
   badges: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  openBadge: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 20, backgroundColor: "#EDF2FB" },
+  openBadge: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 20, backgroundColor: Colors.primaryLight },
   openText: { color: BLUE, fontSize: 12, fontWeight: "700" },
   badge: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 20 },
   badgeText: { fontSize: 12, fontWeight: "700" },
-  dateText: { color: "#738098", fontSize: 12, lineHeight: 18 },
+  dateText: { color: Colors.textSecondary, fontSize: 12, lineHeight: 18 },
   infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, paddingVertical: 4 },
   infoContent: { flex: 1, gap: 5 },
-  label: { color: "#738098", fontSize: 12 },
-  infoValue: { color: "#23344A", fontSize: 16, lineHeight: 23, fontWeight: "600" },
-  sectionTitle: { color: "#23344A", fontSize: 17, fontWeight: "700" },
-  description: { color: "#4B586C", fontSize: 15, lineHeight: 24 },
+  label: { color: Colors.textSecondary, fontSize: 12 },
+  infoValue: { color: Colors.ink, fontSize: 16, lineHeight: 23, fontWeight: "600" },
+  sectionTitle: { color: Colors.ink, fontSize: 17, fontWeight: "700" },
+  description: { color: Colors.textSecondary, fontSize: 15, lineHeight: 24 },
   photos: { gap: 14 },
-  photoFrame: { width: "100%", aspectRatio: 4 / 3, backgroundColor: "#EEF1F6", borderRadius: 14, overflow: "hidden" },
+  photoFrame: { width: "100%", aspectRatio: 4 / 3, backgroundColor: Colors.background, borderRadius: 14, overflow: "hidden" },
   photo: { width: "100%", height: "100%" },
   photoError: { flex: 1, alignItems: "center", justifyContent: "center", padding: 18, gap: 8 },
-  photoErrorText: { color: "#738098", fontSize: 13, textAlign: "center" },
-  applicationCard: { borderColor: "#C7D7EE" },
+  photoErrorText: { color: Colors.textSecondary, fontSize: 13, textAlign: "center" },
+  applicationCard: { borderColor: Colors.primaryLight },
   applicationHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  applicationHint: { color: "#647086", fontSize: 13, lineHeight: 19, marginTop: 3 },
-  inputLabel: { color: "#334155", fontSize: 13, fontWeight: "700", marginBottom: -7 },
-  valueInputRow: { minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: "#CBD5E1", backgroundColor: "#F8FAFC", flexDirection: "row", alignItems: "center", paddingHorizontal: 15 },
-  currencyPrefix: { color: "#334155", fontSize: 16, fontWeight: "700", marginRight: 7 },
-  valueInput: { flex: 1, color: "#0F172A", fontSize: 16, paddingVertical: 13 },
-  messageInput: { minHeight: 112, borderRadius: 14, borderWidth: 1, borderColor: "#CBD5E1", backgroundColor: "#F8FAFC", color: "#0F172A", fontSize: 14, lineHeight: 20, padding: 14 },
-  characterCount: { alignSelf: "flex-end", color: "#64748B", fontSize: 11, marginTop: -8 },
-  applicationError: { color: "#B3261E", fontSize: 13, lineHeight: 19 },
+  applicationHint: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 3 },
+  inputLabel: { color: Colors.ink, fontSize: 13, fontWeight: "700", marginBottom: -7 },
+  valueInputRow: { minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.white, flexDirection: "row", alignItems: "center", paddingHorizontal: 15 },
+  currencyPrefix: { color: Colors.ink, fontSize: 16, fontWeight: "700", marginRight: 7 },
+  valueInput: { flex: 1, color: Colors.ink, fontSize: 16, paddingVertical: 13 },
+  messageInput: { minHeight: 112, borderRadius: 14, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.white, color: Colors.ink, fontSize: 14, lineHeight: 20, padding: 14 },
+  characterCount: { alignSelf: "flex-end", color: Colors.textSecondary, fontSize: 11, marginTop: -8 },
+  applicationError: { color: Colors.error, fontSize: 13, lineHeight: 19 },
   applyButton: { minHeight: 52, borderRadius: 14, backgroundColor: BLUE, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   applyButtonDisabled: { opacity: 0.65 },
-  applyButtonText: { color: "#fff", fontSize: 15, fontWeight: "800" },
+  applyButtonText: { color: Colors.white, fontSize: 15, fontWeight: "800" },
   applicationSent: { flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "#EAF7ED", padding: 14, borderRadius: 14 },
-  applicationSentText: { flex: 1, color: "#24753A", fontSize: 14, fontWeight: "700" },
+  applicationSentText: { flex: 1, color: Colors.success, fontSize: 14, fontWeight: "700" },
 });

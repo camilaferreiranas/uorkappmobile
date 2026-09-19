@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Card } from './card';
 
@@ -25,7 +25,7 @@ export function ReviewCard({ name, comment, rating, date, distance }: ReviewCard
           )}
         </View>
         <View style={styles.ratingBadge}>
-          <MaterialIcons name="star" size={14} color="#FFB800" />
+          <MaterialIcons name="star" size={14} color={Colors.warning} />
           <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
         </View>
       </View>
@@ -64,30 +64,30 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 14,
-    fontWeight: '800',
-    color: Colors.black,
+    fontWeight: '700',
+    color: Colors.ink,
   },
   meta: {
     fontSize: 12,
-    color: Colors.gray,
+    color: Colors.textSecondary,
   },
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFF4E8',
+    backgroundColor: '#FFF7EA',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: Radius.pill,
   },
   ratingText: {
-    color: '#BF6B00',
+    color: Colors.warning,
     fontWeight: '700',
     fontSize: 13,
   },
   comment: {
     fontSize: 14,
-    color: '#6B6B6B',
+    color: Colors.textSecondary,
     lineHeight: 20,
   },
 });

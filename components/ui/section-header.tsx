@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 19,
-    fontWeight: '800',
-    color: Colors.black,
+    fontWeight: '700',
+    color: Colors.ink,
     letterSpacing: -0.3,
   },
   subtitle: {

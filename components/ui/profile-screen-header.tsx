@@ -64,11 +64,11 @@ const styles = StyleSheet.create({
   title: {
     color: Colors.white,
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "700",
     textAlign: "center",
   },
   subtitle: {
-    color: "#FFE4D8",
+    color: Colors.primaryLight,
     fontSize: 12,
     lineHeight: 17,
     marginTop: 3,

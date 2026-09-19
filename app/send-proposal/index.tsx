@@ -242,7 +242,7 @@ export default function SendProposalScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.successContainer}>
-          <MaterialIcons name="check-circle" size={70} color="#2E7D32" />
+          <MaterialIcons name="check-circle" size={70} color={Colors.success} />
           <Text style={styles.successTitle}>Proposta enviada!</Text>
           <Text style={styles.successText}>
             {professional} recebeu sua solicitação e poderá analisar os detalhes do serviço.
@@ -361,7 +361,7 @@ export default function SendProposalScreen() {
           )}
           <Button
             title={foto ? "Trocar foto" : "Adicionar foto"}
-            variant="outline"
+            variant="secondary"
             onPress={() => void selecionarFoto()}
             disabled={enviando}
             style={styles.photoButton}
@@ -382,7 +382,7 @@ export default function SendProposalScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   header: {
     backgroundColor: Colors.primary,
     paddingHorizontal: 20,
@@ -402,9 +402,9 @@ const styles = StyleSheet.create({
   },
   headerContent: { flex: 1 },
   headerTitle: { color: "#fff", fontSize: 20, fontWeight: "800" },
-  headerSubtitle: { color: "#FFE5D9", fontSize: 13, marginTop: 2 },
+  headerSubtitle: { color: Colors.primaryLight, fontSize: 13, marginTop: 2 },
   container: { padding: 22, paddingTop: 26, paddingBottom: 60 },
-  input: { backgroundColor: "#fff", borderColor: "#E5E5E5" },
+  input: { backgroundColor: Colors.white, borderColor: Colors.border },
   textArea: { minHeight: 130, textAlignVertical: "top" },
   fieldError: { color: Colors.error, fontSize: 13, marginTop: -14, marginBottom: 16 },
   locationButton: {
@@ -419,9 +419,9 @@ const styles = StyleSheet.create({
   },
   photoSection: { marginTop: 2, marginBottom: 8 },
   label: { color: Colors.black, fontSize: 14, fontWeight: "700", marginBottom: 10 },
-  photoHint: { color: "#7A7A85", fontSize: 13, lineHeight: 18 },
+  photoHint: { color: Colors.textSecondary, fontSize: 13, lineHeight: 18 },
   photoPreviewContainer: { alignSelf: "flex-start", position: "relative" },
-  photoPreview: { width: 120, height: 120, borderRadius: 18, backgroundColor: "#EFEFF2" },
+  photoPreview: { width: 120, height: 120, borderRadius: 18, backgroundColor: Colors.background },
   removePhotoButton: {
     position: "absolute",
     top: -7,
@@ -431,11 +431,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: Colors.primary,
     borderWidth: 2,
-    borderColor: "#F7F7F7",
+    borderColor: Colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
-  photoButton: { marginTop: 14, borderRadius: 15, borderColor: "#DFDFE4" },
+  photoButton: { marginTop: 14, borderRadius: 15, borderColor: Colors.border },
   submitError: { color: Colors.error, textAlign: "center", fontSize: 13, lineHeight: 18, marginTop: 12 },
   submitButton: { marginTop: 18, borderRadius: 18, paddingVertical: 18 },
   loading: { marginTop: 14 },

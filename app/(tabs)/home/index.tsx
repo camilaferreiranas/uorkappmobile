@@ -225,7 +225,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.background,
   },
   container: {
     paddingBottom: 110,
@@ -263,16 +263,16 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     paddingHorizontal: 4,
-    backgroundColor: "#B3261E",
+    backgroundColor: Colors.error,
     borderWidth: 2,
     borderColor: Colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   notificationBadgeText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 9,
-    fontWeight: "800",
+    fontWeight: "700",
   },
   welcome: {
     color: Colors.white,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   subtitle: {
-    color: "#FFE5D9",
+    color: Colors.primaryLight,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -300,9 +300,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
     padding: 14,
     borderRadius: 16,
-    backgroundColor: "#FFF8F5",
+    backgroundColor: "#EFF6FF",
     borderWidth: 1,
-    borderColor: "#FFDCCF",
+    borderColor: Colors.primaryLight,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 13,
-    backgroundColor: "#FFE7DE",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -321,10 +321,10 @@ const styles = StyleSheet.create({
   notificationCardTitle: {
     color: Colors.primary,
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "700",
   },
   notificationCardMessage: {
-    color: "#5E6472",
+    color: Colors.textSecondary,
     fontSize: 12,
     lineHeight: 17,
     marginTop: 3,

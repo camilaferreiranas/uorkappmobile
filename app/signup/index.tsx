@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: Colors.border,
   },
   dividerText: {
     color: Colors.gray,

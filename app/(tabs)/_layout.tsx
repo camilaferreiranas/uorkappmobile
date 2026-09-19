@@ -25,7 +25,7 @@ function TabIcon({
         borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: focused ? "#FFF0EB" : "transparent",
+        backgroundColor: focused ? Colors.primaryLight : "transparent",
       }}
     >
       <MaterialIcons name={name} size={23} color={color} />
@@ -45,7 +45,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: "#7A7A95",
+        tabBarInactiveTintColor: Colors.textSecondary,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarHideOnKeyboard: true,
@@ -64,14 +64,14 @@ export default function TabLayout() {
           paddingTop: 8,
           height: 62 + bottomPadding,
           paddingBottom: bottomPadding,
-          shadowColor: "#000",
+          shadowColor: Colors.ink,
           shadowOpacity: 0.08,
           shadowRadius: 16,
           shadowOffset: { width: 0, height: -4 },
           elevation: 14,
         },
         sceneStyle: {
-          backgroundColor: "#F7F7F7",
+          backgroundColor: Colors.background,
         },
       }}
     >

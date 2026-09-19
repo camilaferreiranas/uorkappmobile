@@ -5,12 +5,12 @@ import {
   TouchableOpacityProps,
   ActivityIndicator,
 } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius, Typography } from '../../constants/theme';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
   loading?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'destructive';
   textStyle?: any;
 }
 
@@ -24,14 +24,17 @@ export function Button({
   ...props
 }: ButtonProps) {
   const isSecondary = variant === 'secondary';
-  const isOutline = variant === 'outline';
+  const isGhost = variant === 'ghost';
+  const isDestructive = variant === 'destructive';
+  const needsDarkIndicator = isSecondary || isGhost;
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
         isSecondary && styles.secondaryButton,
-        isOutline && styles.outlineButton,
+        isGhost && styles.ghostButton,
+        isDestructive && styles.destructiveButton,
         disabled && styles.disabledButton,
         style,
       ]}
@@ -40,12 +43,13 @@ export function Button({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={isOutline ? Colors.primary : Colors.white} />
+        <ActivityIndicator color={needsDarkIndicator ? Colors.primary : Colors.white} />
       ) : (
         <Text
           style={[
             styles.text,
-            isOutline && styles.outlineText,
+            isSecondary && styles.secondaryText,
+            isGhost && styles.ghostText,
             disabled && styles.disabledText,
             textStyle,
           ]}
@@ -60,30 +64,37 @@ export function Button({
 const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.primary,
-    borderRadius: 16,
-    paddingVertical: 16,
+    borderRadius: Radius.md,
+    paddingVertical: 14,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
   },
   secondaryButton: {
-    backgroundColor: Colors.black,
-  },
-  outlineButton: {
-    backgroundColor: 'transparent',
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.primary,
+    borderColor: Colors.border,
+  },
+  ghostButton: {
+    backgroundColor: 'transparent',
+  },
+  destructiveButton: {
+    backgroundColor: Colors.error,
   },
   disabledButton: {
     backgroundColor: Colors.primaryLight,
   },
   text: {
     color: Colors.white,
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: Typography.button.fontSize,
+    fontWeight: Typography.button.fontWeight,
   },
-  outlineText: {
-    color: Colors.primary,
+  secondaryText: {
+    color: Colors.ink,
+  },
+  ghostText: {
+    color: Colors.textSecondary,
   },
   disabledText: {
     color: 'rgba(255, 255, 255, 0.8)',

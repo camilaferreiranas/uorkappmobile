@@ -88,7 +88,7 @@ export default function SearchScreen() {
   }, [query, activeFilter]);
 
   return (
-    <ScreenContainer backgroundColor="#F7F7F7">
+    <ScreenContainer backgroundColor={Colors.background}>
       <Text style={styles.title}>Buscar profissionais</Text>
       <Text style={styles.description}>
         Pesquise por serviço, especialista ou localidade e encontre o
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 15,
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     marginBottom: 18,
   },
   searchBox: {
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   filterText: {
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     fontSize: 13,
     fontWeight: "700",
   },

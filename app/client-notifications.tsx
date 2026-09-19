@@ -111,7 +111,7 @@ export default function ClientNotificationsScreen() {
         </View>
       ) : erro ? (
         <View style={styles.centerState}>
-          <MaterialIcons name="error-outline" size={44} color="#B3261E" />
+          <MaterialIcons name="error-outline" size={44} color={Colors.error} />
           <Text style={styles.errorText}>{erro}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => void carregar()}>
             <Text style={styles.retryText}>Tentar novamente</Text>
@@ -119,7 +119,7 @@ export default function ClientNotificationsScreen() {
         </View>
       ) : notificacoes.length === 0 ? (
         <View style={styles.centerState}>
-          <MaterialIcons name="notifications-none" size={52} color="#A4A4AD" />
+          <MaterialIcons name="notifications-none" size={52} color={Colors.textSecondary} />
           <Text style={styles.emptyTitle}>Nenhuma notificação</Text>
           <Text style={styles.emptyText}>As atualizações das suas demandas e propostas aparecerão aqui.</Text>
         </View>
@@ -150,7 +150,7 @@ export default function ClientNotificationsScreen() {
                   <MaterialIcons
                     name={notificacao.demandaId ? "groups" : "check-circle-outline"}
                     size={23}
-                    color={notificacao.lida ? "#85858F" : Colors.primary}
+                    color={notificacao.lida ? Colors.textSecondary : Colors.primary}
                   />
                 </View>
                 <View style={styles.cardContent}>
@@ -208,7 +208,7 @@ export default function ClientNotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   centerState: {
     flex: 1,
     alignItems: "center",
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 34,
     gap: 12,
   },
-  errorText: { color: "#B3261E", fontSize: 14, textAlign: "center" },
+  errorText: { color: Colors.error, fontSize: 14, textAlign: "center" },
   retryButton: {
     backgroundColor: Colors.primary,
     borderRadius: 12,
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
   retryText: { color: "#fff", fontWeight: "700" },
   emptyTitle: { color: "#111", fontSize: 18, fontWeight: "800" },
-  emptyText: { color: "#777780", fontSize: 14, textAlign: "center", lineHeight: 20 },
+  emptyText: { color: Colors.textSecondary, fontSize: 14, textAlign: "center", lineHeight: 20 },
   list: { padding: 20, paddingBottom: 40, gap: 10 },
   card: {
     backgroundColor: "#fff",
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
-  cardUnread: { backgroundColor: "#FFF8F5", borderWidth: 1, borderColor: "#FFDCCF" },
+  cardUnread: { backgroundColor: "#EFF6FF", borderWidth: 1, borderColor: Colors.primaryLight },
   notificationRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -247,21 +247,21 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 13,
-    backgroundColor: "#EFEFF2",
+    backgroundColor: Colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
-  iconUnread: { backgroundColor: "#FFE7DE" },
+  iconUnread: { backgroundColor: Colors.primaryLight },
   cardContent: { flex: 1 },
   cardTop: { flexDirection: "row", alignItems: "center", gap: 7 },
   cardTitle: { color: "#111", fontSize: 14, fontWeight: "800", flex: 1 },
-  cardMessage: { color: "#5E6472", fontSize: 13, lineHeight: 18, marginTop: 3 },
-  cardDate: { color: "#9999A2", fontSize: 11, marginTop: 7 },
+  cardMessage: { color: Colors.textSecondary, fontSize: 13, lineHeight: 18, marginTop: 3 },
+  cardDate: { color: Colors.textSecondary, fontSize: 11, marginTop: 7 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary },
   whatsappButton: {
     minHeight: 44,
     borderRadius: 12,
-    backgroundColor: "#1FA855",
+    backgroundColor: Colors.success,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
