@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -5,20 +6,35 @@ import {
   TextInputProps,
   View,
 } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius, Spacing } from '../../constants/theme';
 
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
 }
 
-export function Input({ label, error, style, ...props }: InputProps) {
+export function Input({ label, error, style, onFocus, onBlur, ...props }: InputProps) {
+  const [focused, setFocused] = useState(false);
+
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TextInput
-        style={[styles.input, error ? styles.inputError : null, style]}
-        placeholderTextColor={Colors.gray}
+        style={[
+          styles.input,
+          focused && styles.inputFocused,
+          error ? styles.inputError : null,
+          style,
+        ]}
+        placeholderTextColor={Colors.textSecondary}
+        onFocus={(e) => {
+          setFocused(true);
+          onFocus?.(e);
+        }}
+        onBlur={(e) => {
+          setFocused(false);
+          onBlur?.(e);
+        }}
         {...props}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -28,27 +44,31 @@ export function Input({ label, error, style, ...props }: InputProps) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 18,
+    marginBottom: Spacing.space5,
     width: '100%',
   },
   label: {
-    color: Colors.text,
+    color: Colors.ink,
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: Spacing.space2,
   },
   input: {
-    backgroundColor: Colors.lightGray,
-    borderRadius: 16,
-    paddingHorizontal: 16,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.space4,
     paddingVertical: 14,
-    color: Colors.black,
+    minHeight: 44,
+    color: Colors.ink,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: Colors.border,
+  },
+  inputFocused: {
+    borderColor: Colors.primary,
   },
   inputError: {
-    borderColor: Colors.primary,
+    borderColor: Colors.error,
   },
   errorText: {
     marginTop: 6,

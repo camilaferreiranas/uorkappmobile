@@ -30,25 +30,25 @@ const statusConfig: Record<
 > = {
   ABERTA: {
     label: "Aberta",
-    color: "#B54708",
-    background: "#FFF3E8",
+    color: Colors.warning,
+    background: "#FFF7EA",
     icon: "campaign",
   },
   EM_ANDAMENTO: {
     label: "Em andamento",
-    color: "#24753A",
-    background: "#EAF7ED",
+    color: Colors.primary,
+    background: Colors.primaryLight,
     icon: "handshake",
   },
   CONCLUIDA: {
     label: "Concluída",
-    color: "#174C8F",
-    background: "#EAF1FC",
+    color: Colors.success,
+    background: "#EAF7ED",
     icon: "check-circle",
   },
   CANCELADA: {
     label: "Cancelada",
-    color: "#B3261E",
+    color: Colors.error,
     background: "#FDECEA",
     icon: "cancel",
   },
@@ -58,9 +58,9 @@ const urgenciaConfig: Record<
   UrgenciaDemanda,
   { label: string; color: string; background: string }
 > = {
-  NORMAL: { label: "Normal", color: "#24753A", background: "#EAF7ED" },
-  URGENTE: { label: "Urgente", color: "#B3261E", background: "#FDECEA" },
-  HOJE: { label: "Para hoje", color: "#9A6700", background: "#FFF4CE" },
+  NORMAL: { label: "Normal", color: Colors.success, background: "#EAF7ED" },
+  URGENTE: { label: "Urgente", color: Colors.warning, background: "#FFF7EA" },
+  HOJE: { label: "Para hoje", color: Colors.error, background: "#FDECEA" },
 };
 
 function formatarValor(valor: number | null) {
@@ -155,7 +155,7 @@ function DemandCard({ demanda, onPress }: DemandCardProps) {
         </View>
 
         <View style={styles.dateRow}>
-          <MaterialIcons name="event" size={16} color="#85858F" />
+          <MaterialIcons name="event" size={16} color={Colors.textSecondary} />
           <Text style={styles.dateText}>Publicada em {formatarData(demanda.criadoEm)}</Text>
         </View>
         <View style={styles.candidatesRow}>
@@ -221,7 +221,7 @@ export default function MyDemandsScreen() {
       ) : erro ? (
         <View style={styles.centerState}>
           <View style={styles.stateIcon}>
-            <MaterialIcons name="error-outline" size={42} color="#B3261E" />
+            <MaterialIcons name="error-outline" size={42} color={Colors.error} />
           </View>
           <Text style={styles.errorTitle}>Não foi possível carregar</Text>
           <Text style={styles.errorText}>{erro}</Text>
@@ -232,7 +232,7 @@ export default function MyDemandsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Tentar carregar as demandas novamente"
           >
-            <MaterialIcons name="refresh" size={19} color="#fff" />
+            <MaterialIcons name="refresh" size={19} color={Colors.white} />
             <Text style={styles.retryText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
@@ -285,7 +285,7 @@ export default function MyDemandsScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Publicar uma nova demanda"
               >
-                <MaterialIcons name="add-circle-outline" size={20} color="#fff" />
+                <MaterialIcons name="add-circle-outline" size={20} color={Colors.white} />
                 <Text style={styles.publishButtonText}>Publicar demanda</Text>
               </TouchableOpacity>
             </View>
@@ -297,7 +297,7 @@ export default function MyDemandsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F7F7F9" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   centerState: {
     flex: 1,
     alignItems: "center",
@@ -314,9 +314,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 4,
   },
-  stateText: { color: "#777780", fontSize: 14 },
-  errorTitle: { color: "#151515", fontSize: 18, fontWeight: "800" },
-  errorText: { color: "#777780", fontSize: 13, lineHeight: 19, textAlign: "center" },
+  stateText: { color: Colors.textSecondary, fontSize: 14 },
+  errorTitle: { color: Colors.ink, fontSize: 18, fontWeight: "700" },
+  errorText: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, textAlign: "center" },
   retryButton: {
     minHeight: 46,
     marginTop: 5,
@@ -328,18 +328,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 7,
   },
-  retryText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  retryText: { color: Colors.white, fontSize: 13, fontWeight: "700" },
   listContent: { padding: 18, paddingBottom: 42 },
   listContentWide: { width: "100%", maxWidth: 760, alignSelf: "center" },
   emptyListContent: { flexGrow: 1, justifyContent: "center" },
   resultCount: {
-    color: "#6F6F78",
+    color: Colors.textSecondary,
     fontSize: 13,
     fontWeight: "600",
     marginBottom: 13,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 20,
     overflow: "hidden",
     marginBottom: 15,
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
-  cardImage: { width: "100%", height: 176, backgroundColor: "#EEEFF2" },
+  cardImage: { width: "100%", height: 176, backgroundColor: Colors.background },
   cardContent: { padding: 16 },
   cardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
   titleContent: { flex: 1, minWidth: 0 },
@@ -360,7 +360,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: 4,
   },
-  title: { color: "#151515", fontSize: 18, lineHeight: 23, fontWeight: "800" },
+  title: { color: Colors.ink, fontSize: 18, lineHeight: 23, fontWeight: "700" },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -371,17 +371,17 @@ const styles = StyleSheet.create({
     maxWidth: "45%",
   },
   statusText: { fontSize: 10, fontWeight: "800", flexShrink: 1 },
-  description: { color: "#575762", fontSize: 13, lineHeight: 19, marginTop: 12 },
+  description: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 12 },
   infoRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 7,
     borderTopWidth: 1,
-    borderTopColor: "#EEEEF2",
+    borderTopColor: Colors.border,
     marginTop: 14,
     paddingTop: 13,
   },
-  infoText: { flex: 1, color: "#62626C", fontSize: 12, lineHeight: 17 },
+  infoText: { flex: 1, color: Colors.textSecondary, fontSize: 12, lineHeight: 17 },
   metaRow: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   budgetContent: { flex: 1 },
-  metaLabel: { color: "#8A8A94", fontSize: 10, marginBottom: 2 },
+  metaLabel: { color: Colors.textSecondary, fontSize: 10, marginBottom: 2 },
   budget: { color: Colors.primary, fontSize: 17, fontWeight: "800" },
   urgencyBadge: {
     flexDirection: "row",
@@ -402,12 +402,12 @@ const styles = StyleSheet.create({
   },
   urgencyText: { fontSize: 10, fontWeight: "800" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 13 },
-  dateText: { color: "#85858F", fontSize: 11 },
-  candidatesRow: { flexDirection: "row", alignItems: "center", gap: 7, borderTopWidth: 1, borderTopColor: "#EEEEF2", marginTop: 13, paddingTop: 13 },
+  dateText: { color: Colors.textSecondary, fontSize: 11 },
+  candidatesRow: { flexDirection: "row", alignItems: "center", gap: 7, borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 13, paddingTop: 13 },
   candidatesText: { flex: 1, color: Colors.primary, fontSize: 13, fontWeight: "800" },
   emptyCard: {
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 22,
     paddingHorizontal: 26,
     paddingVertical: 32,
@@ -416,14 +416,14 @@ const styles = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 25,
-    backgroundColor: "#FFF0EB",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
-  emptyTitle: { color: "#151515", fontSize: 18, fontWeight: "800", textAlign: "center" },
+  emptyTitle: { color: Colors.ink, fontSize: 18, fontWeight: "700", textAlign: "center" },
   emptyText: {
-    color: "#777780",
+    color: Colors.textSecondary,
     fontSize: 13,
     lineHeight: 19,
     textAlign: "center",
@@ -440,5 +440,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
   },
-  publishButtonText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  publishButtonText: { color: Colors.white, fontSize: 13, fontWeight: "700" },
 });

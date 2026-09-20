@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, ViewProps } from 'react-native';
+import { Colors, Radius } from '../../constants/theme';
 
 interface SuccessMessageProps extends ViewProps {
   message: string;
@@ -16,11 +17,11 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 18,
     padding: 14,
-    backgroundColor: '#E8F6EC',
-    borderRadius: 16,
+    backgroundColor: '#EAF7ED',
+    borderRadius: Radius.md,
   },
   text: {
-    color: '#176B36',
+    color: Colors.success,
     fontSize: 14,
     lineHeight: 20,
   },

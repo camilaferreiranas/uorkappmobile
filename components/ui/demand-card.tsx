@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Card } from './card';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
 import { Button } from './button';
 
 interface DemandCardProps {
@@ -60,13 +60,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     marginBottom: 6,
-    color: Colors.black,
+    color: Colors.ink,
   },
   subtitle: {
     fontSize: 13,
-    color: '#7A7A95',
+    color: Colors.textSecondary,
     marginBottom: 12,
   },
   metaRow: {
@@ -75,18 +75,18 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   tag: {
-    backgroundColor: '#F8F3E8',
-    borderRadius: 999,
+    backgroundColor: '#FFF7EA',
+    borderRadius: Radius.pill,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   tagText: {
-    color: '#D86A3F',
+    color: Colors.warning,
     fontWeight: '700',
     fontSize: 12,
   },
   distance: {
-    color: '#8A8A8A',
+    color: Colors.textSecondary,
     fontSize: 12,
   },
   action: {
@@ -94,16 +94,15 @@ const styles = StyleSheet.create({
   },
   budget: {
     fontSize: 16,
-    fontWeight: '800',
-    color: Colors.black,
+    fontWeight: '700',
+    color: Colors.ink,
     marginBottom: 12,
   },
   button: {
     paddingVertical: 10,
     paddingHorizontal: 12,
-    borderRadius: 14,
+    borderRadius: Radius.sm,
     height: 'auto',
-    backgroundColor: '#0D3D8B',
   },
   buttonText: {
     fontSize: 12,

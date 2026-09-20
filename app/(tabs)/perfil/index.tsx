@@ -111,14 +111,14 @@ export default function PerfilScreen() {
                 <MaterialIcons
                   name={item.icon as any}
                   size={20}
-                  color={item.label === "Sair da conta" ? "#D32F2F" : Colors.primary}
+                  color={item.label === "Sair da conta" ? Colors.error : Colors.primary}
                 />
               </View>
               <Text style={[styles.menuLabel, item.label === "Sair da conta" && styles.menuLabelDanger]}>
                 {item.label}
               </Text>
               {item.label !== "Sair da conta" && (
-                <MaterialIcons name="chevron-right" size={20} color="#C4C4C4" />
+                <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
               )}
             </TouchableOpacity>
           ))}
@@ -131,7 +131,7 @@ export default function PerfilScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.background,
   },
   container: {
     paddingBottom: 110,
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   email: {
-    color: "#FFE5D9",
+    color: Colors.primaryLight,
     fontSize: 13,
   },
   statsRow: {
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     marginTop: -20,
     borderRadius: 20,
     padding: 20,
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.08,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
@@ -181,11 +181,11 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#EFEFEF",
+    backgroundColor: Colors.border,
     marginVertical: 4,
   },
   menuCard: {
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 20,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.05,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -208,13 +208,13 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: Colors.border,
   },
   menuIconWrapper: {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#FFF0EB",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -225,6 +225,6 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   menuLabelDanger: {
-    color: "#D32F2F",
+    color: Colors.error,
   },
 });

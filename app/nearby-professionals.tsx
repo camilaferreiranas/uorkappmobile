@@ -97,7 +97,7 @@ export default function NearbyProfessionalsScreen() {
     </View>
   ) : erro ? (
     <View style={styles.centerState}>
-      <MaterialIcons name="error-outline" size={46} color="#B3261E" />
+      <MaterialIcons name="error-outline" size={46} color={Colors.error} />
       <Text style={styles.errorText}>{erro}</Text>
       <TouchableOpacity style={styles.retryButton} onPress={() => void carregar()}>
         <Text style={styles.retryText}>Tentar novamente</Text>
@@ -105,7 +105,7 @@ export default function NearbyProfessionalsScreen() {
     </View>
   ) : (
     <View style={styles.centerState}>
-      <MaterialIcons name="person-search" size={52} color="#A4A4AD" />
+      <MaterialIcons name="person-search" size={52} color={Colors.textSecondary} />
       <Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text>
       <Text style={styles.stateText}>
         Tente atualizar a localização ou consulte novamente mais tarde.
@@ -177,7 +177,7 @@ export default function NearbyProfessionalsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   list: { padding: 18, paddingBottom: 40, gap: 13 },
   emptyList: { flexGrow: 1 },
   card: { width: "100%" },
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     gap: 12,
   },
-  stateText: { color: "#777780", fontSize: 14, lineHeight: 20, textAlign: "center" },
-  errorText: { color: "#B3261E", fontSize: 14, lineHeight: 20, textAlign: "center" },
+  stateText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20, textAlign: "center" },
+  errorText: { color: Colors.error, fontSize: 14, lineHeight: 20, textAlign: "center" },
   emptyTitle: { color: "#111", fontSize: 18, fontWeight: "800", textAlign: "center" },
   retryButton: {
     backgroundColor: Colors.primary,

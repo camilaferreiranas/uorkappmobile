@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Card } from './card';
 
@@ -22,7 +22,7 @@ export function ServiceCard({ title, price, subtitle, rating, onPress }: Service
       <View style={styles.priceContainer}>
         <Text style={styles.price}>{price}</Text>
         <View style={styles.ratingBadge}>
-          <MaterialIcons name="star" size={14} color="#FFB800" />
+          <MaterialIcons name="star" size={14} color={Colors.warning} />
           <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
         </View>
       </View>
@@ -46,34 +46,34 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
-    fontWeight: '800',
-    color: Colors.black,
+    fontWeight: '700',
+    color: Colors.ink,
     marginBottom: 6,
   },
   subtitle: {
     fontSize: 13,
-    color: '#7A7A7A',
+    color: Colors.textSecondary,
   },
   priceContainer: {
     alignItems: 'flex-end',
   },
   price: {
     fontSize: 16,
-    fontWeight: '800',
-    color: Colors.black,
+    fontWeight: '700',
+    color: Colors.ink,
     marginBottom: 8,
   },
   ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FFF4E8',
+    backgroundColor: '#FFF7EA',
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: Radius.pill,
   },
   ratingText: {
-    color: '#BF6B00',
+    color: Colors.warning,
     fontWeight: '700',
     fontSize: 13,
   },

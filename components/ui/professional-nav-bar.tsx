@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/theme";
 
 export type ProfessionalTab = "inicio" | "demandas" | "relatorio" | "perfil";
 
@@ -47,7 +48,7 @@ export function ProfessionalNavBar({ active }: ProfessionalNavBarProps) {
               <MaterialIcons
                 name={item.icon as any}
                 size={22}
-                color={isActive ? "#0D3D8B" : "#7A7A95"}
+                color={isActive ? Colors.primary : Colors.textSecondary}
               />
             </View>
             <Text style={[styles.label, isActive && styles.labelActive]}>
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 10,
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.07,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: -4 },
@@ -93,16 +94,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   iconWrapperActive: {
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
   },
   label: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 10,
     marginTop: 2,
     fontWeight: "600",
   },
   labelActive: {
-    color: "#0D3D8B",
+    color: Colors.primary,
     fontWeight: "700",
   },
 });

@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     marginTop: 11,
   },
   photoHelper: {
-    color: "#737373",
+    color: Colors.textSecondary,
     fontSize: 12,
     marginTop: 4,
   },
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     marginTop: 9,
   },
   description: {
-    color: "#737373",
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 21,
     marginBottom: 18,

@@ -29,11 +29,11 @@ const statusConfig: Record<
   StatusProposta,
   { label: string; color: string; background: string; icon: "schedule" | "handshake" | "cancel" | "block" | "check-circle" }
 > = {
-  PENDENTE: { label: "Aguardando", color: "#C05A19", background: "#FFF0E6", icon: "schedule" },
-  ACEITA: { label: "Em andamento", color: "#2E7D32", background: "#EAFAF1", icon: "handshake" },
-  RECUSADA: { label: "Recusada", color: "#B3261E", background: "#FDECEA", icon: "cancel" },
-  CANCELADA: { label: "Cancelada", color: "#6B6B6B", background: "#EFEFF2", icon: "block" },
-  FINALIZADA: { label: "Concluída", color: "#0D3D8B", background: "#E8EDFA", icon: "check-circle" },
+  PENDENTE: { label: "Aguardando", color: Colors.warning, background: "#FFF7EA", icon: "schedule" },
+  ACEITA: { label: "Em andamento", color: Colors.primary, background: Colors.primaryLight, icon: "handshake" },
+  RECUSADA: { label: "Recusada", color: Colors.textSecondary, background: Colors.background, icon: "cancel" },
+  CANCELADA: { label: "Cancelada", color: Colors.error, background: "#FDECEA", icon: "block" },
+  FINALIZADA: { label: "Concluída", color: Colors.success, background: "#EAF7ED", icon: "check-circle" },
 };
 
 const filtros: { id: FiltroHistorico; label: string }[] = [
@@ -175,7 +175,7 @@ export default function ClientHistoryScreen() {
         </View>
       ) : erro ? (
         <View style={styles.centerState}>
-          <MaterialIcons name="error-outline" size={46} color="#B3261E" />
+          <MaterialIcons name="error-outline" size={46} color={Colors.error} />
           <Text style={styles.errorText}>{erro}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => void carregar()}>
             <Text style={styles.retryText}>Tentar novamente</Text>
@@ -233,7 +233,7 @@ export default function ClientHistoryScreen() {
                     <View style={styles.cardTitleContent}>
                       <Text style={styles.cardTitle}>{item.titulo}</Text>
                       <View style={styles.providerRow}>
-                        <MaterialIcons name="person-outline" size={17} color="#777780" />
+                        <MaterialIcons name="person-outline" size={17} color={Colors.textSecondary} />
                         <Text style={styles.providerText}>{item.nomePrestador}</Text>
                       </View>
                     </View>
@@ -262,7 +262,7 @@ export default function ClientHistoryScreen() {
                       </View>
                     ) : <View />}
                     <View style={styles.dateRow}>
-                      <MaterialIcons name="event" size={16} color="#888892" />
+                      <MaterialIcons name="event" size={16} color={Colors.textSecondary} />
                       <Text style={styles.dateText}>{formatarData(item.dataCriacao)}</Text>
                     </View>
                   </View>
@@ -277,9 +277,9 @@ export default function ClientHistoryScreen() {
                       accessibilityLabel={`Conversar com ${item.nomePrestador} pelo WhatsApp`}
                     >
                       {abrindoWhatsAppId === item.propostaId ? (
-                        <ActivityIndicator color="#fff" size="small" />
+                        <ActivityIndicator color={Colors.white} size="small" />
                       ) : (
-                        <MaterialIcons name="chat" size={19} color="#fff" />
+                        <MaterialIcons name="chat" size={19} color={Colors.white} />
                       )}
                       <Text style={styles.whatsappButtonText}>
                         Conversar no WhatsApp
@@ -303,7 +303,7 @@ export default function ClientHistoryScreen() {
                       </TouchableOpacity>
                     ) : item.status === "FINALIZADA" && item.notaPrestador != null ? (
                       <View style={[styles.actionButton, styles.reviewCompleted]}>
-                        <MaterialIcons name="star" size={18} color="#FFB800" />
+                        <MaterialIcons name="star" size={18} color={Colors.warning} />
                         <Text style={styles.reviewCompletedText} numberOfLines={1}>
                           Avaliado: {Number(item.notaPrestador).toFixed(1)}
                         </Text>
@@ -317,7 +317,7 @@ export default function ClientHistoryScreen() {
                       accessibilityRole="button"
                       accessibilityLabel={`Contratar ${item.nomePrestador} novamente`}
                     >
-                      <MaterialIcons name="replay" size={18} color="#fff" />
+                      <MaterialIcons name="replay" size={18} color={Colors.white} />
                       <Text style={styles.hireAgainButtonText} numberOfLines={1}>
                         Contratar novamente
                       </Text>
@@ -334,7 +334,7 @@ export default function ClientHistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F7F7F7" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   centerState: {
     flex: 1,
     alignItems: "center",
@@ -342,30 +342,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     gap: 12,
   },
-  stateText: { color: "#777780", fontSize: 14 },
-  errorText: { color: "#B3261E", fontSize: 14, textAlign: "center" },
+  stateText: { color: Colors.textSecondary, fontSize: 14 },
+  errorText: { color: Colors.error, fontSize: 14, textAlign: "center" },
   retryButton: {
     backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingHorizontal: 20,
     paddingVertical: 11,
   },
-  retryText: { color: "#fff", fontWeight: "700" },
+  retryText: { color: Colors.white, fontWeight: "700" },
   container: { padding: 18, paddingBottom: 42 },
   filters: { gap: 9, paddingBottom: 18, paddingHorizontal: 1 },
   filterButton: {
     paddingHorizontal: 15,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: "#E1E1E5",
+    borderColor: Colors.border,
   },
   filterButtonActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  filterText: { color: "#66666F", fontSize: 12, fontWeight: "700" },
-  filterTextActive: { color: "#fff" },
+  filterText: { color: Colors.textSecondary, fontSize: 12, fontWeight: "700" },
+  filterTextActive: { color: Colors.white },
   historyCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 18,
     padding: 16,
     marginBottom: 13,
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   cardTitleContent: { flex: 1 },
   cardTitle: { color: "#111", fontSize: 16, fontWeight: "800", lineHeight: 21 },
   providerRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 7 },
-  providerText: { color: "#66666F", fontSize: 12, fontWeight: "600" },
+  providerText: { color: Colors.textSecondary, fontSize: 12, fontWeight: "600" },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -389,25 +389,25 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   statusText: { fontSize: 10, fontWeight: "700" },
-  description: { color: "#555B68", fontSize: 13, lineHeight: 19, marginTop: 13 },
+  description: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 13 },
   cardBottom: {
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#EEEEF2",
+    borderTopColor: Colors.border,
     marginTop: 15,
     paddingTop: 13,
   },
-  metaLabel: { color: "#8A8A94", fontSize: 10, marginBottom: 2 },
+  metaLabel: { color: Colors.textSecondary, fontSize: 10, marginBottom: 2 },
   valueText: { color: Colors.primary, fontSize: 16, fontWeight: "800" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5, flexShrink: 1 },
-  dateText: { color: "#777780", fontSize: 11 },
+  dateText: { color: Colors.textSecondary, fontSize: 11 },
   whatsappButton: {
     minHeight: 46,
     borderRadius: 12,
-    backgroundColor: "#1FA855",
+    backgroundColor: Colors.success,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingHorizontal: 14,
   },
-  whatsappButtonText: { color: "#fff", fontSize: 13, fontWeight: "800" },
+  whatsappButtonText: { color: Colors.white, fontSize: 13, fontWeight: "800" },
   actionsRow: {
     flexDirection: "row",
     gap: 9,
@@ -432,22 +432,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   reviewButton: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.primary,
   },
   reviewButtonText: { color: Colors.primary, fontSize: 11, fontWeight: "800" },
   reviewCompleted: {
-    backgroundColor: "#FFF8E6",
+    backgroundColor: "#FFF7EA",
     borderWidth: 1,
-    borderColor: "#FFE0A3",
+    borderColor: Colors.warning,
   },
-  reviewCompletedText: { color: "#8A6200", fontSize: 11, fontWeight: "800" },
+  reviewCompletedText: { color: Colors.warning, fontSize: 11, fontWeight: "700" },
   hireAgainButton: { backgroundColor: Colors.primary },
-  hireAgainButtonText: { color: "#fff", fontSize: 11, fontWeight: "800" },
+  hireAgainButtonText: { color: Colors.white, fontSize: 11, fontWeight: "800" },
   emptyCard: {
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 20,
     padding: 28,
     marginTop: 5,
@@ -456,11 +456,11 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 22,
-    backgroundColor: "#FFF0EB",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 15,
   },
   emptyTitle: { color: "#111", fontSize: 18, fontWeight: "800", textAlign: "center" },
-  emptyText: { color: "#777780", fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 7 },
+  emptyText: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 7 },
 });

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
 
 interface PillGroupProps {
   label?: string;
@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: Colors.black,
-    fontWeight: '700',
-    marginBottom: 10,
+    color: Colors.ink,
+    fontWeight: '600',
+    marginBottom: 8,
   },
   row: {
     flexDirection: 'row',
@@ -48,22 +48,22 @@ const styles = StyleSheet.create({
   pill: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 999,
+    borderRadius: Radius.pill,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: Colors.border,
     alignItems: 'center',
     backgroundColor: Colors.white,
   },
   pillActive: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryLight,
     borderColor: Colors.primary,
   },
   text: {
     fontSize: 14,
-    color: Colors.black,
-    fontWeight: '700',
+    color: Colors.ink,
+    fontWeight: '600',
   },
   textActive: {
-    color: Colors.white,
+    color: Colors.primary,
   },
 });

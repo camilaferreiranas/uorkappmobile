@@ -74,7 +74,7 @@ export default function ReviewScreen() {
   }
 
   return (
-    <ScreenContainer backgroundColor="#F7F7F7">
+    <ScreenContainer backgroundColor={Colors.background}>
       <View style={styles.pageHeader}>
         <TouchableOpacity
           style={styles.backButton}
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   },
   whiteInput: {
     backgroundColor: Colors.white,
-    borderColor: "#E5E5E5",
+    borderColor: Colors.border,
   },
   textArea: {
     minHeight: 140,
@@ -210,17 +210,17 @@ const styles = StyleSheet.create({
   banner: {
     padding: 18,
     borderRadius: 20,
-    backgroundColor: "#E8F6EC",
+    backgroundColor: "#EAF7ED",
     marginBottom: 24,
   },
   bannerTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#227D41",
+    color: Colors.success,
     marginBottom: 6,
   },
   bannerText: {
-    color: "#3F6E52",
+    color: Colors.success,
     fontSize: 14,
     lineHeight: 20,
   },

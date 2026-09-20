@@ -24,7 +24,7 @@ export function StarRating({ rating, onRatingChange, size = 42 }: StarRatingProp
             <MaterialIcons
               name={rating >= value ? 'star' : 'star-border'}
               size={size}
-              color={rating >= value ? '#FFB800' : Colors.gray}
+              color={rating >= value ? Colors.warning : Colors.textSecondary}
             />
           </TouchableOpacity>
         ))}
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   label: {
     marginTop: 12,
     fontSize: 16,
-    color: Colors.gray,
+    color: Colors.textSecondary,
     fontWeight: '600',
   },
 });

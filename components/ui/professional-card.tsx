@@ -1,5 +1,5 @@
 import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ProfileAvatar } from './profile-avatar';
 
@@ -45,11 +45,11 @@ export function ProfessionalCard({
           <Text style={styles.role}>{specialty || role}</Text>
           <View style={styles.metaRow}>
             <View style={styles.ratingBadge}>
-              <MaterialIcons name="star" size={13} color="#FFB800" />
+              <MaterialIcons name="star" size={13} color={Colors.warning} />
               <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
             </View>
             <View style={styles.distanceBadge}>
-              <MaterialIcons name="location-on" size={13} color={Colors.gray} />
+              <MaterialIcons name="location-on" size={13} color={Colors.textSecondary} />
               <Text style={styles.distanceText}>{distance}</Text>
             </View>
           </View>
@@ -68,15 +68,17 @@ export function ProfessionalCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5,
+    shadowColor: Colors.ink,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
   },
   row: {
     flexDirection: 'row',
@@ -91,13 +93,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#111',
+    fontWeight: '700',
+    color: Colors.ink,
     marginBottom: 3,
   },
   role: {
     fontSize: 13,
-    color: Colors.gray,
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   metaRow: {
@@ -109,13 +111,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FFF4E8',
+    backgroundColor: '#FFF7EA',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: Radius.sm,
   },
   ratingText: {
-    color: '#BF6B00',
+    color: Colors.warning,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -125,19 +127,19 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   distanceText: {
-    color: Colors.gray,
+    color: Colors.textSecondary,
     fontSize: 12,
   },
   button: {
     backgroundColor: Colors.primary,
-    borderRadius: 12,
+    borderRadius: Radius.md,
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

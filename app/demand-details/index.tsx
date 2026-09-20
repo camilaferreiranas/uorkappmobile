@@ -19,9 +19,9 @@ import {
 } from "../../services/propostaService";
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
-  Urgente: { bg: "#FFF0EB", text: "#D86A3F" },
-  Normal: { bg: "#EAFAF1", text: "#2E7D32" },
-  Hoje: { bg: "#FFEBEE", text: "#C62828" },
+  Urgente: { bg: "#FFF7EA", text: Colors.warning },
+  Normal: { bg: "#EAF7ED", text: Colors.success },
+  Hoje: { bg: "#FDECEA", text: Colors.error },
 };
 
 export default function DemandDetailsScreen() {
@@ -117,11 +117,11 @@ export default function DemandDetailsScreen() {
         ]}
       >
         <View style={styles.resultContainer}>
-          <View style={[styles.resultIcon, { backgroundColor: status === "accepted" ? "#EAFAF1" : "#FFEBEE" }]}>
+          <View style={[styles.resultIcon, { backgroundColor: status === "accepted" ? "#EAF7ED" : "#FDECEA" }]}>
             <MaterialIcons
               name={status === "accepted" ? "check-circle" : "cancel"}
               size={64}
-              color={status === "accepted" ? "#2E7D32" : "#C62828"}
+              color={status === "accepted" ? Colors.success : Colors.error}
             />
           </View>
           <Text style={styles.resultTitle}>
@@ -170,7 +170,7 @@ export default function DemandDetailsScreen() {
             </View>
           </View>
           <View style={styles.infoItem}>
-            <MaterialIcons name="location-on" size={20} color="#C62828" />
+            <MaterialIcons name="location-on" size={20} color={Colors.error} />
             <View style={styles.infoContent}>
               <Text style={styles.infoLabel}>Localização do serviço</Text>
               <Text style={styles.infoValue}>{params.location}</Text>
@@ -204,12 +204,12 @@ export default function DemandDetailsScreen() {
             <Text style={styles.clientName}>{params.client}</Text>
             <View style={styles.clientRatingRow}>
               {carregandoResumo ? (
-                <ActivityIndicator size="small" color="#0D3D8B" />
+                <ActivityIndicator size="small" color={Colors.primary} />
               ) : erroResumo ? (
                 <Text style={styles.clientRatingText}>{erroResumo}</Text>
               ) : (
                 <>
-                  <MaterialIcons name="star" size={14} color="#FFB800" />
+                  <MaterialIcons name="star" size={14} color={Colors.warning} />
                   <Text style={styles.clientRatingText}>
                     {resumoCliente?.mediaAvaliacoes.toFixed(1) ?? "0.0"} ·{" "}
                     {resumoCliente?.totalServicosFinalizados ?? 0}{" "}
@@ -237,7 +237,7 @@ export default function DemandDetailsScreen() {
           activeOpacity={0.8}
           disabled={processando}
         >
-          <MaterialIcons name="close" size={20} color="#C62828" />
+          <MaterialIcons name="close" size={20} color={Colors.error} />
           <Text style={styles.refuseText}>Recusar</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -263,10 +263,10 @@ export default function DemandDetailsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingBottom: 16,
     flexDirection: "row",
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   demandSubtitle: {
     fontSize: 14,
-    color: "#7A7A95",
+    color: Colors.textSecondary,
   },
   infoGrid: {
     backgroundColor: "#fff",
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
   infoValue: {
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   descriptionLabel: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     marginBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     width: "100%",
     aspectRatio: 4 / 3,
     borderRadius: 14,
-    backgroundColor: "#EFEFF2",
+    backgroundColor: Colors.background,
   },
   clientCard: {
     backgroundColor: "#fff",
@@ -422,14 +422,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
   clientAvatarText: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#0D3D8B",
+    color: Colors.primary,
   },
   clientName: {
     fontSize: 15,
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   },
   clientRatingText: {
     fontSize: 12,
-    color: "#7A7A95",
+    color: Colors.textSecondary,
   },
   actionBar: {
     position: "absolute",
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
   },
   actionError: {
     width: "100%",
-    color: "#B3261E",
+    color: Colors.error,
     fontSize: 12,
     textAlign: "center",
     marginBottom: 2,
@@ -477,14 +477,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "#FDECEA",
     borderRadius: 16,
     paddingVertical: 16,
     borderWidth: 1,
-    borderColor: "#FFCDD2",
+    borderColor: Colors.error,
   },
   refuseText: {
-    color: "#C62828",
+    color: Colors.error,
     fontWeight: "800",
     fontSize: 15,
   },
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     borderRadius: 16,
     paddingVertical: 16,
   },
@@ -529,13 +529,13 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 15,
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 30,
   },
   backHomeButton: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 16,

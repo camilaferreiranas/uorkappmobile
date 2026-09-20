@@ -33,32 +33,32 @@ const statusConfig: Record<
 > = {
   PENDENTE: {
     label: "Aguardando resposta",
-    color: "#B54708",
-    background: "#FFF3E8",
+    color: Colors.warning,
+    background: "#FFF7EA",
     icon: "schedule",
   },
   ACEITA: {
     label: "Aceita",
-    color: "#24753A",
-    background: "#EAF7ED",
+    color: Colors.primary,
+    background: Colors.primaryLight,
     icon: "handshake",
   },
   RECUSADA: {
     label: "Recusada",
-    color: "#B3261E",
-    background: "#FDECEA",
+    color: Colors.textSecondary,
+    background: Colors.background,
     icon: "cancel",
   },
   CANCELADA: {
     label: "Cancelada",
-    color: "#62626C",
-    background: "#EFEFF2",
+    color: Colors.error,
+    background: "#FDECEA",
     icon: "block",
   },
   FINALIZADA: {
     label: "Concluída",
-    color: "#174C8F",
-    background: "#EAF1FC",
+    color: Colors.success,
+    background: "#EAF7ED",
     icon: "check-circle",
   },
 };
@@ -127,7 +127,7 @@ function ProposalCard({ proposta, onOpenProvider }: ProposalCardProps) {
               {proposta.nomePrestador}
             </Text>
           </View>
-          <MaterialIcons name="chevron-right" size={21} color="#B5B5BC" />
+          <MaterialIcons name="chevron-right" size={21} color={Colors.textSecondary} />
         </TouchableOpacity>
 
         <Text style={styles.description} numberOfLines={4}>
@@ -145,11 +145,11 @@ function ProposalCard({ proposta, onOpenProvider }: ProposalCardProps) {
 
         <View style={styles.cardFooter}>
           <View style={styles.urgencyBadge}>
-            <MaterialIcons name="schedule" size={15} color="#7B5A00" />
+            <MaterialIcons name="schedule" size={15} color={Colors.warning} />
             <Text style={styles.urgencyText}>{formatarUrgencia(proposta.urgencia)}</Text>
           </View>
           <View style={styles.dateRow}>
-            <MaterialIcons name="event" size={15} color="#85858F" />
+            <MaterialIcons name="event" size={15} color={Colors.textSecondary} />
             <Text style={styles.dateText}>{formatarData(proposta.dataCriacao)}</Text>
           </View>
         </View>
@@ -216,7 +216,7 @@ export default function MyProposalsScreen() {
       ) : erro ? (
         <View style={styles.centerState}>
           <View style={styles.stateIcon}>
-            <MaterialIcons name="error-outline" size={42} color="#B3261E" />
+            <MaterialIcons name="error-outline" size={42} color={Colors.error} />
           </View>
           <Text style={styles.errorTitle}>Não foi possível carregar</Text>
           <Text style={styles.errorText}>{erro}</Text>
@@ -227,7 +227,7 @@ export default function MyProposalsScreen() {
             accessibilityRole="button"
             accessibilityLabel="Tentar carregar as propostas novamente"
           >
-            <MaterialIcons name="refresh" size={19} color="#fff" />
+            <MaterialIcons name="refresh" size={19} color={Colors.white} />
             <Text style={styles.retryText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
@@ -298,7 +298,7 @@ export default function MyProposalsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#F5F6FA" },
+  safeArea: { flex: 1, backgroundColor: Colors.background },
   centerState: {
     flex: 1,
     alignItems: "center",
@@ -314,9 +314,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#FDECEA",
   },
-  stateText: { color: "#777780", fontSize: 14 },
-  errorTitle: { color: "#171923", fontSize: 19, fontWeight: "800" },
-  errorText: { color: "#777780", fontSize: 14, textAlign: "center", lineHeight: 20 },
+  stateText: { color: Colors.textSecondary, fontSize: 14 },
+  errorTitle: { color: Colors.ink, fontSize: 19, fontWeight: "700" },
+  errorText: { color: Colors.textSecondary, fontSize: 14, textAlign: "center", lineHeight: 20 },
   retryButton: {
     marginTop: 6,
     backgroundColor: Colors.primary,
@@ -327,12 +327,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 7,
   },
-  retryText: { color: "#fff", fontWeight: "800" },
+  retryText: { color: Colors.white, fontWeight: "800" },
   listContent: { padding: 16, paddingBottom: 44 },
   listContentWide: { width: "100%", maxWidth: 760, alignSelf: "center" },
   emptyListContent: { flexGrow: 1, justifyContent: "center" },
   summaryCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 18,
     paddingVertical: 17,
     flexDirection: "row",
@@ -345,10 +345,10 @@ const styles = StyleSheet.create({
   },
   summaryItem: { flex: 1, alignItems: "center" },
   summaryValue: { color: Colors.primary, fontSize: 20, fontWeight: "900" },
-  summaryLabel: { color: "#777780", fontSize: 11, marginTop: 3 },
-  summaryDivider: { width: 1, backgroundColor: "#ECECF0", marginVertical: 2 },
+  summaryLabel: { color: Colors.textSecondary, fontSize: 11, marginTop: 3 },
+  summaryDivider: { width: 1, backgroundColor: Colors.border, marginVertical: 2 },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 20,
     marginBottom: 14,
     overflow: "hidden",
@@ -358,10 +358,10 @@ const styles = StyleSheet.create({
     shadowRadius: 9,
     shadowOffset: { width: 0, height: 4 },
   },
-  photo: { width: "100%", height: 170, backgroundColor: "#ECECF0" },
+  photo: { width: "100%", height: 170, backgroundColor: Colors.background },
   cardContent: { padding: 16 },
   cardHeader: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
-  title: { flex: 1, color: "#171923", fontSize: 17, fontWeight: "800", lineHeight: 22 },
+  title: { flex: 1, color: Colors.ink, fontSize: 17, fontWeight: "700", lineHeight: 22 },
   statusBadge: {
     maxWidth: "48%",
     flexDirection: "row",
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 14,
-    backgroundColor: "#FAFAFC",
+    backgroundColor: Colors.background,
     borderRadius: 13,
     padding: 10,
   },
@@ -384,16 +384,16 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 11,
-    backgroundColor: "#FFF0EB",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
   providerContent: { flex: 1, marginLeft: 10 },
-  metaLabel: { color: "#8A8A94", fontSize: 10 },
-  providerName: { color: "#33333A", fontSize: 13, fontWeight: "700", marginTop: 1 },
-  description: { color: "#555B68", fontSize: 13, lineHeight: 19, marginTop: 14 },
+  metaLabel: { color: Colors.textSecondary, fontSize: 10 },
+  providerName: { color: Colors.ink, fontSize: 13, fontWeight: "700", marginTop: 1 },
+  description: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, marginTop: 14 },
   locationRow: { flexDirection: "row", alignItems: "flex-start", gap: 7, marginTop: 13 },
-  locationText: { flex: 1, color: "#676773", fontSize: 12, lineHeight: 17 },
+  locationText: { flex: 1, color: Colors.textSecondary, fontSize: 12, lineHeight: 17 },
   cardFooter: {
     flexDirection: "row",
     alignItems: "center",
@@ -402,23 +402,23 @@ const styles = StyleSheet.create({
     marginTop: 15,
     paddingTop: 13,
     borderTopWidth: 1,
-    borderTopColor: "#EEEEF2",
+    borderTopColor: Colors.border,
   },
   urgencyBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
-    backgroundColor: "#FFF6D8",
+    backgroundColor: "#FFF7EA",
     borderRadius: 999,
     paddingHorizontal: 9,
     paddingVertical: 6,
   },
-  urgencyText: { color: "#7B5A00", fontSize: 10, fontWeight: "800" },
+  urgencyText: { color: Colors.warning, fontSize: 10, fontWeight: "700" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5, flexShrink: 1 },
-  dateText: { color: "#85858F", fontSize: 10 },
+  dateText: { color: Colors.textSecondary, fontSize: 10 },
   emptyCard: {
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 22,
     padding: 30,
   },
@@ -426,11 +426,11 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 24,
-    backgroundColor: "#FFF0EB",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
-  emptyTitle: { color: "#171923", fontSize: 18, fontWeight: "800", textAlign: "center" },
-  emptyText: { color: "#777780", fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 7 },
+  emptyTitle: { color: Colors.ink, fontSize: 18, fontWeight: "700", textAlign: "center" },
+  emptyText: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 7 },
 });

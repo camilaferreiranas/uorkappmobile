@@ -14,6 +14,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponiveis";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { Colors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { useNotifications } from "../../contexts/notification-context";
 import { buscarResumoPrestador, type ResumoPrestador } from "../../services/propostaService";
@@ -145,7 +146,7 @@ export default function ProfessionalHomeScreen() {
     return (
       <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0D3D8B" />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Verificando cadastro profissional...</Text>
         </View>
       </SafeAreaView>
@@ -183,7 +184,7 @@ export default function ProfessionalHomeScreen() {
 
           <View style={styles.professionalInvite}>
             <View style={styles.professionalInviteIcon}>
-              <MaterialIcons name="work-outline" size={36} color="#0D3D8B" />
+              <MaterialIcons name="work-outline" size={36} color={Colors.primary} />
             </View>
             <Text style={styles.professionalInviteTitle}>Torne-se um profissional</Text>
             <TouchableOpacity
@@ -206,7 +207,7 @@ export default function ProfessionalHomeScreen() {
     return (
       <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
         <View style={styles.loadingContainer}>
-          <MaterialIcons name="error-outline" size={42} color="#B3261E" />
+          <MaterialIcons name="error-outline" size={42} color={Colors.error} />
           <Text style={styles.statusErrorTitle}>Não foi possível verificar seu cadastro</Text>
           <TouchableOpacity
             style={styles.backToClientButton}
@@ -240,7 +241,7 @@ export default function ProfessionalHomeScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Notificações: ${naoLidasPrestador} não lidas`}
             >
-              <MaterialIcons name="notifications-none" size={23} color="#D1E0FF" />
+              <MaterialIcons name="notifications-none" size={23} color={Colors.primaryLight} />
               {naoLidasPrestador > 0 ? (
                 <View style={styles.notificationBadge}>
                   <Text style={styles.notificationBadgeText}>
@@ -266,7 +267,7 @@ export default function ProfessionalHomeScreen() {
             accessibilityLabel={`${ultimaNotificacao.titulo}. ${ultimaNotificacao.mensagem}`}
           >
             <View style={styles.notificationCardIcon}>
-              <MaterialIcons name="notifications-active" size={22} color="#0D3D8B" />
+              <MaterialIcons name="notifications-active" size={22} color={Colors.primary} />
             </View>
             <View style={styles.notificationCardContent}>
               <Text style={styles.notificationCardTitle}>{ultimaNotificacao.titulo}</Text>
@@ -274,7 +275,7 @@ export default function ProfessionalHomeScreen() {
                 {ultimaNotificacao.mensagem}
               </Text>
             </View>
-            <MaterialIcons name="chevron-right" size={24} color="#0D3D8B" />
+            <MaterialIcons name="chevron-right" size={24} color={Colors.primary} />
           </TouchableOpacity>
         ) : null}
 
@@ -287,7 +288,7 @@ export default function ProfessionalHomeScreen() {
           <MaterialIcons
             name={localizacaoStatus === "erro" ? "location-off" : "location-on"}
             size={16}
-            color={localizacaoStatus === "erro" ? "#B3261E" : "#0D3D8B"}
+            color={localizacaoStatus === "erro" ? Colors.error : Colors.primary}
           />
           <Text
             style={[
@@ -368,7 +369,7 @@ export default function ProfessionalHomeScreen() {
               </Text>
             </View>
             <View style={styles.reviewBadge}>
-              <MaterialIcons name="star" size={14} color="#227D41" />
+              <MaterialIcons name="star" size={14} color={Colors.success} />
               <Text style={styles.reviewBadgeText}>
                 {lastReview.rating.toFixed(1)}
               </Text>
@@ -386,7 +387,7 @@ export default function ProfessionalHomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.background,
   },
   container: {
     paddingBottom: 110,
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   loadingText: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 14,
     textAlign: "center",
   },
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 20,
     padding: 24,
     shadowColor: "#000",
@@ -428,11 +429,11 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     marginBottom: 18,
   },
   professionalInviteTitle: {
-    color: "#111",
+    color: Colors.ink,
     fontSize: 22,
     fontWeight: "800",
     textAlign: "center",
@@ -440,38 +441,38 @@ const styles = StyleSheet.create({
   },
   professionalInviteButton: {
     width: "100%",
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
   },
   professionalInviteButtonText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 15,
     fontWeight: "800",
   },
   statusErrorTitle: {
-    color: "#B3261E",
+    color: Colors.error,
     fontSize: 17,
     fontWeight: "700",
     textAlign: "center",
   },
   backToClientButton: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     borderRadius: 14,
     paddingHorizontal: 24,
     paddingVertical: 12,
   },
   backToClientButtonText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 14,
     fontWeight: "700",
   },
 
   /* Header */
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
     flexDirection: "row",
@@ -483,13 +484,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerTitle: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 4,
   },
   headerSubtitle: {
-    color: "#B8CCF6",
+    color: Colors.primaryLight,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -507,10 +508,10 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#4CD964",
+    backgroundColor: Colors.success,
   },
   onlineBadgeText: {
-    color: "#D1E0FF",
+    color: Colors.primaryLight,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -518,7 +519,7 @@ const styles = StyleSheet.create({
   /* Switch */
   switchRow: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 4,
     marginHorizontal: 20,
@@ -538,15 +539,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   switchButtonActive: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
   },
   switchLabel: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontWeight: "700",
     fontSize: 14,
   },
   switchLabelActive: {
-    color: "#fff",
+    color: Colors.white,
   },
   headerActions: {
     flexDirection: "row",
@@ -569,14 +570,14 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     paddingHorizontal: 4,
-    backgroundColor: "#E75A2B",
+    backgroundColor: Colors.error,
     borderWidth: 2,
-    borderColor: "#0D3D8B",
+    borderColor: Colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   notificationBadgeText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 9,
     fontWeight: "800",
   },
@@ -585,9 +586,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     padding: 14,
     borderRadius: 16,
-    backgroundColor: "#F4F7FF",
+    backgroundColor: "#EFF6FF",
     borderWidth: 1,
-    borderColor: "#D6E1F5",
+    borderColor: Colors.primaryLight,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -596,7 +597,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 13,
-    backgroundColor: "#E2EAF9",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -604,12 +605,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationCardTitle: {
-    color: "#0D3D8B",
+    color: Colors.primary,
     fontSize: 14,
     fontWeight: "800",
   },
   notificationCardMessage: {
-    color: "#5E6472",
+    color: Colors.textSecondary,
     fontSize: 12,
     lineHeight: 17,
     marginTop: 3,
@@ -620,7 +621,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderRadius: 12,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
@@ -630,12 +631,12 @@ const styles = StyleSheet.create({
   },
   locationStatusText: {
     flex: 1,
-    color: "#0D3D8B",
+    color: Colors.primary,
     fontSize: 12,
     fontWeight: "600",
   },
   locationStatusTextError: {
-    color: "#B3261E",
+    color: Colors.error,
   },
 
   /* Metrics */
@@ -722,7 +723,7 @@ const styles = StyleSheet.create({
 
   /* Demand cards */
   demandCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
     marginHorizontal: 20,
     marginTop: 12,
@@ -744,17 +745,17 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: "800",
-    color: "#111",
+    color: Colors.ink,
   },
   demandBudget: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#0D3D8B",
+    color: Colors.primary,
     flexShrink: 0,
   },
   demandSubtitle: {
     fontSize: 12,
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     marginBottom: 12,
   },
   demandBottom: {
@@ -778,21 +779,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   demandDistance: {
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     fontSize: 11,
   },
   demandArrow: {
     width: 28,
     height: 28,
     borderRadius: 9,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
 
   /* Review */
   reviewCard: {
-    backgroundColor: "#E9F7EE",
+    backgroundColor: "#EAF7ED",
     borderRadius: 18,
     padding: 18,
     marginHorizontal: 20,
@@ -809,17 +810,17 @@ const styles = StyleSheet.create({
   reviewTitle: {
     fontSize: 15,
     fontWeight: "800",
-    color: "#111",
+    color: Colors.ink,
     marginBottom: 4,
   },
   reviewAuthor: {
-    color: "#505050",
+    color: Colors.textSecondary,
     fontWeight: "600",
     fontSize: 12,
   },
   reviewBadge: {
     flexDirection: "row",
-    backgroundColor: "#D6F0D8",
+    backgroundColor: "#EAF7ED",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
@@ -828,12 +829,12 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   reviewBadgeText: {
-    color: "#227D41",
+    color: Colors.success,
     fontWeight: "700",
     fontSize: 13,
   },
   reviewComment: {
-    color: "#505050",
+    color: Colors.textSecondary,
     fontSize: 13,
     lineHeight: 19,
   },

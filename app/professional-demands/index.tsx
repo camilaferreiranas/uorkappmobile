@@ -23,6 +23,7 @@ import { DemandasDisponiveisLista } from "../../components/ui/demandas-disponive
 import { StarRating } from "../../components/ui/star-rating";
 import { type Categoria } from "../../services/categoriaService";
 import { type OrdenacaoDemanda } from "../../services/demandaService";
+import { Colors } from "../../constants/theme";
 import {
   avaliarCliente,
   buscarDemandasDoPrestador,
@@ -35,11 +36,11 @@ const statusConfig: Record<
   StatusProposta,
   { label: string; color: string; background: string }
 > = {
-  PENDENTE: { label: "Pendente", color: "#C05A19", background: "#FFF0E6" },
-  ACEITA: { label: "Em andamento", color: "#2E7D32", background: "#EAFAF1" },
-  RECUSADA: { label: "Recusada", color: "#B3261E", background: "#FDECEA" },
-  CANCELADA: { label: "Cancelada", color: "#6B6B6B", background: "#EFEFF2" },
-  FINALIZADA: { label: "Finalizada", color: "#0D3D8B", background: "#E8EDFA" },
+  PENDENTE: { label: "Pendente", color: Colors.warning, background: "#FFF7EA" },
+  ACEITA: { label: "Em andamento", color: Colors.primary, background: Colors.primaryLight },
+  RECUSADA: { label: "Recusada", color: Colors.textSecondary, background: Colors.background },
+  CANCELADA: { label: "Cancelada", color: Colors.error, background: "#FDECEA" },
+  FINALIZADA: { label: "Finalizada", color: Colors.success, background: "#EAF7ED" },
 };
 
 function formatarValor(valor: number) {
@@ -250,12 +251,12 @@ export default function ProfessionalDemandsScreen() {
         />
       ) : carregando ? (
         <View style={styles.centerState}>
-          <ActivityIndicator size="large" color="#0D3D8B" />
+          <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.stateText}>Carregando demandas...</Text>
         </View>
       ) : erro ? (
         <View style={styles.centerState}>
-          <MaterialIcons name="error-outline" size={44} color="#B3261E" />
+          <MaterialIcons name="error-outline" size={44} color={Colors.error} />
           <Text style={styles.errorText}>{erro}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => void carregar()}>
             <Text style={styles.retryButtonText}>Tentar novamente</Text>
@@ -278,8 +279,8 @@ export default function ProfessionalDemandsScreen() {
             <RefreshControl
               refreshing={atualizando}
               onRefresh={atualizar}
-              colors={["#0D3D8B"]}
-              tintColor="#0D3D8B"
+              colors={[Colors.primary]}
+              tintColor={Colors.primary}
             />
           }
           ListHeaderComponent={
@@ -309,7 +310,7 @@ export default function ProfessionalDemandsScreen() {
           ListEmptyComponent={
             <View style={styles.emptyCard}>
               <View style={styles.emptyIcon}>
-                <MaterialIcons name="assignment-turned-in" size={38} color="#0D3D8B" />
+                <MaterialIcons name="assignment-turned-in" size={38} color={Colors.primary} />
               </View>
               <Text style={styles.emptyTitle}>Nenhuma demanda encontrada</Text>
               <Text style={styles.emptyText}>
@@ -358,7 +359,7 @@ export default function ProfessionalDemandsScreen() {
                 </View>
 
                 <View style={styles.clientRow}>
-                  <MaterialIcons name="person-outline" size={17} color="#7A7A95" />
+                  <MaterialIcons name="person-outline" size={17} color={Colors.textSecondary} />
                   <Text style={styles.clientText}>{demanda.nomeCliente}</Text>
                 </View>
 
@@ -368,7 +369,7 @@ export default function ProfessionalDemandsScreen() {
 
                 {demanda.localizacao ? (
                   <View style={styles.locationRow}>
-                    <MaterialIcons name="location-on" size={16} color="#7A7A95" />
+                    <MaterialIcons name="location-on" size={16} color={Colors.textSecondary} />
                     <Text style={styles.locationText} numberOfLines={2}>{demanda.localizacao}</Text>
                   </View>
                 ) : null}
@@ -384,9 +385,9 @@ export default function ProfessionalDemandsScreen() {
                     disabled={processandoId === demanda.propostaId}
                   >
                     {processandoId === demanda.propostaId ? (
-                      <ActivityIndicator size="small" color="#fff" />
+                      <ActivityIndicator size="small" color={Colors.white} />
                     ) : (
-                      <MaterialIcons name="check-circle" size={18} color="#fff" />
+                      <MaterialIcons name="check-circle" size={18} color={Colors.white} />
                     )}
                     <Text style={styles.finishButtonText}>Finalizar serviço</Text>
                   </TouchableOpacity>
@@ -397,7 +398,7 @@ export default function ProfessionalDemandsScreen() {
                     style={styles.rateButton}
                     onPress={() => abrirAvaliacao(demanda)}
                   >
-                    <MaterialIcons name="star-outline" size={18} color="#0D3D8B" />
+                    <MaterialIcons name="star-outline" size={18} color={Colors.primary} />
                     <Text style={styles.rateButtonText}>Avaliar cliente</Text>
                   </TouchableOpacity>
                 ) : null}
@@ -415,7 +416,7 @@ export default function ProfessionalDemandsScreen() {
                     </View>
                   ) : <View />}
                   <View style={styles.dateBox}>
-                    <MaterialIcons name="event" size={15} color="#7A7A95" />
+                    <MaterialIcons name="event" size={15} color={Colors.textSecondary} />
                     <Text style={styles.dateText}>{formatarData(demanda.dataCriacao)}</Text>
                   </View>
                 </View>
@@ -530,17 +531,17 @@ export default function ProfessionalDemandsScreen() {
 }
 
 const styles = StyleSheet.create({
-  tabs: { flexDirection: "row", marginHorizontal: 16, marginTop: 14, marginBottom: 2, padding: 4, borderRadius: 16, backgroundColor: "#E2E8F0", gap: 4 },
+  tabs: { flexDirection: "row", marginHorizontal: 16, marginTop: 14, marginBottom: 2, padding: 4, borderRadius: 16, backgroundColor: Colors.border, gap: 4 },
   tab: { flex: 1, paddingVertical: 13, paddingHorizontal: 8, borderRadius: 12, alignItems: "center" },
-  tabActive: { backgroundColor: "#0D3D8B" },
-  tabText: { color: "#475569", fontSize: 15, fontWeight: "700" },
-  tabTextActive: { color: "#fff" },
+  tabActive: { backgroundColor: Colors.primary },
+  tabText: { color: Colors.textSecondary, fontSize: 15, fontWeight: "700" },
+  tabTextActive: { color: Colors.white },
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.background,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingBottom: 22,
   },
@@ -549,7 +550,7 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   headerTitle: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 4,
@@ -558,7 +559,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   headerSubtitle: {
-    color: "#B8CCF6",
+    color: Colors.primaryLight,
     fontSize: 13,
   },
   container: {
@@ -585,7 +586,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   summaryRow: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 18,
     paddingHorizontal: 12,
     paddingVertical: 20,
@@ -609,7 +610,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   summaryValue: {
-    color: "#0D3D8B",
+    color: Colors.primary,
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 4,
@@ -618,37 +619,37 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   summaryLabel: {
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     fontSize: 11,
     textAlign: "center",
   },
   summaryDivider: {
     width: 1,
-    backgroundColor: "#EFEFEF",
+    backgroundColor: Colors.background,
     marginVertical: 3,
   },
   stateText: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 14,
   },
   errorText: {
-    color: "#B3261E",
+    color: Colors.error,
     fontSize: 14,
     textAlign: "center",
   },
   retryButton: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingHorizontal: 20,
     paddingVertical: 11,
   },
   retryButtonText: {
-    color: "#fff",
+    color: Colors.white,
     fontWeight: "700",
   },
   emptyCard: {
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 20,
     padding: 28,
     shadowColor: "#000",
@@ -661,7 +662,7 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 22,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -673,7 +674,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   emptyText: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 13,
     lineHeight: 19,
     textAlign: "center",
@@ -681,7 +682,7 @@ const styles = StyleSheet.create({
   },
   demandCard: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 18,
     padding: 17,
     marginBottom: 14,
@@ -734,12 +735,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   clientText: {
-    color: "#6B6B7A",
+    color: Colors.textSecondary,
     fontSize: 12,
     fontWeight: "600",
   },
   description: {
-    color: "#555B68",
+    color: Colors.textSecondary,
     fontSize: 13,
     lineHeight: 19,
     marginTop: 12,
@@ -752,12 +753,12 @@ const styles = StyleSheet.create({
   },
   locationText: {
     flex: 1,
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 11,
     lineHeight: 16,
   },
   pendingHint: {
-    color: "#C05A19",
+    color: Colors.warning,
     fontSize: 11,
     fontWeight: "700",
     marginTop: 10,
@@ -766,14 +767,14 @@ const styles = StyleSheet.create({
     marginTop: 13,
     borderRadius: 12,
     paddingVertical: 11,
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 7,
   },
   finishButtonText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 13,
     fontWeight: "800",
   },
@@ -782,14 +783,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 11,
     borderWidth: 1,
-    borderColor: "#0D3D8B",
+    borderColor: Colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 7,
   },
   rateButtonText: {
-    color: "#0D3D8B",
+    color: Colors.primary,
     fontSize: 13,
     fontWeight: "800",
   },
@@ -803,7 +804,7 @@ const styles = StyleSheet.create({
   modalCard: {
     width: "100%",
     maxWidth: 420,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderRadius: 24,
     padding: 24,
     alignItems: "center",
@@ -812,7 +813,7 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 20,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 14,
@@ -823,7 +824,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   modalText: {
-    color: "#6B6B7A",
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
@@ -831,7 +832,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   modalError: {
-    color: "#B3261E",
+    color: Colors.error,
     fontSize: 12,
     textAlign: "center",
     marginBottom: 12,
@@ -864,12 +865,12 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: 48,
     borderRadius: 14,
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     alignItems: "center",
     justifyContent: "center",
   },
   submitRatingText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 14,
     fontWeight: "800",
   },
@@ -881,7 +882,7 @@ const styles = StyleSheet.create({
     paddingTop: 15,
   },
   laterButtonText: {
-    color: "#6B6B7A",
+    color: Colors.textSecondary,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -891,17 +892,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#EEF0F5",
+    borderTopColor: Colors.border,
     marginTop: 15,
     paddingTop: 13,
   },
   metaLabel: {
-    color: "#8A8A98",
+    color: Colors.textSecondary,
     fontSize: 10,
     marginBottom: 2,
   },
   budgetText: {
-    color: "#0D3D8B",
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: "800",
   },
@@ -912,7 +913,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   dateText: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 11,
   },
 });

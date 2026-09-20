@@ -144,7 +144,7 @@ export default function BuscarScreen() {
           </View>
         ) : error ? (
           <View style={styles.feedbackContainer}>
-            <MaterialIcons name="error-outline" size={34} color="#B3261E" />
+            <MaterialIcons name="error-outline" size={34} color={Colors.error} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : filtered.length === 0 ? (
@@ -187,7 +187,7 @@ export default function BuscarScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.background,
   },
   container: {
     flexGrow: 1,
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     marginBottom: 22,
     lineHeight: 20,
   },
@@ -240,14 +240,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E5E5",
+    borderColor: Colors.border,
   },
   filterPillActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
   filterText: {
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   errorText: {
-    color: "#B3261E",
+    color: Colors.error,
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",

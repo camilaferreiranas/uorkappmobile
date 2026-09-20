@@ -78,11 +78,11 @@ export default function ProfessionalProfileScreen() {
           </Text>
           <Text style={styles.specialty}>{professionalMock.specialty}</Text>
           <View style={styles.locationRow}>
-            <MaterialIcons name="location-on" size={14} color="#FFE5D9" />
+            <MaterialIcons name="location-on" size={14} color={Colors.primaryLight} />
             <Text style={styles.location}>{professionalMock.location}</Text>
           </View>
           <View style={styles.memberBadge}>
-            <MaterialIcons name="verified" size={14} color="#FFD700" />
+            <MaterialIcons name="verified" size={14} color={Colors.warning} />
             <Text style={styles.memberText}>Membro desde {professionalMock.memberSince}</Text>
           </View>
         </View>
@@ -90,7 +90,7 @@ export default function ProfessionalProfileScreen() {
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <View style={styles.statIconRow}>
-              <MaterialIcons name="star" size={16} color="#FFB800" />
+              <MaterialIcons name="star" size={16} color={Colors.warning} />
               <Text style={styles.statValue}>{professionalMock.rating}</Text>
             </View>
             <Text style={styles.statLabel}>{professionalMock.totalRatings} avaliações</Text>
@@ -130,7 +130,7 @@ export default function ProfessionalProfileScreen() {
             <View style={styles.serviceRight}>
               <Text style={styles.servicePrice}>{service.price}</Text>
               <View style={styles.serviceRating}>
-                <MaterialIcons name="star" size={12} color="#FFB800" />
+                <MaterialIcons name="star" size={12} color={Colors.warning} />
                 <Text style={styles.serviceRatingText}>{service.rating.toFixed(1)}</Text>
               </View>
             </View>
@@ -152,7 +152,7 @@ export default function ProfessionalProfileScreen() {
                 <Text style={styles.reviewDate}>{review.date}</Text>
               </View>
               <View style={styles.reviewRating}>
-                <MaterialIcons name="star" size={14} color="#FFB800" />
+                <MaterialIcons name="star" size={14} color={Colors.warning} />
                 <Text style={styles.reviewRatingText}>{review.rating.toFixed(1)}</Text>
               </View>
             </View>
@@ -169,10 +169,10 @@ export default function ProfessionalProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
-                <MaterialIcons name={item.icon as any} size={18} color="#0D3D8B" />
+                <MaterialIcons name={item.icon as any} size={18} color={Colors.primary} />
               </View>
               <Text style={styles.menuLabel}>{item.label}</Text>
-              <MaterialIcons name="chevron-right" size={20} color="#C4C4C4" />
+              <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
           ))}
         </View>
@@ -186,13 +186,13 @@ export default function ProfessionalProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.background,
   },
   container: {
     paddingBottom: 110,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.primary,
     paddingTop: 30,
     paddingBottom: 30,
     alignItems: "center",
@@ -201,13 +201,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   name: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 4,
   },
   specialty: {
-    color: "#B8CCF6",
+    color: Colors.primaryLight,
     fontSize: 14,
     marginBottom: 8,
   },
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   location: {
-    color: "#FFE5D9",
+    color: Colors.primaryLight,
     fontSize: 13,
   },
   memberBadge: {
@@ -231,12 +231,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   memberText: {
-    color: "#D1E0FF",
+    color: Colors.primaryLight,
     fontSize: 12,
     fontWeight: "600",
   },
   statsCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginTop: -20,
     borderRadius: 18,
@@ -267,16 +267,16 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     textAlign: "center",
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#EFEFEF",
+    backgroundColor: Colors.background,
     marginVertical: 4,
   },
   contactCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     borderRadius: 18,
     padding: 18,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   serviceCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginBottom: 10,
     borderRadius: 14,
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   },
   serviceSubtitle: {
     fontSize: 12,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   serviceRight: {
     alignItems: "flex-end",
@@ -354,11 +354,11 @@ const styles = StyleSheet.create({
   },
   serviceRatingText: {
     fontSize: 12,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     fontWeight: "600",
   },
   reviewCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginBottom: 10,
     borderRadius: 14,
@@ -379,14 +379,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
   reviewAvatarText: {
     fontSize: 12,
     fontWeight: "800",
-    color: "#0D3D8B",
+    color: Colors.primary,
   },
   reviewMeta: {
     flex: 1,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
   },
   reviewDate: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   reviewRating: {
     flexDirection: "row",
@@ -413,11 +413,11 @@ const styles = StyleSheet.create({
   },
   reviewComment: {
     fontSize: 13,
-    color: "#505050",
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
   menuCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginTop: 20,
     borderRadius: 18,
@@ -437,13 +437,13 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: Colors.border,
   },
   menuIconWrapper: {
     width: 34,
     height: 34,
     borderRadius: 10,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },

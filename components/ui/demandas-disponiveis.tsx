@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDemandasDisponiveis } from "../../hooks/use-demandas-disponiveis";
 import { buscarCategorias, type Categoria } from "../../services/categoriaService";
 import { type DemandaDisponivel, type OrdenacaoDemanda } from "../../services/demandaService";
+import { Colors } from "../../constants/theme";
 
 const opcoesOrdenacao: { valor: OrdenacaoDemanda; titulo: string }[] = [
   { valor: "RECENTES", titulo: "Mais recentes" },
@@ -14,9 +15,9 @@ const opcoesOrdenacao: { valor: OrdenacaoDemanda; titulo: string }[] = [
 ];
 
 const urgencias = {
-  NORMAL: { label: "Normal", color: "#2E7D32", backgroundColor: "#EAFAF1" },
-  URGENTE: { label: "Urgente", color: "#A84A16", backgroundColor: "#FFF0E6" },
-  HOJE: { label: "Hoje", color: "#B3261E", backgroundColor: "#FDECEA" },
+  NORMAL: { label: "Normal", color: Colors.success, backgroundColor: "#EAF7ED" },
+  URGENTE: { label: "Urgente", color: Colors.warning, backgroundColor: "#FFF7EA" },
+  HOJE: { label: "Hoje", color: Colors.error, backgroundColor: "#FDECEA" },
 };
 
 function DemandaCard({ demanda }: { demanda: DemandaDisponivel }) {
@@ -39,17 +40,17 @@ function DemandaCard({ demanda }: { demanda: DemandaDisponivel }) {
       <Text style={styles.description} numberOfLines={2}>{demanda.descricao}</Text>
       <Text style={styles.budget}>{demanda.orcamento == null ? "Orçamento a combinar" : Number(demanda.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</Text>
       <View style={styles.infoRow}>
-        <MaterialIcons name="location-on" size={17} color="#64748B" />
+        <MaterialIcons name="location-on" size={17} color={Colors.textSecondary} />
         <Text style={styles.infoText} numberOfLines={2}>{demanda.localizacao}</Text>
       </View>
       <View style={styles.infoRow}>
-        <MaterialIcons name="person-outline" size={17} color="#64748B" />
+        <MaterialIcons name="person-outline" size={17} color={Colors.textSecondary} />
         <Text style={styles.infoText} numberOfLines={1}>{demanda.nomeCliente}</Text>
       </View>
       <View style={styles.cardFooter}>
         <Text style={styles.date}>{new Date(demanda.criadoEm).toLocaleDateString("pt-BR")}</Text>
         <Text style={styles.link}>Ver detalhes</Text>
-        <MaterialIcons name="chevron-right" size={20} color="#0D3D8B" />
+        <MaterialIcons name="chevron-right" size={20} color={Colors.primary} />
       </View>
     </TouchableOpacity>
   );
@@ -64,7 +65,7 @@ function EstadoLista({ carregando, erro, recarregar, categoria, limparFiltro }: 
 }) {
   return (
     <View style={styles.state}>
-      {carregando ? <ActivityIndicator color="#0D3D8B" size="large" /> : <MaterialIcons name={erro ? "error-outline" : "assignment"} size={36} color="#0D3D8B" />}
+      {carregando ? <ActivityIndicator color={Colors.primary} size="large" /> : <MaterialIcons name={erro ? "error-outline" : "assignment"} size={36} color={Colors.primary} />}
       <Text style={styles.stateTitle}>{carregando ? "Carregando demandas..." : erro ? "Não foi possível carregar" : categoria ? "Nenhuma demanda nesta atividade" : "Nenhuma demanda disponível"}</Text>
       {!carregando && <Text style={styles.stateText}>{erro || (categoria ? `Não há demandas abertas em ${categoria.nome} no momento. Tente outra atividade ou veja todas.` : "As demandas abertas de outros clientes aparecerão aqui. Suas próprias publicações não são exibidas.")}</Text>}
       {!carregando && <TouchableOpacity style={styles.button} accessibilityRole="button" onPress={recarregar}><Text style={styles.buttonText}>{erro ? "Tentar novamente" : "Atualizar"}</Text></TouchableOpacity>}
@@ -120,7 +121,7 @@ export function DemandasDisponiveisLista({ categoriaSelecionada, onSelecionarCat
       data={lista.demandas}
       keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => <DemandaCard demanda={item} />}
-      refreshControl={<RefreshControl refreshing={lista.atualizando} onRefresh={lista.atualizar} colors={["#0D3D8B"]} tintColor="#0D3D8B" />}
+      refreshControl={<RefreshControl refreshing={lista.atualizando} onRefresh={lista.atualizar} colors={[Colors.primary]} tintColor={Colors.primary} />}
       ListHeaderComponent={
         <View style={styles.listHeading}>
           <View style={styles.listTitleRow}>
@@ -145,7 +146,7 @@ export function DemandasDisponiveisLista({ categoriaSelecionada, onSelecionarCat
           {!!lista.erroMais && <Text accessibilityRole="alert" style={styles.error}>{lista.erroMais}</Text>}
           <Text style={styles.stateText}>{lista.demandas.length} de {lista.total} demandas</Text>
           {lista.temMais && <TouchableOpacity style={styles.button} disabled={lista.carregandoMais || lista.atualizando} accessibilityRole="button" onPress={lista.carregarMais}>
-            {lista.carregandoMais ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>{lista.erroMais ? "Tentar carregar mais" : "Carregar mais"}</Text>}
+            {lista.carregandoMais ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.buttonText}>{lista.erroMais ? "Tentar carregar mais" : "Carregar mais"}</Text>}
           </TouchableOpacity>}
         </View>
       ) : null}
@@ -249,49 +250,49 @@ const styles = StyleSheet.create({
   columns: { gap: 14 },
   listHeading: { marginBottom: 16, gap: 7 },
   listTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  heading: { fontSize: 19, fontWeight: "800", color: "#0F172A", flexShrink: 1 },
-  filterButton: { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderColor: "#0D3D8B", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 8 },
-  filterButtonActive: { backgroundColor: "#0D3D8B" },
-  filterButtonText: { color: "#0D3D8B", fontSize: 13, fontWeight: "700" },
-  filterButtonTextActive: { color: "#fff" },
-  card: { flex: 1, padding: 18, borderRadius: 20, backgroundColor: "#fff", marginBottom: 14, borderWidth: 1, borderColor: "#E2E8F0", gap: 10 },
+  heading: { fontSize: 19, fontWeight: "700", color: Colors.ink, flexShrink: 1 },
+  filterButton: { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderColor: Colors.primary, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 8 },
+  filterButtonActive: { backgroundColor: Colors.primary },
+  filterButtonText: { color: Colors.primary, fontSize: 13, fontWeight: "700" },
+  filterButtonTextActive: { color: Colors.white },
+  card: { flex: 1, padding: 18, borderRadius: 20, backgroundColor: Colors.white, marginBottom: 14, borderWidth: 1, borderColor: Colors.border, gap: 10 },
   tags: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
-  category: { color: "#0D3D8B", fontSize: 13, fontWeight: "700", flexShrink: 1 },
+  category: { color: Colors.primary, fontSize: 13, fontWeight: "700", flexShrink: 1 },
   badge: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, fontSize: 12, fontWeight: "700", overflow: "hidden" },
-  appliedBadge: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, fontSize: 12, fontWeight: "700", overflow: "hidden", color: "#0D3D8B", backgroundColor: "#E8EDFA" },
-  title: { fontSize: 19, fontWeight: "800", color: "#0F172A" },
-  description: { color: "#64748B", fontSize: 14, lineHeight: 21 },
-  budget: { color: "#0D3D8B", fontSize: 17, fontWeight: "700" },
+  appliedBadge: { borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5, fontSize: 12, fontWeight: "700", overflow: "hidden", color: Colors.primary, backgroundColor: Colors.primaryLight },
+  title: { fontSize: 19, fontWeight: "700", color: Colors.ink },
+  description: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21 },
+  budget: { color: Colors.primary, fontSize: 17, fontWeight: "700" },
   infoRow: { flexDirection: "row", gap: 6, alignItems: "flex-start" },
-  infoText: { flex: 1, color: "#64748B", fontSize: 13, lineHeight: 19 },
-  cardFooter: { flexDirection: "row", alignItems: "center", gap: 4, paddingTop: 12, borderTopWidth: 1, borderTopColor: "#F1F5F9", flexWrap: "wrap" },
-  date: { flex: 1, color: "#64748B", fontSize: 12 },
-  link: { color: "#0D3D8B", fontSize: 14, fontWeight: "700" },
-  state: { backgroundColor: "#fff", borderRadius: 20, padding: 24, alignItems: "center", gap: 12 },
-  stateTitle: { color: "#0F172A", fontSize: 18, fontWeight: "700", textAlign: "center" },
-  stateText: { color: "#64748B", fontSize: 14, lineHeight: 21 },
-  button: { paddingHorizontal: 22, paddingVertical: 14, borderRadius: 12, backgroundColor: "#0D3D8B", alignItems: "center", minWidth: 140 },
-  buttonText: { color: "#fff", fontWeight: "700", fontSize: 14 },
+  infoText: { flex: 1, color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
+  cardFooter: { flexDirection: "row", alignItems: "center", gap: 4, paddingTop: 12, borderTopWidth: 1, borderTopColor: Colors.background, flexWrap: "wrap" },
+  date: { flex: 1, color: Colors.textSecondary, fontSize: 12 },
+  link: { color: Colors.primary, fontSize: 14, fontWeight: "700" },
+  state: { backgroundColor: Colors.white, borderRadius: 20, padding: 24, alignItems: "center", gap: 12 },
+  stateTitle: { color: Colors.ink, fontSize: 18, fontWeight: "700", textAlign: "center" },
+  stateText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21 },
+  button: { paddingHorizontal: 22, paddingVertical: 14, borderRadius: 12, backgroundColor: Colors.primary, alignItems: "center", minWidth: 140 },
+  buttonText: { color: Colors.white, fontWeight: "700", fontSize: 14 },
   footer: { alignItems: "center", gap: 12, paddingVertical: 16 },
-  error: { color: "#B3261E", fontSize: 14, lineHeight: 20 },
-  clearFilterText: { color: "#0D3D8B", fontSize: 14, fontWeight: "700" },
+  error: { color: Colors.error, fontSize: 14, lineHeight: 20 },
+  clearFilterText: { color: Colors.primary, fontSize: 14, fontWeight: "700" },
   filterOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.48)", alignItems: "center", justifyContent: "center", padding: 20 },
-  filterModal: { width: "100%", maxWidth: 420, maxHeight: "80%", backgroundColor: "#fff", borderRadius: 22, padding: 20, gap: 12 },
+  filterModal: { width: "100%", maxWidth: 420, maxHeight: "80%", backgroundColor: Colors.white, borderRadius: 22, padding: 20, gap: 12 },
   filterModalHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  filterTitle: { flex: 1, fontSize: 20, fontWeight: "800", color: "#0F172A" },
-  filterDescription: { color: "#64748B", fontSize: 14, lineHeight: 20 },
+  filterTitle: { flex: 1, fontSize: 20, fontWeight: "800", color: Colors.ink },
+  filterDescription: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20 },
   filterOptions: { flexShrink: 1, maxHeight: 360 },
   filterOptionsContent: { gap: 8, paddingBottom: 4 },
-  filterOption: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: 48, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: "#E2E8F0", borderRadius: 12 },
-  filterOptionSelected: { borderColor: "#0D3D8B", backgroundColor: "#E8EDFA" },
-  filterOptionText: { flex: 1, color: "#0F172A", fontSize: 14, fontWeight: "600" },
-  filterSectionTitle: { color: "#0F172A", fontSize: 14, fontWeight: "800", marginTop: 6 },
-  filterHint: { color: "#64748B", fontSize: 12, lineHeight: 18 },
+  filterOption: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: 48, paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: Colors.border, borderRadius: 12 },
+  filterOptionSelected: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  filterOptionText: { flex: 1, color: Colors.ink, fontSize: 14, fontWeight: "600" },
+  filterSectionTitle: { color: Colors.ink, fontSize: 14, fontWeight: "800", marginTop: 6 },
+  filterHint: { color: Colors.textSecondary, fontSize: 12, lineHeight: 18 },
   filterLoading: { paddingVertical: 18 },
   filterFeedback: { gap: 8, padding: 8 },
-  applyFilterButton: { minHeight: 48, borderRadius: 12, backgroundColor: "#0D3D8B", alignItems: "center", justifyContent: "center" },
+  applyFilterButton: { minHeight: 48, borderRadius: 12, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
   preview: { marginHorizontal: 20, marginTop: 24 },
   previewHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  previewSubtitle: { color: "#64748B", fontSize: 13, lineHeight: 19, marginBottom: 14 },
+  previewSubtitle: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19, marginBottom: 14 },
   seeAll: { paddingVertical: 14 },
 });

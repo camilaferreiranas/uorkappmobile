@@ -78,7 +78,7 @@ export default function CategoryProvidersScreen() {
       >
         {prestadores.length === 0 ? (
           <View style={styles.emptyState}>
-            <MaterialIcons name="search-off" size={56} color="#C4C4C4" />
+            <MaterialIcons name="search-off" size={56} color={Colors.textSecondary} />
             <Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text>
             <Text style={styles.emptyText}>
               Não há profissionais cadastrados nessa categoria ainda.
@@ -114,7 +114,7 @@ export default function CategoryProvidersScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.background,
   },
   container: {
     paddingTop: 14,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
   },

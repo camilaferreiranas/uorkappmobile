@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   description: {
-    color: "#737373",
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 21,
     marginBottom: 18,
@@ -244,12 +244,12 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   cepLoadingText: {
-    color: "#737373",
+    color: Colors.textSecondary,
     fontSize: 13,
   },
   readOnlyInput: {
     color: "#666",
-    backgroundColor: "#EAEAEA",
+    backgroundColor: Colors.border,
   },
   errorText: {
     color: Colors.error,

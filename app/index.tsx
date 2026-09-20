@@ -39,14 +39,14 @@ export default function SplashScreen() {
       >
         <Button
           title="Criar conta"
-          variant="secondary"
+          variant="primary"
           onPress={() => router.replace("/signup")}
           style={styles.primaryButton}
           textStyle={styles.primaryButtonText}
         />
         <Button
           title="Já tenho conta"
-          variant="outline"
+          variant="ghost"
           onPress={() => router.replace("/login")}
           style={styles.secondaryButton}
           textStyle={styles.secondaryButtonText}
@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   secondaryButton: {
+    borderWidth: 1,
     borderColor: "rgba(255,255,255,0.92)",
     borderRadius: 999,
   },
