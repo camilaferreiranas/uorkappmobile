@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { AppState } from "react-native";
+import { useRouter } from "expo-router";
 import { API_URL } from "../services/api_url";
 import {
   buscarNotificacoes,
@@ -17,6 +18,13 @@ import {
   type Notificacao,
 } from "../services/notificacaoService";
 import { getToken } from "../services/token-storage";
+import {
+  consumirUltimoToqueEmPush,
+  observarMensagemPushEmPrimeiroPlano,
+  observarRenovacaoPushToken,
+  observarToqueEmPush,
+  registrarPushTokenAtual,
+} from "../services/push-notification-service";
 import { useAuth } from "./auth-context";
 
 type ContextoNotificacao = "cliente" | "prestador";
@@ -78,6 +86,7 @@ function lerNotificacao(message: IMessage): Notificacao | null {
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const router = useRouter();
   const [notificacoesCliente, setNotificacoesCliente] = useState<Notificacao[]>([]);
   const [notificacoesPrestador, setNotificacoesPrestador] = useState<Notificacao[]>([]);
   const [conectado, setConectado] = useState(false);
@@ -91,6 +100,36 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const data = await buscarNotificacoes();
     setNotificacoesPrestador(data.notificacoes);
   }, []);
+
+  const abrirPush = useCallback(
+    (data: Record<string, unknown>) => {
+      if (data.contexto === "PRESTADOR") {
+        router.push("/professional-notifications");
+      } else if (data.contexto === "CLIENTE") {
+        router.push("/client-notifications");
+      }
+    },
+    [router]
+  );
+
+  useEffect(() => {
+    if (!user) return;
+
+    void registrarPushTokenAtual().catch((error) => {
+      console.warn("Push notification não registrada:", error);
+    });
+
+    const subscription = observarToqueEmPush(abrirPush);
+    const removerRenovacao = observarRenovacaoPushToken();
+    const removerPrimeiroPlano = observarMensagemPushEmPrimeiroPlano();
+    void consumirUltimoToqueEmPush(abrirPush);
+
+    return () => {
+      subscription.remove();
+      removerRenovacao();
+      removerPrimeiroPlano();
+    };
+  }, [abrirPush, user]);
 
   useEffect(() => {
     if (!user) {

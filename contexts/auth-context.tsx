@@ -15,6 +15,7 @@ import {
   updateUserAddress as updateUserAddressRequest,
 } from '../services/api';
 import { clearToken, getToken, saveToken } from '../services/token-storage';
+import { removerPushTokenAtual } from '../services/push-notification-service';
 
 interface AuthContextValue {
   user: UserProfile | null;
@@ -148,7 +149,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authOperation.current += 1;
     setUser(null);
     setLoading(false);
-    await clearToken();
+    const stored = await getToken();
+    try {
+      if (stored && stored.expiresAt > Date.now()) {
+        await removerPushTokenAtual(stored.accessToken);
+      }
+    } catch {
+      // O logout local não deve ser bloqueado por indisponibilidade da rede.
+    } finally {
+      await clearToken();
+    }
   }
 
   return (
