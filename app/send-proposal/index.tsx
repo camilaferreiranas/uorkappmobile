@@ -6,6 +6,9 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -18,8 +21,10 @@ import { Input } from "../../components/ui/input";
 import { PillGroup } from "../../components/ui/pill-group";
 import { Select } from "../../components/ui/select";
 import { Colors } from "../../constants/theme";
+import { useAuth } from "../../contexts/auth-context";
 import { obterLocalizacaoDetalhadaAtual } from "../../services/locationService";
 import { enviarProposta, type NovaProposta } from "../../services/propostaService";
+import { erroTelefoneBrasileiro } from "../../utils/validar-telefone";
 
 const OUTROS = "Outros";
 const URGENCIAS = ["Normal", "Urgente", "Hoje"];
@@ -79,6 +84,7 @@ function lerServicos(valor?: string): string[] {
 
 export default function SendProposalScreen() {
   const router = useRouter();
+  const { user, updatePhone } = useAuth();
   const {
     prestadorId,
     professional,
@@ -117,6 +123,10 @@ export default function SendProposalScreen() {
   const [obtendoLocalizacao, setObtendoLocalizacao] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [enviada, setEnviada] = useState(false);
+  const [telefoneModalAberto, setTelefoneModalAberto] = useState(false);
+  const [telefoneModal, setTelefoneModal] = useState("");
+  const [erroTelefoneModal, setErroTelefoneModal] = useState("");
+  const [salvandoTelefone, setSalvandoTelefone] = useState(false);
 
   const tipoServico =
     servicoSelecionado === OUTROS ? outroServico.trim() : servicoSelecionado.trim();
@@ -206,16 +216,7 @@ export default function SendProposalScreen() {
     return Object.keys(novosErros).length === 0;
   }
 
-  async function enviar() {
-    setErroEnvio("");
-    if (!validar()) return;
-
-    const id = Number(prestadorId);
-    if (!Number.isSafeInteger(id) || id <= 0) {
-      setErroEnvio("Prestador não identificado. Volte e tente novamente.");
-      return;
-    }
-
+  async function enviarAgora(id: number) {
     setEnviando(true);
     try {
       await enviarProposta({
@@ -235,6 +236,53 @@ export default function SendProposalScreen() {
       );
     } finally {
       setEnviando(false);
+    }
+  }
+
+  async function enviar() {
+    setErroEnvio("");
+    if (!validar()) return;
+
+    const id = Number(prestadorId);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      setErroEnvio("Prestador não identificado. Volte e tente novamente.");
+      return;
+    }
+    if (!user) {
+      setErroEnvio("Entre na sua conta para enviar uma proposta.");
+      return;
+    }
+    if (!user.telefone || erroTelefoneBrasileiro(user.telefone)) {
+      setTelefoneModal(user.telefone ?? "");
+      setErroTelefoneModal("");
+      setTelefoneModalAberto(true);
+      return;
+    }
+
+    await enviarAgora(id);
+  }
+
+  async function salvarTelefoneEEnviar() {
+    const erro = !telefoneModal.trim()
+      ? "Informe seu celular com DDD."
+      : erroTelefoneBrasileiro(telefoneModal);
+    if (erro) {
+      setErroTelefoneModal(erro);
+      return;
+    }
+
+    setSalvandoTelefone(true);
+    setErroTelefoneModal("");
+    try {
+      await updatePhone(telefoneModal.trim());
+      setTelefoneModalAberto(false);
+      await enviarAgora(Number(prestadorId));
+    } catch (error) {
+      setErroTelefoneModal(
+        error instanceof Error ? error.message : "Não foi possível salvar o telefone."
+      );
+    } finally {
+      setSalvandoTelefone(false);
     }
   }
 
@@ -377,6 +425,59 @@ export default function SendProposalScreen() {
         />
         {enviando ? <ActivityIndicator style={styles.loading} color={Colors.primary} /> : null}
       </ScrollView>
+
+      <Modal
+        visible={telefoneModalAberto}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          if (!salvandoTelefone) setTelefoneModalAberto(false);
+        }}
+      >
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            contentContainerStyle={styles.modalScroll}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.modalCard} accessibilityViewIsModal>
+              <MaterialIcons name="phone-android" size={32} color={Colors.primary} />
+              <Text style={styles.modalTitle}>Cadastre seu celular</Text>
+              <Text style={styles.modalText}>
+                Para enviar a proposta, informe um número para o prestador entrar em contato
+                após aceitá-la. Ele será salvo no seu perfil.
+              </Text>
+              <Input
+                label="Celular com DDD"
+                value={telefoneModal}
+                onChangeText={(valor) => {
+                  setTelefoneModal(valor);
+                  setErroTelefoneModal("");
+                }}
+                keyboardType="phone-pad"
+                autoComplete="tel"
+                placeholder="DDD + número do celular"
+                error={erroTelefoneModal}
+              />
+              <Button
+                title="Salvar e enviar proposta"
+                onPress={() => void salvarTelefoneEEnviar()}
+                loading={salvandoTelefone}
+                disabled={salvandoTelefone}
+              />
+              <Button
+                title="Agora não"
+                variant="ghost"
+                onPress={() => setTelefoneModalAberto(false)}
+                disabled={salvandoTelefone}
+                style={styles.modalCancelButton}
+              />
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -443,4 +544,17 @@ const styles = StyleSheet.create({
   successTitle: { fontSize: 26, fontWeight: "800", color: "#111", marginTop: 18 },
   successText: { fontSize: 15, color: "#666", textAlign: "center", lineHeight: 22, marginTop: 10 },
   successButton: { marginTop: 28, borderRadius: 16 },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(15, 23, 42, 0.65)" },
+  modalScroll: { flexGrow: 1, justifyContent: "center", padding: 20 },
+  modalCard: {
+    backgroundColor: Colors.white,
+    borderRadius: 22,
+    padding: 24,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+  },
+  modalTitle: { color: Colors.ink, fontSize: 20, fontWeight: "800", marginTop: 12 },
+  modalText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: 8, marginBottom: 20 },
+  modalCancelButton: { marginTop: 8 },
 });

@@ -59,6 +59,7 @@ export type OrdenacaoDemanda = "RECENTES" | "MAIOR_ORCAMENTO" | "MENOR_ORCAMENTO
 export type StatusCandidatura =
   | "PENDENTE"
   | "ACEITA"
+  | "AGUARDANDO_CONFIRMACAO"
   | "RECUSADA"
   | "CANCELADA"
   | "FINALIZADA";

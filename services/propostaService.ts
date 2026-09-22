@@ -89,6 +89,7 @@ export interface PropostaResponse {
 export type StatusProposta =
   | "PENDENTE"
   | "ACEITA"
+  | "AGUARDANDO_CONFIRMACAO"
   | "RECUSADA"
   | "CANCELADA"
   | "FINALIZADA";
@@ -143,6 +144,7 @@ export interface AvaliacaoPrestadorResponse extends AvaliacaoPrestadorPayload {
 
 export interface ContatoWhatsApp {
   nomePrestador: string;
+  nomeContato?: string;
   mensagem: string;
   whatsappUrl: string;
 }
@@ -284,13 +286,13 @@ export async function aceitarProposta(propostaId: number): Promise<PropostaRespo
   return json.data;
 }
 
-export async function finalizarProposta(propostaId: number, valorCobrado: number): Promise<PropostaResponse> {
+export async function solicitarConclusao(propostaId: number, valorCobrado: number): Promise<PropostaResponse> {
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
   }
 
-  const response = await fetch(`${API_URL}/propostas/${propostaId}/finalizar`, {
+  const response = await fetch(`${API_URL}/propostas/${propostaId}/solicitar-conclusao`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -302,11 +304,39 @@ export async function finalizarProposta(propostaId: number, valorCobrado: number
 
   if (!response.ok || !json?.success) {
     throw new Error(
-      json?.erros?.[0] ?? json?.message ?? "Não foi possível finalizar o serviço."
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível solicitar a conclusão."
     );
   }
 
   return json.data;
+}
+
+async function responderConclusao(
+  propostaId: number,
+  acao: "confirmar-conclusao" | "nao-confirmar-conclusao"
+): Promise<PropostaResponse> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/${propostaId}/${acao}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+  if (!response.ok || !json?.success) {
+    throw new Error(json?.erros?.[0] ?? json?.message ?? "Não foi possível responder à conclusão.");
+  }
+  return json.data;
+}
+
+export function confirmarConclusao(propostaId: number): Promise<PropostaResponse> {
+  return responderConclusao(propostaId, "confirmar-conclusao");
+}
+
+export function naoConfirmarConclusao(propostaId: number): Promise<PropostaResponse> {
+  return responderConclusao(propostaId, "nao-confirmar-conclusao");
 }
 
 export async function avaliarCliente(propostaId: number, nota: number): Promise<void> {

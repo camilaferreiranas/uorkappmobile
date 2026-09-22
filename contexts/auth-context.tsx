@@ -23,6 +23,7 @@ interface AuthContextValue {
   login: (email: string, senha: string) => Promise<void>;
   loginWithGoogle: (payload: GoogleAuthPayload) => Promise<void>;
   updateProfile: (payload: UpdateUserProfilePayload) => Promise<UserProfile>;
+  updatePhone: (telefone: string) => Promise<UserProfile>;
   updateAddress: (endereco: Endereco) => Promise<UserProfile>;
   updatePhoto: (photo: ProfilePhotoAsset) => Promise<UserProfile>;
   removePhoto: () => Promise<UserProfile>;
@@ -161,6 +162,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function updatePhone(telefone: string) {
+    const stored = await getToken();
+    if (!stored || stored.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const profile = await updateUserProfileRequest(stored.accessToken, { telefone });
+    setUser(profile);
+    return profile;
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -169,6 +181,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         loginWithGoogle,
         updateProfile,
+        updatePhone,
         updateAddress,
         updatePhoto,
         removePhoto,

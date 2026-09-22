@@ -142,7 +142,7 @@ export async function getUserProfile(
 
 export async function updateUserProfile(
   accessToken: string,
-  payload: UpdateUserProfilePayload
+  payload: UpdateUserProfilePayload | Pick<UpdateUserProfilePayload, "telefone">
 ): Promise<UserProfile> {
   const response = await fetch(`${API_URL}/usuario/perfil`, {
     method: "PUT",

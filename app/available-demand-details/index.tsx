@@ -301,7 +301,7 @@ export default function AvailableDemandDetailsScreen() {
                 <Text style={styles.applicationSentText}>
                   {demanda.statusCandidatura === "PENDENTE"
                     ? "Aguardando a escolha do cliente"
-                    : demanda.statusCandidatura === "ACEITA"
+                    : demanda.statusCandidatura === "ACEITA" || demanda.statusCandidatura === "AGUARDANDO_CONFIRMACAO"
                       ? "Você foi selecionado"
                       : "Candidatura encerrada"}
                 </Text>

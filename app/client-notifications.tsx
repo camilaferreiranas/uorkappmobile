@@ -63,7 +63,9 @@ export default function ClientNotificationsScreen() {
       if (!notificacao.lida) {
         await marcarComoLida("cliente", notificacao.id);
       }
-      if (notificacao.demandaId) {
+      if (notificacao.titulo === "Confirme a conclusão do serviço") {
+        router.push("/client-history");
+      } else if (notificacao.demandaId) {
         router.push(`/demand-candidates?id=${notificacao.demandaId}` as Href);
       }
     } catch (error) {
@@ -169,7 +171,16 @@ export default function ClientNotificationsScreen() {
                   </Text>
                 </View>
               </TouchableOpacity>
-              {notificacao.demandaId ? (
+              {notificacao.titulo === "Confirme a conclusão do serviço" ? (
+                <TouchableOpacity
+                  style={styles.candidatesButton}
+                  onPress={() => void abrir(notificacao)}
+                  accessibilityRole="button"
+                >
+                  <MaterialIcons name="fact-check" size={19} color="#fff" />
+                  <Text style={styles.whatsappButtonText}>Responder à conclusão</Text>
+                </TouchableOpacity>
+              ) : notificacao.demandaId ? (
                 <TouchableOpacity
                   style={styles.candidatesButton}
                   onPress={() => void abrir(notificacao)}

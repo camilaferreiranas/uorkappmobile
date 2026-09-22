@@ -3,7 +3,9 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +17,7 @@ import { Colors } from "../../constants/theme";
 import { useNotifications } from "../../contexts/notification-context";
 import {
   aceitarProposta,
+  buscarContatoWhatsApp,
   buscarDetalheDemanda,
 } from "../../services/propostaService";
 
@@ -41,6 +44,7 @@ export default function DemandDetailsScreen() {
 
   const [status, setStatus] = useState<"pending" | "accepted" | "refused">("pending");
   const [processando, setProcessando] = useState(false);
+  const [abrindoWhatsApp, setAbrindoWhatsApp] = useState(false);
   const [erro, setErro] = useState("");
   const [resumoCliente, setResumoCliente] = useState<{
     mediaAvaliacoes: number;
@@ -108,6 +112,24 @@ export default function DemandDetailsScreen() {
   };
   const handleRefuse = () => setStatus("refused");
 
+  const handleContact = async () => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0 || abrindoWhatsApp) return;
+
+    setAbrindoWhatsApp(true);
+    try {
+      const contato = await buscarContatoWhatsApp(propostaId);
+      await Linking.openURL(contato.whatsappUrl);
+    } catch (error) {
+      Alert.alert(
+        "Não foi possível abrir o WhatsApp",
+        error instanceof Error ? error.message : "Tente novamente em instantes."
+      );
+    } finally {
+      setAbrindoWhatsApp(false);
+    }
+  };
+
   if (status !== "pending") {
     return (
       <View
@@ -129,9 +151,27 @@ export default function DemandDetailsScreen() {
           </Text>
           <Text style={styles.resultText}>
             {status === "accepted"
-              ? `Você aceitou a demanda "${params.title}". O status da proposta foi atualizado.`
+              ? `Você aceitou a demanda "${params.title}". Agora você ou o cliente podem iniciar a conversa para combinar o serviço.`
               : `Você recusou a demanda "${params.title}".`}
           </Text>
+          {status === "accepted" ? (
+            <TouchableOpacity
+              style={styles.contactButton}
+              onPress={() => void handleContact()}
+              disabled={abrindoWhatsApp}
+              accessibilityRole="button"
+              accessibilityLabel={`Conversar com ${params.client} no WhatsApp`}
+            >
+              {abrindoWhatsApp ? (
+                <ActivityIndicator size="small" color={Colors.white} />
+              ) : (
+                <MaterialIcons name="chat" size={19} color={Colors.white} />
+              )}
+              <Text style={styles.contactButtonText}>
+                {abrindoWhatsApp ? "Abrindo WhatsApp..." : "Conversar no WhatsApp"}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity style={styles.backHomeButton} onPress={() => router.replace("/professional-home" as any)}>
             <Text style={styles.backHomeText}>Voltar ao início</Text>
           </TouchableOpacity>
@@ -535,13 +575,28 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   backHomeButton: {
-    backgroundColor: Colors.primary,
+    marginTop: 10,
     paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 16,
   },
   backHomeText: {
-    color: "#fff",
+    color: Colors.primary,
+    fontWeight: "800",
+    fontSize: 15,
+  },
+  contactButton: {
+    backgroundColor: Colors.success,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  contactButtonText: {
+    color: Colors.white,
     fontWeight: "800",
     fontSize: 15,
   },

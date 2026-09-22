@@ -19,6 +19,7 @@ import { ProfileScreenHeader } from "../../components/ui/profile-screen-header";
 import { Colors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { getInitials } from "../../utils/get-initials";
+import { erroTelefoneBrasileiro } from "../../utils/validar-telefone";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
@@ -63,15 +64,18 @@ export default function EditProfileScreen() {
     setTelefone(user.telefone ?? "");
   }, [user]);
 
+  const telefoneError = useMemo(() => erroTelefoneBrasileiro(telefone), [telefone]);
+
   const formError = useMemo(() => {
     if (!nome.trim()) return "Informe o nome.";
     if (!sobrenome.trim()) return "Informe o sobrenome.";
     if (!emailRegex.test(email.trim())) return "Informe um e-mail válido.";
     if (!documento.trim()) return `Informe o ${tipoPessoa}.`;
+    if (telefoneError) return telefoneError;
     if (senha && senha.length < 8) return "A nova senha deve ter ao menos 8 caracteres.";
     if (senha !== confirmacaoSenha) return "As senhas não coincidem.";
     return "";
-  }, [confirmacaoSenha, documento, email, nome, senha, sobrenome, tipoPessoa]);
+  }, [confirmacaoSenha, documento, email, nome, senha, sobrenome, telefoneError, tipoPessoa]);
 
   function handleTipoPessoaChange(type: "CPF" | "CNPJ") {
     setTipoPessoa(type);
@@ -301,7 +305,9 @@ export default function EditProfileScreen() {
             value={telefone}
             onChangeText={setTelefone}
             keyboardType="phone-pad"
-            placeholder="Digite seu telefone"
+            placeholder="DDD + número do celular"
+            autoComplete="tel"
+            error={telefoneError}
           />
           <Input
             label="Nova senha (opcional)"
@@ -320,7 +326,9 @@ export default function EditProfileScreen() {
             textContentType="newPassword"
           />
 
-          {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
+          {formError && formError !== telefoneError ? (
+            <Text style={styles.errorText}>{formError}</Text>
+          ) : null}
           {submitError ? <Text style={styles.errorText}>{submitError}</Text> : null}
 
           <Button

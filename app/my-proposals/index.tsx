@@ -5,7 +5,9 @@ import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
+  Linking,
   RefreshControl,
   StyleSheet,
   Text,
@@ -17,6 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfileScreenHeader } from "../../components/ui/profile-screen-header";
 import { Colors } from "../../constants/theme";
 import {
+  buscarContatoWhatsApp,
   buscarMinhasPropostas,
   type HistoricoCliente,
   type StatusProposta,
@@ -42,6 +45,12 @@ const statusConfig: Record<
     color: Colors.primary,
     background: Colors.primaryLight,
     icon: "handshake",
+  },
+  AGUARDANDO_CONFIRMACAO: {
+    label: "Confirme a conclusão",
+    color: Colors.warning,
+    background: "#FFF7EA",
+    icon: "schedule",
   },
   RECUSADA: {
     label: "Recusada",
@@ -82,9 +91,12 @@ function formatarUrgencia(urgencia: HistoricoCliente["urgencia"]) {
 interface ProposalCardProps {
   proposta: HistoricoCliente;
   onOpenProvider: () => void;
+  onContact: () => void;
+  onReviewConclusion: () => void;
+  abrindoWhatsApp: boolean;
 }
 
-function ProposalCard({ proposta, onOpenProvider }: ProposalCardProps) {
+function ProposalCard({ proposta, onOpenProvider, onContact, onReviewConclusion, abrindoWhatsApp }: ProposalCardProps) {
   const status = statusConfig[proposta.status];
 
   return (
@@ -153,6 +165,34 @@ function ProposalCard({ proposta, onOpenProvider }: ProposalCardProps) {
             <Text style={styles.dateText}>{formatarData(proposta.dataCriacao)}</Text>
           </View>
         </View>
+        {proposta.status === "ACEITA" || proposta.status === "AGUARDANDO_CONFIRMACAO" ? (
+          <TouchableOpacity
+            style={[styles.contactButton, styles.whatsappButton]}
+            onPress={onContact}
+            disabled={abrindoWhatsApp}
+            accessibilityRole="button"
+            accessibilityLabel={`Conversar com ${proposta.nomePrestador} no WhatsApp`}
+          >
+            {abrindoWhatsApp ? (
+              <ActivityIndicator size="small" color={Colors.white} />
+            ) : (
+              <MaterialIcons name="chat" size={18} color={Colors.white} />
+            )}
+            <Text style={styles.contactButtonText}>
+              {abrindoWhatsApp ? "Abrindo WhatsApp..." : "Conversar no WhatsApp"}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
+        {proposta.status === "AGUARDANDO_CONFIRMACAO" ? (
+          <TouchableOpacity
+            style={styles.contactButton}
+            onPress={onReviewConclusion}
+            accessibilityRole="button"
+          >
+            <MaterialIcons name="fact-check" size={18} color={Colors.white} />
+            <Text style={styles.contactButtonText}>Responder à conclusão</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );
@@ -166,6 +206,7 @@ export default function MyProposalsScreen() {
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
+  const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
     if (exibirCarregamento) setCarregando(true);
@@ -192,13 +233,30 @@ export default function MyProposalsScreen() {
 
   const resumo = useMemo(() => {
     const aguardando = propostas.filter((item) => item.status === "PENDENTE").length;
-    const aceitas = propostas.filter((item) => item.status === "ACEITA").length;
+    const aceitas = propostas.filter((item) =>
+      item.status === "ACEITA" || item.status === "AGUARDANDO_CONFIRMACAO").length;
     return { total: propostas.length, aguardando, aceitas };
   }, [propostas]);
 
   function atualizar() {
     setAtualizando(true);
     void carregar(false);
+  }
+
+  async function abrirWhatsApp(propostaId: number) {
+    if (abrindoWhatsAppId != null) return;
+    setAbrindoWhatsAppId(propostaId);
+    try {
+      const contato = await buscarContatoWhatsApp(propostaId);
+      await Linking.openURL(contato.whatsappUrl);
+    } catch (error) {
+      Alert.alert(
+        "Não foi possível abrir o WhatsApp",
+        error instanceof Error ? error.message : "Tente novamente em instantes."
+      );
+    } finally {
+      setAbrindoWhatsAppId(null);
+    }
   }
 
   return (
@@ -238,6 +296,9 @@ export default function MyProposalsScreen() {
           renderItem={({ item }) => (
             <ProposalCard
               proposta={item}
+              onContact={() => void abrirWhatsApp(item.propostaId)}
+              onReviewConclusion={() => router.push("/client-history")}
+              abrindoWhatsApp={abrindoWhatsAppId === item.propostaId}
               onOpenProvider={() =>
                 router.push({
                   pathname: "/profile",
@@ -275,7 +336,7 @@ export default function MyProposalsScreen() {
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryItem}>
                   <Text style={styles.summaryValue}>{resumo.aceitas}</Text>
-                  <Text style={styles.summaryLabel}>Aceitas</Text>
+                  <Text style={styles.summaryLabel}>Em andamento</Text>
                 </View>
               </View>
             ) : null
@@ -416,6 +477,18 @@ const styles = StyleSheet.create({
   urgencyText: { color: Colors.warning, fontSize: 10, fontWeight: "700" },
   dateRow: { flexDirection: "row", alignItems: "center", gap: 5, flexShrink: 1 },
   dateText: { color: Colors.textSecondary, fontSize: 10 },
+  contactButton: {
+    marginTop: 14,
+    borderRadius: 13,
+    paddingVertical: 12,
+    backgroundColor: Colors.primary,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  whatsappButton: { backgroundColor: Colors.success },
+  contactButtonText: { color: Colors.white, fontSize: 13, fontWeight: "800" },
   emptyCard: {
     alignItems: "center",
     backgroundColor: Colors.white,

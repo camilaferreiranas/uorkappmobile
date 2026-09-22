@@ -51,7 +51,9 @@ export default function ProfessionalNotificationsScreen() {
         await marcarComoLida("prestador", notificacao.id);
       }
 
-      if (notificacao.demandaId) {
+      if (notificacao.demandaId
+        || notificacao.titulo === "Serviço concluído"
+        || notificacao.titulo === "Serviço ainda não concluído") {
         router.push({
           pathname: "/professional-demands",
           params: { aba: "recebidas" },

@@ -4,9 +4,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   RefreshControl,
@@ -26,8 +28,9 @@ import { type OrdenacaoDemanda } from "../../services/demandaService";
 import { Colors } from "../../constants/theme";
 import {
   avaliarCliente,
+  buscarContatoWhatsApp,
   buscarDemandasDoPrestador,
-  finalizarProposta,
+  solicitarConclusao,
   type DemandaProfissional,
   type StatusProposta,
 } from "../../services/propostaService";
@@ -37,7 +40,8 @@ const statusConfig: Record<
   { label: string; color: string; background: string }
 > = {
   PENDENTE: { label: "Pendente", color: Colors.warning, background: "#FFF7EA" },
-  ACEITA: { label: "Em andamento", color: Colors.primary, background: Colors.primaryLight },
+  ACEITA: { label: "Aceita", color: Colors.primary, background: Colors.primaryLight },
+  AGUARDANDO_CONFIRMACAO: { label: "Aguardando cliente", color: Colors.warning, background: "#FFF7EA" },
   RECUSADA: { label: "Recusada", color: Colors.textSecondary, background: Colors.background },
   CANCELADA: { label: "Cancelada", color: Colors.error, background: "#FDECEA" },
   FINALIZADA: { label: "Finalizada", color: Colors.success, background: "#EAF7ED" },
@@ -78,6 +82,7 @@ export default function ProfessionalDemandsScreen() {
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
   const [processandoId, setProcessandoId] = useState<number | null>(null);
+  const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
   const [finalizacaoPendente, setFinalizacaoPendente] =
     useState<DemandaProfissional | null>(null);
   const [valorCobradoTexto, setValorCobradoTexto] = useState("");
@@ -89,7 +94,8 @@ export default function ProfessionalDemandsScreen() {
   const [erroAvaliacao, setErroAvaliacao] = useState("");
   const carregamentoId = useRef(0);
   const novas = demandas.filter((demanda) => demanda.status === "PENDENTE").length;
-  const emAndamento = demandas.filter((demanda) => demanda.status === "ACEITA").length;
+  const aceitas = demandas.filter((demanda) =>
+    demanda.status === "ACEITA" || demanda.status === "AGUARDANDO_CONFIRMACAO").length;
   const concluidas = demandas.filter((demanda) => demanda.status === "FINALIZADA").length;
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
@@ -132,6 +138,22 @@ export default function ProfessionalDemandsScreen() {
     void carregar(false);
   }
 
+  async function abrirWhatsApp(propostaId: number) {
+    if (abrindoWhatsAppId != null) return;
+    setAbrindoWhatsAppId(propostaId);
+    try {
+      const contato = await buscarContatoWhatsApp(propostaId);
+      await Linking.openURL(contato.whatsappUrl);
+    } catch (error) {
+      Alert.alert(
+        "Não foi possível abrir o WhatsApp",
+        error instanceof Error ? error.message : "Tente novamente em instantes."
+      );
+    } finally {
+      setAbrindoWhatsAppId(null);
+    }
+  }
+
   function abrirFinalizacao(demanda: DemandaProfissional) {
     setFinalizacaoPendente(demanda);
     setValorCobradoTexto("");
@@ -154,16 +176,15 @@ export default function ProfessionalDemandsScreen() {
     setProcessandoId(demanda.propostaId);
     setErroFinalizacao("");
     try {
-      await finalizarProposta(demanda.propostaId, valorCobrado);
-      const finalizada = { ...demanda, valorCobrado, status: "FINALIZADA" as const };
+      await solicitarConclusao(demanda.propostaId, valorCobrado);
+      const aguardando = { ...demanda, valorCobrado, status: "AGUARDANDO_CONFIRMACAO" as const };
       setDemandas((atuais) =>
         atuais.map((item) =>
-          item.propostaId === demanda.propostaId ? finalizada : item
+          item.propostaId === demanda.propostaId ? aguardando : item
         )
       );
       Keyboard.dismiss();
       setFinalizacaoPendente(null);
-      abrirAvaliacao(finalizada);
     } catch (error) {
       setErroFinalizacao(
         error instanceof Error
@@ -294,7 +315,7 @@ export default function ProfessionalDemandsScreen() {
               <View style={styles.summaryDivider} />
               <View style={styles.summaryItem}>
                 <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
-                  {emAndamento}
+                  {aceitas}
                 </Text>
                 <Text style={styles.summaryLabel}>Em andamento</Text>
               </View>
@@ -321,7 +342,8 @@ export default function ProfessionalDemandsScreen() {
           renderItem={({ item: demanda }) => {
             const status = statusConfig[demanda.status];
             const pendente = demanda.status === "PENDENTE";
-            const demandaEmAndamento = demanda.status === "ACEITA";
+            const demandaAceita = demanda.status === "ACEITA";
+            const aguardandoConfirmacao = demanda.status === "AGUARDANDO_CONFIRMACAO";
             const aguardandoAvaliacao =
               demanda.status === "FINALIZADA" && demanda.notaCliente == null;
 
@@ -378,19 +400,40 @@ export default function ProfessionalDemandsScreen() {
                   <Text style={styles.pendingHint}>Toque para responder à proposta</Text>
                 ) : null}
 
-                {demandaEmAndamento ? (
-                  <TouchableOpacity
-                    style={styles.finishButton}
-                    onPress={() => abrirFinalizacao(demanda)}
-                    disabled={processandoId === demanda.propostaId}
-                  >
-                    {processandoId === demanda.propostaId ? (
-                      <ActivityIndicator size="small" color={Colors.white} />
-                    ) : (
-                      <MaterialIcons name="check-circle" size={18} color={Colors.white} />
-                    )}
-                    <Text style={styles.finishButtonText}>Finalizar serviço</Text>
-                  </TouchableOpacity>
+                {demandaAceita || aguardandoConfirmacao ? (
+                  <>
+                    <TouchableOpacity
+                      style={styles.contactButton}
+                      onPress={() => void abrirWhatsApp(demanda.propostaId)}
+                      disabled={abrindoWhatsAppId != null}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Conversar com ${demanda.nomeCliente} no WhatsApp`}
+                    >
+                      {abrindoWhatsAppId === demanda.propostaId ? (
+                        <ActivityIndicator size="small" color={Colors.white} />
+                      ) : (
+                        <MaterialIcons name="chat" size={18} color={Colors.white} />
+                      )}
+                      <Text style={styles.contactButtonText}>
+                        {abrindoWhatsAppId === demanda.propostaId
+                          ? "Abrindo WhatsApp..."
+                          : "Conversar no WhatsApp"}
+                      </Text>
+                    </TouchableOpacity>
+                    {demandaAceita ? <TouchableOpacity
+                      style={styles.finishButton}
+                      onPress={() => abrirFinalizacao(demanda)}
+                      disabled={processandoId === demanda.propostaId}
+                    >
+                      {processandoId === demanda.propostaId ? (
+                        <ActivityIndicator size="small" color={Colors.primary} />
+                      ) : (
+                        <MaterialIcons name="check-circle" size={18} color={Colors.primary} />
+                      )}
+                      <Text style={styles.finishButtonText}>Solicitar conclusão</Text>
+                    </TouchableOpacity>
+                    : <Text style={styles.pendingHint}>Aguardando confirmação do cliente. Você ainda pode conversar pelo WhatsApp.</Text>}
+                  </>
                 ) : null}
 
                 {aguardandoAvaliacao ? (
@@ -404,9 +447,9 @@ export default function ProfessionalDemandsScreen() {
                 ) : null}
 
                 <View style={styles.cardBottom}>
-                  {demanda.status === "FINALIZADA" && demanda.valorCobrado != null ? (
+                  {(demanda.status === "FINALIZADA" || aguardandoConfirmacao) && demanda.valorCobrado != null ? (
                     <View>
-                      <Text style={styles.metaLabel}>Valor cobrado</Text>
+                      <Text style={styles.metaLabel}>{aguardandoConfirmacao ? "Valor informado (aguardando cliente)" : "Valor cobrado"}</Text>
                       <Text style={styles.budgetText}>{formatarValor(demanda.valorCobrado)}</Text>
                     </View>
                   ) : demanda.valor != null ? (
@@ -446,9 +489,9 @@ export default function ProfessionalDemandsScreen() {
                 <View style={styles.modalIcon}>
                   <MaterialIcons name="payments" size={30} color="#0D3D8B" />
                 </View>
-                <Text style={styles.modalTitle}>Finalizar serviço</Text>
+                <Text style={styles.modalTitle}>Solicitar conclusão</Text>
                 <Text style={styles.modalText}>
-                  Quanto foi cobrado por este serviço? Depois você poderá avaliar o cliente.
+                  Quanto foi cobrado por este serviço? O cliente precisará confirmar a conclusão antes de o valor entrar no faturamento e as avaliações serem liberadas.
                 </Text>
                 <Text style={styles.amountLabel}>Valor cobrado (R$)</Text>
                 <TextInput
@@ -474,7 +517,7 @@ export default function ProfessionalDemandsScreen() {
                   {processandoId != null ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text style={styles.submitRatingText}>Confirmar finalização</Text>
+                    <Text style={styles.submitRatingText}>Solicitar confirmação</Text>
                   )}
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -482,7 +525,7 @@ export default function ProfessionalDemandsScreen() {
                   onPress={() => setFinalizacaoPendente(null)}
                   disabled={processandoId != null}
                 >
-                  <Text style={styles.laterButtonText}>Cancelar</Text>
+                  <Text style={styles.laterButtonText}>Voltar</Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -763,18 +806,34 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 10,
   },
-  finishButton: {
+  contactButton: {
     marginTop: 13,
     borderRadius: 12,
     paddingVertical: 11,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.success,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+  },
+  contactButtonText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  finishButton: {
+    marginTop: 8,
+    borderRadius: 12,
+    paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: Colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 7,
   },
   finishButtonText: {
-    color: Colors.white,
+    color: Colors.primary,
     fontSize: 13,
     fontWeight: "800",
   },

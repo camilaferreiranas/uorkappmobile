@@ -19,6 +19,8 @@ import { Colors } from "../constants/theme";
 import {
   buscarContatoWhatsApp,
   buscarHistoricoDoCliente,
+  confirmarConclusao,
+  naoConfirmarConclusao,
   type HistoricoCliente,
   type StatusProposta,
 } from "../services/propostaService";
@@ -30,7 +32,8 @@ const statusConfig: Record<
   { label: string; color: string; background: string; icon: "schedule" | "handshake" | "cancel" | "block" | "check-circle" }
 > = {
   PENDENTE: { label: "Aguardando", color: Colors.warning, background: "#FFF7EA", icon: "schedule" },
-  ACEITA: { label: "Em andamento", color: Colors.primary, background: Colors.primaryLight, icon: "handshake" },
+  ACEITA: { label: "Aceita", color: Colors.primary, background: Colors.primaryLight, icon: "handshake" },
+  AGUARDANDO_CONFIRMACAO: { label: "Confirme a conclusão", color: Colors.warning, background: "#FFF7EA", icon: "schedule" },
   RECUSADA: { label: "Recusada", color: Colors.textSecondary, background: Colors.background, icon: "cancel" },
   CANCELADA: { label: "Cancelada", color: Colors.error, background: "#FDECEA", icon: "block" },
   FINALIZADA: { label: "Concluída", color: Colors.success, background: "#EAF7ED", icon: "check-circle" },
@@ -38,7 +41,7 @@ const statusConfig: Record<
 
 const filtros: { id: FiltroHistorico; label: string }[] = [
   { id: "TODOS", label: "Todos" },
-  { id: "ATIVOS", label: "Em andamento" },
+  { id: "ATIVOS", label: "Ativas" },
   { id: "FINALIZADOS", label: "Concluídos" },
   { id: "ENCERRADOS", label: "Encerrados" },
 ];
@@ -69,7 +72,7 @@ function urgenciaParaTela(urgencia: HistoricoCliente["urgencia"]) {
 
 function pertenceAoFiltro(status: StatusProposta, filtro: FiltroHistorico) {
   if (filtro === "TODOS") return true;
-  if (filtro === "ATIVOS") return status === "PENDENTE" || status === "ACEITA";
+  if (filtro === "ATIVOS") return status === "PENDENTE" || status === "ACEITA" || status === "AGUARDANDO_CONFIRMACAO";
   if (filtro === "FINALIZADOS") return status === "FINALIZADA";
   return status === "RECUSADA" || status === "CANCELADA";
 }
@@ -81,6 +84,7 @@ export default function ClientHistoryScreen() {
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
   const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
+  const [respondendoConclusaoId, setRespondendoConclusaoId] = useState<number | null>(null);
   const [erro, setErro] = useState("");
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
@@ -158,6 +162,30 @@ export default function ClientHistoryScreen() {
       );
     } finally {
       setAbrindoWhatsAppId(null);
+    }
+  }
+
+  async function responderConclusao(item: HistoricoCliente, confirmar: boolean) {
+    if (respondendoConclusaoId != null) return;
+    setRespondendoConclusaoId(item.propostaId);
+    try {
+      if (confirmar) {
+        await confirmarConclusao(item.propostaId);
+      } else {
+        await naoConfirmarConclusao(item.propostaId);
+      }
+      setHistorico((atual) => atual.map((proposta) =>
+        proposta.propostaId === item.propostaId
+          ? { ...proposta,
+              status: confirmar ? "FINALIZADA" : "ACEITA",
+              valorCobrado: confirmar ? proposta.valorCobrado : null }
+          : proposta));
+    } catch (error) {
+      Alert.alert("Não foi possível responder", error instanceof Error
+        ? error.message : "Tente novamente em instantes.");
+      void carregar(false);
+    } finally {
+      setRespondendoConclusaoId(null);
     }
   }
 
@@ -250,9 +278,9 @@ export default function ClientHistoryScreen() {
                   </Text>
 
                   <View style={styles.cardBottom}>
-                    {item.status === "FINALIZADA" && item.valorCobrado != null ? (
+                    {(item.status === "FINALIZADA" || item.status === "AGUARDANDO_CONFIRMACAO") && item.valorCobrado != null ? (
                       <View>
-                        <Text style={styles.metaLabel}>Valor cobrado (informado pelo prestador)</Text>
+                        <Text style={styles.metaLabel}>{item.status === "AGUARDANDO_CONFIRMACAO" ? "Valor informado pelo prestador" : "Valor cobrado (informado pelo prestador)"}</Text>
                         <Text style={styles.valueText}>{formatarValor(item.valorCobrado)}</Text>
                       </View>
                     ) : item.valor != null ? (
@@ -267,7 +295,7 @@ export default function ClientHistoryScreen() {
                     </View>
                   </View>
 
-                  {item.status === "ACEITA" ? (
+                  {item.status === "ACEITA" || item.status === "AGUARDANDO_CONFIRMACAO" ? (
                     <TouchableOpacity
                       style={styles.whatsappButton}
                       onPress={() => void conversarNoWhatsApp(item)}
@@ -285,6 +313,32 @@ export default function ClientHistoryScreen() {
                         Conversar no WhatsApp
                       </Text>
                     </TouchableOpacity>
+                  ) : null}
+
+                  {item.status === "AGUARDANDO_CONFIRMACAO" ? (
+                    <View style={styles.confirmationBox}>
+                      <Text style={styles.confirmationText}>
+                        O prestador informou que terminou o serviço. Você confirma a conclusão?
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.confirmButton}
+                        onPress={() => void responderConclusao(item, true)}
+                        disabled={respondendoConclusaoId != null}
+                        accessibilityRole="button"
+                      >
+                        {respondendoConclusaoId === item.propostaId
+                          ? <ActivityIndicator size="small" color={Colors.white} />
+                          : <Text style={styles.confirmButtonText}>Confirmar conclusão</Text>}
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.notFinishedButton}
+                        onPress={() => void responderConclusao(item, false)}
+                        disabled={respondendoConclusaoId != null}
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.notFinishedButtonText}>Serviço ainda não concluído</Text>
+                      </TouchableOpacity>
+                    </View>
                   ) : null}
 
                   <View style={styles.actionsRow}>
@@ -416,6 +470,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   whatsappButtonText: { color: Colors.white, fontSize: 13, fontWeight: "800" },
+  confirmationBox: { marginTop: 14, padding: 13, borderRadius: 12, backgroundColor: "#FFF7EA", gap: 9 },
+  confirmationText: { color: Colors.ink, fontSize: 13, lineHeight: 19, fontWeight: "600" },
+  confirmButton: { minHeight: 44, borderRadius: 10, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
+  confirmButtonText: { color: Colors.white, fontSize: 13, fontWeight: "800" },
+  notFinishedButton: { minHeight: 44, borderRadius: 10, borderWidth: 1, borderColor: Colors.primary, alignItems: "center", justifyContent: "center", backgroundColor: Colors.white },
+  notFinishedButtonText: { color: Colors.primary, fontSize: 13, fontWeight: "800" },
   actionsRow: {
     flexDirection: "row",
     gap: 9,

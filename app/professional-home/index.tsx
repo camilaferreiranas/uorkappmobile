@@ -64,7 +64,7 @@ export default function ProfessionalHomeScreen() {
   const valorIndisponivel = carregandoResumo ? "…" : "—";
   const metrics = [
     { label: "Novos pedidos", value: resumo ? String(resumo.novasDemandas) : valorIndisponivel, note: "Hoje", icon: "inbox", color: "#0D3D8B", bg: "#E8EDFA" },
-    { label: "Em andamento", value: resumo ? String(resumo.emAndamento) : valorIndisponivel, note: "Ativos", icon: "pending-actions", color: "#D86A3F", bg: "#FFF0EB" },
+    { label: "Aceitas", value: resumo ? String(resumo.emAndamento) : valorIndisponivel, note: "A combinar", icon: "pending-actions", color: "#D86A3F", bg: "#FFF0EB" },
     { label: "Faturamento", value: resumo ? formatarValor(resumo.faturamentoUltimos30Dias) : valorIndisponivel, note: "Últ. 30 dias", icon: "account-balance-wallet", color: "#2E7D32", bg: "#EAFAF1", isCurrency: true },
   ];
   const ultimaNotificacao =

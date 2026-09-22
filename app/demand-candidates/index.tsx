@@ -26,6 +26,7 @@ import {
 const statusConfig = {
   PENDENTE: { label: "Aguardando escolha", color: Colors.warning, background: "#FFF7EA" },
   ACEITA: { label: "Selecionado", color: Colors.primary, background: Colors.primaryLight },
+  AGUARDANDO_CONFIRMACAO: { label: "Aguardando confirmação", color: Colors.warning, background: "#FFF7EA" },
   RECUSADA: { label: "Não selecionado", color: Colors.textSecondary, background: Colors.background },
   CANCELADA: { label: "Cancelado", color: Colors.error, background: "#FDECEA" },
   FINALIZADA: { label: "Serviço finalizado", color: Colors.success, background: "#EAF7ED" },
@@ -57,7 +58,7 @@ function CandidatoCard({
 
   return (
     <View
-      style={[styles.card, candidato.status === "ACEITA" && styles.selectedCard]}
+      style={[styles.card, (candidato.status === "ACEITA" || candidato.status === "AGUARDANDO_CONFIRMACAO") && styles.selectedCard]}
     >
       <TouchableOpacity
         style={styles.profileArea}
