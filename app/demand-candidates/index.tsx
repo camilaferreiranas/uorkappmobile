@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Linking,
   Modal,
   RefreshControl,
   StyleSheet,
@@ -16,6 +17,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../constants/theme";
+import { buscarContatoWhatsApp } from "../../services/propostaService";
 import {
   buscarCandidaturasDaDemanda,
   selecionarCandidatura,
@@ -42,12 +44,16 @@ function CandidatoCard({
   processando,
   onSelecionar,
   onAbrirPerfil,
+  onConversar,
+  abrindoWhatsApp,
 }: {
   candidato: CandidaturaDemanda;
   podeSelecionar: boolean;
   processando: boolean;
   onSelecionar: () => void;
   onAbrirPerfil: () => void;
+  onConversar: () => void;
+  abrindoWhatsApp: boolean;
 }) {
   const status = statusConfig[candidato.status];
   const iniciais = candidato.nomePrestador
@@ -110,6 +116,26 @@ function CandidatoCard({
           )}
         </TouchableOpacity>
       ) : null}
+
+      {candidato.status === "ACEITA" || candidato.status === "AGUARDANDO_CONFIRMACAO" ? (
+        <TouchableOpacity
+          style={[styles.whatsappButton, abrindoWhatsApp && styles.disabled]}
+          onPress={onConversar}
+          disabled={abrindoWhatsApp}
+          accessibilityRole="button"
+          accessibilityLabel={`Conversar com ${candidato.nomePrestador} no WhatsApp`}
+          activeOpacity={0.8}
+        >
+          {abrindoWhatsApp ? (
+            <ActivityIndicator color={Colors.white} />
+          ) : (
+            <MaterialIcons name="chat" size={20} color={Colors.white} />
+          )}
+          <Text style={styles.whatsappButtonText}>
+            {abrindoWhatsApp ? "Abrindo WhatsApp..." : "Conversar no WhatsApp"}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -125,6 +151,7 @@ export default function DemandCandidatesScreen() {
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
   const [processandoId, setProcessandoId] = useState<number | null>(null);
+  const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
   const [candidatoParaSelecionar, setCandidatoParaSelecionar] = useState<CandidaturaDemanda | null>(null);
   const requestId = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
@@ -180,6 +207,22 @@ export default function DemandCandidatesScreen() {
     }
   }
 
+  async function conversarNoWhatsApp(candidato: CandidaturaDemanda) {
+    if (abrindoWhatsAppId != null) return;
+    setAbrindoWhatsAppId(candidato.id);
+    try {
+      const contato = await buscarContatoWhatsApp(candidato.id);
+      await Linking.openURL(contato.whatsappUrl);
+    } catch (error) {
+      Alert.alert(
+        "Não foi possível abrir o WhatsApp",
+        error instanceof Error ? error.message : "Tente novamente em instantes."
+      );
+    } finally {
+      setAbrindoWhatsAppId(null);
+    }
+  }
+
   const candidaturas = dados?.candidaturas ?? [];
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
@@ -224,7 +267,9 @@ export default function DemandCandidatesScreen() {
               candidato={item}
               podeSelecionar={dados?.status === "ABERTA"}
               processando={processandoId === item.id}
+              abrindoWhatsApp={abrindoWhatsAppId === item.id}
               onSelecionar={() => confirmarSelecao(item)}
+              onConversar={() => void conversarNoWhatsApp(item)}
               onAbrirPerfil={() => router.push({
                 pathname: "/profile",
                 params: { id: String(item.prestadorId), modo: "candidatura" },
@@ -316,6 +361,8 @@ const styles = StyleSheet.create({
   message: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21 },
   selectButton: { minHeight: 50, borderRadius: 14, backgroundColor: Colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   selectButtonText: { color: Colors.white, fontSize: 14, fontWeight: "800" },
+  whatsappButton: { minHeight: 50, borderRadius: 14, backgroundColor: Colors.success, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  whatsappButtonText: { color: Colors.white, fontSize: 14, fontWeight: "800" },
   disabled: { opacity: 0.65 },
   emptyCard: { flex: 1, minHeight: 260, backgroundColor: Colors.white, borderRadius: 20, padding: 26, alignItems: "center", justifyContent: "center", gap: 12 },
   modalOverlay: { flex: 1, backgroundColor: "rgba(15, 23, 42, 0.55)", alignItems: "center", justifyContent: "center", padding: 22 },

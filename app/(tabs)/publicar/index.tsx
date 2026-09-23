@@ -17,6 +17,7 @@ import { PillGroup } from "../../../components/ui/pill-group";
 import { ScreenContainer } from "../../../components/ui/screen-container";
 import { Select } from "../../../components/ui/select";
 import { Colors } from "../../../constants/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   buscarCategorias,
   type Categoria,
@@ -82,6 +83,7 @@ function numeroDoOrcamento(valor: string): number | undefined {
 }
 
 export default function PublicarScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [carregandoCategorias, setCarregandoCategorias] = useState(true);
@@ -320,7 +322,10 @@ export default function PublicarScreen() {
   return (
     <ScreenContainer
       backgroundColor={Colors.background}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={{
+        ...styles.container,
+        paddingTop: insets.top + 16,
+      }}
     >
       <Text style={styles.pageTitle}>Publicar demanda</Text>
       <Text style={styles.pageDescription}>

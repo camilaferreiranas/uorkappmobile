@@ -257,7 +257,7 @@ export interface PerfilPrestador {
 
 export async function buscarPerfilPrestador(prestadorId: number): Promise<PerfilPrestador> {
   try {
-    const url = `${API_URL}/prestadores/prestadores/${prestadorId}/perfil`;
+    const url = `${API_URL}/prestadores/${prestadorId}/perfil`;
     const storedToken = await getToken();
 
     if (!storedToken || storedToken.expiresAt <= Date.now()) {

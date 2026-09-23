@@ -7,6 +7,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -83,6 +85,13 @@ export default function AvailableDemandDetailsScreen() {
   const requestRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const focusedRef = useRef(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  function manterMensagemVisivel() {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 250);
+  }
 
   const carregar = useCallback(async (refresh = false) => {
     abortRef.current?.abort();
@@ -180,6 +189,10 @@ export default function AvailableDemandDetailsScreen() {
         </View>
       </View>
 
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
       {carregando ? (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color={BLUE} />
@@ -202,8 +215,10 @@ export default function AvailableDemandDetailsScreen() {
         </View>
       ) : (
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
           keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={atualizando} onRefresh={() => void carregar(true)} colors={[BLUE]} tintColor={BLUE} />}
         >
@@ -333,6 +348,7 @@ export default function AvailableDemandDetailsScreen() {
                     setMensagem(text);
                     setErroCandidatura("");
                   }}
+                  onFocus={manterMensagemVisivel}
                   multiline
                   textAlignVertical="top"
                   maxLength={500}
@@ -363,12 +379,14 @@ export default function AvailableDemandDetailsScreen() {
           </View>
         </ScrollView>
       )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.background },
+  keyboardAvoidingView: { flex: 1 },
   header: { backgroundColor: BLUE, paddingHorizontal: 18, paddingBottom: 21 },
   headerContent: { flexDirection: "row", alignItems: "center", gap: 13, width: "100%", maxWidth: 760, alignSelf: "center" },
   backButton: { width: 46, height: 46, borderRadius: 15, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
@@ -380,7 +398,7 @@ const styles = StyleSheet.create({
   stateText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21, textAlign: "center" },
   retryButton: { marginTop: 6, minHeight: 48, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 14, backgroundColor: BLUE, flexDirection: "row", alignItems: "center", gap: 8 },
   retryText: { color: Colors.white, fontSize: 14, fontWeight: "700" },
-  content: { padding: 18, paddingBottom: 32, gap: 16, width: "100%", maxWidth: 796, alignSelf: "center" },
+  content: { padding: 18, paddingBottom: 120, gap: 16, width: "100%", maxWidth: 796, alignSelf: "center" },
   card: { backgroundColor: Colors.white, padding: 20, borderRadius: 21, gap: 14, borderWidth: 1, borderColor: Colors.border },
   category: { color: BLUE, fontSize: 12, fontWeight: "700", textTransform: "uppercase" },
   title: { color: Colors.ink, fontSize: 25, lineHeight: 32, fontWeight: "700" },
