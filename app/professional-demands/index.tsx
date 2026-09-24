@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -34,6 +34,8 @@ import {
   type DemandaProfissional,
   type StatusProposta,
 } from "../../services/propostaService";
+
+type FiltroDemandaRecebida = "NOVAS" | "EM_ANDAMENTO" | "CONCLUIDAS";
 
 const statusConfig: Record<
   StatusProposta,
@@ -83,6 +85,7 @@ export default function ProfessionalDemandsScreen() {
   const [erro, setErro] = useState("");
   const [processandoId, setProcessandoId] = useState<number | null>(null);
   const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
+  const [filtroRecebidas, setFiltroRecebidas] = useState<FiltroDemandaRecebida>("NOVAS");
   const [finalizacaoPendente, setFinalizacaoPendente] =
     useState<DemandaProfissional | null>(null);
   const [valorCobradoTexto, setValorCobradoTexto] = useState("");
@@ -97,6 +100,16 @@ export default function ProfessionalDemandsScreen() {
   const aceitas = demandas.filter((demanda) =>
     demanda.status === "ACEITA" || demanda.status === "AGUARDANDO_CONFIRMACAO").length;
   const concluidas = demandas.filter((demanda) => demanda.status === "FINALIZADA").length;
+  const demandasFiltradas = useMemo(() => {
+    if (filtroRecebidas === "EM_ANDAMENTO") {
+      return demandas.filter((demanda) =>
+        demanda.status === "ACEITA" || demanda.status === "AGUARDANDO_CONFIRMACAO");
+    }
+    if (filtroRecebidas === "CONCLUIDAS") {
+      return demandas.filter((demanda) => demanda.status === "FINALIZADA");
+    }
+    return demandas.filter((demanda) => demanda.status === "PENDENTE");
+  }, [demandas, filtroRecebidas]);
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
     const id = ++carregamentoId.current;
@@ -286,7 +299,7 @@ export default function ProfessionalDemandsScreen() {
       ) : (
         <FlatList
           key={wide ? "duas-colunas" : "uma-coluna"}
-          data={demandas}
+          data={demandasFiltradas}
           keyExtractor={(demanda) => String(demanda.propostaId)}
           numColumns={wide ? 2 : 1}
           columnWrapperStyle={wide ? styles.demandRow : undefined}
@@ -306,26 +319,44 @@ export default function ProfessionalDemandsScreen() {
           }
           ListHeaderComponent={
             <View style={[styles.summaryRow, compact && styles.summaryRowCompact]}>
-              <View style={styles.summaryItem}>
+              <TouchableOpacity
+                style={[styles.summaryItem, filtroRecebidas === "NOVAS" && styles.summaryItemActive]}
+                onPress={() => setFiltroRecebidas("NOVAS")}
+                accessibilityRole="button"
+                accessibilityState={{ selected: filtroRecebidas === "NOVAS" }}
+                accessibilityLabel="Exibir novas demandas"
+              >
                 <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
                   {novas}
                 </Text>
                 <Text style={styles.summaryLabel}>Novas</Text>
-              </View>
+              </TouchableOpacity>
               <View style={styles.summaryDivider} />
-              <View style={styles.summaryItem}>
+              <TouchableOpacity
+                style={[styles.summaryItem, filtroRecebidas === "EM_ANDAMENTO" && styles.summaryItemActive]}
+                onPress={() => setFiltroRecebidas("EM_ANDAMENTO")}
+                accessibilityRole="button"
+                accessibilityState={{ selected: filtroRecebidas === "EM_ANDAMENTO" }}
+                accessibilityLabel="Exibir demandas em andamento"
+              >
                 <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
                   {aceitas}
                 </Text>
                 <Text style={styles.summaryLabel}>Em andamento</Text>
-              </View>
+              </TouchableOpacity>
               <View style={styles.summaryDivider} />
-              <View style={styles.summaryItem}>
+              <TouchableOpacity
+                style={[styles.summaryItem, filtroRecebidas === "CONCLUIDAS" && styles.summaryItemActive]}
+                onPress={() => setFiltroRecebidas("CONCLUIDAS")}
+                accessibilityRole="button"
+                accessibilityState={{ selected: filtroRecebidas === "CONCLUIDAS" }}
+                accessibilityLabel="Exibir demandas concluídas"
+              >
                 <Text style={[styles.summaryValue, compact && styles.summaryValueCompact]}>
                   {concluidas}
                 </Text>
                 <Text style={styles.summaryLabel}>Concluídas</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           }
           ListEmptyComponent={
@@ -335,7 +366,9 @@ export default function ProfessionalDemandsScreen() {
               </View>
               <Text style={styles.emptyTitle}>Nenhuma demanda encontrada</Text>
               <Text style={styles.emptyText}>
-                As propostas recebidas aparecerão aqui, independentemente do status.
+                {demandas.length === 0
+                  ? "As propostas recebidas aparecerão aqui."
+                  : "Não existem demandas neste status."}
               </Text>
             </View>
           }
@@ -631,8 +664,7 @@ const styles = StyleSheet.create({
   summaryRow: {
     backgroundColor: Colors.white,
     borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 20,
+    padding: 5,
     flexDirection: "row",
     alignItems: "stretch",
     marginBottom: 20,
@@ -643,15 +675,17 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   summaryRowCompact: {
-    paddingHorizontal: 6,
-    paddingVertical: 17,
+    padding: 5,
   },
   summaryItem: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 3,
+    minHeight: 72,
+    borderRadius: 14,
   },
+  summaryItemActive: { backgroundColor: Colors.primaryLight },
   summaryValue: {
     color: Colors.primary,
     fontSize: 22,
@@ -669,7 +703,7 @@ const styles = StyleSheet.create({
   summaryDivider: {
     width: 1,
     backgroundColor: Colors.background,
-    marginVertical: 3,
+    marginVertical: 10,
   },
   stateText: {
     color: Colors.textSecondary,

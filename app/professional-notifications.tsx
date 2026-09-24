@@ -9,8 +9,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
+import { ProfileScreenHeader } from "../components/ui/profile-screen-header";
 import { Colors } from "../constants/theme";
 import {
   type Notificacao,
@@ -20,7 +21,6 @@ import { useNotifications } from "../contexts/notification-context";
 
 export default function ProfessionalNotificationsScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const {
     notificacoesPrestador: notificacoes,
     sincronizarPrestador,
@@ -83,13 +83,7 @@ export default function ProfessionalNotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Notificações</Text>
-        <View style={styles.headerSpacer} />
-      </View>
+      <ProfileScreenHeader title="Notificações" />
 
       {loading ? (
         <View style={styles.centerState}>
@@ -151,17 +145,6 @@ export default function ProfessionalNotificationsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  backButton: { width: 42, height: 42, alignItems: "center", justifyContent: "center" },
-  headerSpacer: { width: 42 },
-  headerTitle: { color: Colors.white, fontSize: 20, fontWeight: "800" },
   centerState: {
     flex: 1,
     alignItems: "center",

@@ -25,6 +25,8 @@ import {
   type StatusProposta,
 } from "../../services/propostaService";
 
+type FiltroProposta = "ENVIADAS" | "AGUARDANDO" | "EM_ANDAMENTO";
+
 const statusConfig: Record<
   StatusProposta,
   {
@@ -207,6 +209,7 @@ export default function MyProposalsScreen() {
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
   const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
+  const [filtro, setFiltro] = useState<FiltroProposta>("ENVIADAS");
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
     if (exibirCarregamento) setCarregando(true);
@@ -237,6 +240,17 @@ export default function MyProposalsScreen() {
       item.status === "ACEITA" || item.status === "AGUARDANDO_CONFIRMACAO").length;
     return { total: propostas.length, aguardando, aceitas };
   }, [propostas]);
+
+  const propostasFiltradas = useMemo(() => {
+    if (filtro === "AGUARDANDO") {
+      return propostas.filter((item) => item.status === "PENDENTE");
+    }
+    if (filtro === "EM_ANDAMENTO") {
+      return propostas.filter((item) =>
+        item.status === "ACEITA" || item.status === "AGUARDANDO_CONFIRMACAO");
+    }
+    return propostas;
+  }, [filtro, propostas]);
 
   function atualizar() {
     setAtualizando(true);
@@ -291,13 +305,16 @@ export default function MyProposalsScreen() {
         </View>
       ) : (
         <FlatList
-          data={propostas}
+          data={propostasFiltradas}
           keyExtractor={(item) => String(item.propostaId)}
           renderItem={({ item }) => (
             <ProposalCard
               proposta={item}
               onContact={() => void abrirWhatsApp(item.propostaId)}
-              onReviewConclusion={() => router.push("/client-history")}
+              onReviewConclusion={() => router.push({
+                pathname: "/client-history",
+                params: { propostaId: String(item.propostaId) },
+              })}
               abrindoWhatsApp={abrindoWhatsAppId === item.propostaId}
               onOpenProvider={() =>
                 router.push({
@@ -324,20 +341,38 @@ export default function MyProposalsScreen() {
           ListHeaderComponent={
             propostas.length > 0 ? (
               <View style={styles.summaryCard}>
-                <View style={styles.summaryItem}>
+                <TouchableOpacity
+                  style={[styles.summaryItem, filtro === "ENVIADAS" && styles.summaryItemActive]}
+                  onPress={() => setFiltro("ENVIADAS")}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: filtro === "ENVIADAS" }}
+                  accessibilityLabel="Exibir todas as propostas enviadas"
+                >
                   <Text style={styles.summaryValue}>{resumo.total}</Text>
                   <Text style={styles.summaryLabel}>Enviadas</Text>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.summaryDivider} />
-                <View style={styles.summaryItem}>
+                <TouchableOpacity
+                  style={[styles.summaryItem, filtro === "AGUARDANDO" && styles.summaryItemActive]}
+                  onPress={() => setFiltro("AGUARDANDO")}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: filtro === "AGUARDANDO" }}
+                  accessibilityLabel="Exibir propostas aguardando resposta"
+                >
                   <Text style={styles.summaryValue}>{resumo.aguardando}</Text>
                   <Text style={styles.summaryLabel}>Aguardando</Text>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.summaryDivider} />
-                <View style={styles.summaryItem}>
+                <TouchableOpacity
+                  style={[styles.summaryItem, filtro === "EM_ANDAMENTO" && styles.summaryItemActive]}
+                  onPress={() => setFiltro("EM_ANDAMENTO")}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: filtro === "EM_ANDAMENTO" }}
+                  accessibilityLabel="Exibir propostas em andamento"
+                >
                   <Text style={styles.summaryValue}>{resumo.aceitas}</Text>
                   <Text style={styles.summaryLabel}>Em andamento</Text>
-                </View>
+                </TouchableOpacity>
               </View>
             ) : null
           }
@@ -346,9 +381,15 @@ export default function MyProposalsScreen() {
               <View style={styles.emptyIcon}>
                 <MaterialIcons name="send" size={38} color={Colors.primary} />
               </View>
-              <Text style={styles.emptyTitle}>Você ainda não enviou propostas</Text>
+              <Text style={styles.emptyTitle}>
+                {propostas.length === 0
+                  ? "Você ainda não enviou propostas"
+                  : "Nenhuma proposta neste status"}
+              </Text>
               <Text style={styles.emptyText}>
-                Acesse o perfil de um profissional e envie os detalhes do serviço que precisa.
+                {propostas.length === 0
+                  ? "Acesse o perfil de um profissional e envie os detalhes do serviço que precisa."
+                  : "Selecione outro filtro para visualizar suas propostas."}
               </Text>
             </View>
           }
@@ -395,7 +436,7 @@ const styles = StyleSheet.create({
   summaryCard: {
     backgroundColor: Colors.white,
     borderRadius: 18,
-    paddingVertical: 17,
+    padding: 5,
     flexDirection: "row",
     marginBottom: 16,
     elevation: 2,
@@ -404,10 +445,11 @@ const styles = StyleSheet.create({
     shadowRadius: 7,
     shadowOffset: { width: 0, height: 3 },
   },
-  summaryItem: { flex: 1, alignItems: "center" },
+  summaryItem: { flex: 1, minHeight: 64, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  summaryItemActive: { backgroundColor: Colors.primaryLight },
   summaryValue: { color: Colors.primary, fontSize: 20, fontWeight: "900" },
   summaryLabel: { color: Colors.textSecondary, fontSize: 11, marginTop: 3 },
-  summaryDivider: { width: 1, backgroundColor: Colors.border, marginVertical: 2 },
+  summaryDivider: { width: 1, backgroundColor: Colors.border, marginVertical: 10 },
   card: {
     backgroundColor: Colors.white,
     borderRadius: 20,

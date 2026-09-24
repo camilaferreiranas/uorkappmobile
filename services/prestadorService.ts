@@ -132,12 +132,13 @@ async function buscarPrestadores(url: string): Promise<Prestador[]> {
 }
 
 export async function buscarPrestadoresProximos(): Promise<Prestador[]> {
-  return (await buscarPaginaPrestadoresProximos()).content;
+  return (await buscarPaginaPrestadoresProximos(0, 3)).content;
 }
 
 export async function buscarPaginaPrestadoresProximos(
   page = 0,
-  size = 10
+  size = 10,
+  avaliacaoMinima?: number | null
 ): Promise<PaginaPrestadores> {
   const localizacao = await obterLocalizacaoAtual();
 
@@ -151,18 +152,29 @@ export async function buscarPaginaPrestadoresProximos(
     params.set("longitude", String(localizacao.longitude));
   }
 
+  if (avaliacaoMinima != null) {
+    params.set("avaliacaoMinima", String(avaliacaoMinima));
+  }
+
   return buscarPaginaPrestadores(
     `${API_URL}/prestadores?${params.toString()}`
   );
 }
 
-export async function buscarPrestadoresCategoria(categoriaId: number): Promise<Prestador[]> {
+export async function buscarPrestadoresCategoria(
+  categoriaId: number,
+  avaliacaoMinima?: number | null
+): Promise<Prestador[]> {
   const localizacao = await obterLocalizacaoAtual();
   const params = new URLSearchParams({
     categoriaId: String(categoriaId),
     page: "0",
-    size: "10",
+    size: "30",
   });
+
+  if (avaliacaoMinima != null) {
+    params.set("avaliacaoMinima", String(avaliacaoMinima));
+  }
 
   if (localizacao) {
     params.set("latitude", String(localizacao.latitude));

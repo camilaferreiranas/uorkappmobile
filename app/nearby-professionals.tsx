@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   RefreshControl,
   StyleSheet,
   Text,
@@ -22,6 +23,12 @@ import {
 
 const PAGE_SIZE = 10;
 
+const filtrosAvaliacao = [
+  { label: "Todos", valor: null },
+  { label: "4,0+ estrelas", valor: 4 },
+  { label: "4,5+ estrelas", valor: 4.5 },
+] as const;
+
 function adicionarSemDuplicar(atuais: Prestador[], novos: Prestador[]) {
   const mapa = new Map(atuais.map((prestador) => [prestador.id, prestador]));
   novos.forEach((prestador) => mapa.set(prestador.id, prestador));
@@ -38,6 +45,9 @@ export default function NearbyProfessionalsScreen() {
   const [carregandoMais, setCarregandoMais] = useState(false);
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState("");
+  const [avaliacaoMinima, setAvaliacaoMinima] = useState<number | null>(null);
+  const [avaliacaoTemporaria, setAvaliacaoTemporaria] = useState<number | null>(null);
+  const [filtroAberto, setFiltroAberto] = useState(false);
 
   const carregar = useCallback(async (pagina = 0, substituir = true) => {
     if (substituir) setCarregando(true);
@@ -45,7 +55,11 @@ export default function NearbyProfessionalsScreen() {
     setErro("");
 
     try {
-      const resultado = await buscarPaginaPrestadoresProximos(pagina, PAGE_SIZE);
+      const resultado = await buscarPaginaPrestadoresProximos(
+        pagina,
+        PAGE_SIZE,
+        avaliacaoMinima
+      );
       setPrestadores((atuais) =>
         substituir
           ? resultado.content
@@ -65,7 +79,7 @@ export default function NearbyProfessionalsScreen() {
       setCarregandoMais(false);
       setAtualizando(false);
     }
-  }, []);
+  }, [avaliacaoMinima]);
 
   useFocusEffect(
     useCallback(() => {
@@ -88,6 +102,11 @@ export default function NearbyProfessionalsScreen() {
       pathname: "/profile",
       params: { id: String(prestador.id) },
     });
+  }
+
+  function abrirFiltro() {
+    setAvaliacaoTemporaria(avaliacaoMinima);
+    setFiltroAberto(true);
   }
 
   const emptyComponent = carregando ? (
@@ -155,6 +174,43 @@ export default function NearbyProfessionalsScreen() {
             tintColor={Colors.primary}
           />
         }
+        ListHeaderComponent={
+          <View style={styles.listHeading}>
+            <View style={styles.listTitleRow}>
+              <Text style={styles.listTitle}>Profissionais</Text>
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  avaliacaoMinima != null && styles.filterButtonActive,
+                ]}
+                onPress={abrirFiltro}
+                accessibilityRole="button"
+                accessibilityLabel="Filtrar profissionais por avaliação"
+              >
+                <MaterialIcons
+                  name="tune"
+                  size={17}
+                  color={avaliacaoMinima != null ? Colors.white : Colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.filterText,
+                    avaliacaoMinima != null && styles.filterTextActive,
+                  ]}
+                >
+                  Filtrar
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.filterSummary}>
+              {avaliacaoMinima == null
+                ? "Todas as avaliações"
+                : `Avaliação mínima: ${avaliacaoMinima
+                    .toFixed(1)
+                    .replace(".", ",")} estrelas`}
+            </Text>
+          </View>
+        }
         ListEmptyComponent={emptyComponent}
         ListFooterComponent={
           carregandoMais ? (
@@ -172,6 +228,73 @@ export default function NearbyProfessionalsScreen() {
           ) : null
         }
       />
+
+      <Modal
+        visible={filtroAberto}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFiltroAberto(false)}
+      >
+        <View style={styles.filterOverlay}>
+          <View style={styles.filterModal} accessibilityViewIsModal>
+            <View style={styles.filterModalHeader}>
+              <Text style={styles.filterTitle}>Filtrar profissionais</Text>
+              <TouchableOpacity
+                onPress={() => setFiltroAberto(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Fechar filtros"
+              >
+                <MaterialIcons name="close" size={24} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.filterDescription}>
+              Escolha a avaliação mínima dos profissionais que deseja visualizar.
+            </Text>
+            <Text style={styles.filterSectionTitle}>Avaliação</Text>
+            {filtrosAvaliacao.map((filtro) => {
+              const selecionado = avaliacaoTemporaria === filtro.valor;
+              return (
+                <TouchableOpacity
+                  key={filtro.label}
+                  style={[
+                    styles.filterOption,
+                    selecionado && styles.filterOptionSelected,
+                  ]}
+                  onPress={() => setAvaliacaoTemporaria(filtro.valor)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: selecionado }}
+                >
+                  <View style={styles.filterOptionLabel}>
+                    {filtro.valor != null ? (
+                      <MaterialIcons name="star" size={18} color={Colors.warning} />
+                    ) : null}
+                    <Text style={styles.filterOptionText}>{filtro.label}</Text>
+                  </View>
+                  <MaterialIcons
+                    name={
+                      selecionado
+                        ? "radio-button-checked"
+                        : "radio-button-unchecked"
+                    }
+                    size={22}
+                    color={Colors.primary}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity
+              style={styles.applyFilterButton}
+              onPress={() => {
+                setAvaliacaoMinima(avaliacaoTemporaria);
+                setFiltroAberto(false);
+              }}
+              accessibilityRole="button"
+            >
+              <Text style={styles.applyFilterText}>Aplicar filtro</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -181,6 +304,77 @@ const styles = StyleSheet.create({
   list: { padding: 18, paddingBottom: 40, gap: 13 },
   emptyList: { flexGrow: 1 },
   card: { width: "100%" },
+  listHeading: { marginBottom: 2, gap: 6 },
+  listTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  listTitle: { color: Colors.ink, fontSize: 19, fontWeight: "700" },
+  filterButton: {
+    minHeight: 38,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: Colors.white,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    paddingHorizontal: 11,
+  },
+  filterButtonActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  filterText: { color: Colors.primary, fontSize: 13, fontWeight: "700", textAlign: "center" },
+  filterTextActive: { color: Colors.white },
+  filterSummary: { color: Colors.textSecondary, fontSize: 13 },
+  filterOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.48)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  filterModal: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: Colors.white,
+    borderRadius: 22,
+    padding: 20,
+    gap: 12,
+  },
+  filterModalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  filterTitle: { flex: 1, color: Colors.ink, fontSize: 20, fontWeight: "800" },
+  filterDescription: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20 },
+  filterSectionTitle: { color: Colors.ink, fontSize: 14, fontWeight: "800", marginTop: 4 },
+  filterOption: {
+    minHeight: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  filterOptionSelected: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  filterOptionLabel: { flex: 1, flexDirection: "row", alignItems: "center", gap: 6 },
+  filterOptionText: { color: Colors.ink, fontSize: 14, fontWeight: "600" },
+  applyFilterButton: {
+    minHeight: 48,
+    marginTop: 4,
+    borderRadius: 12,
+    backgroundColor: Colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  applyFilterText: { color: Colors.white, fontSize: 14, fontWeight: "700" },
   centerState: {
     flex: 1,
     minHeight: 320,
