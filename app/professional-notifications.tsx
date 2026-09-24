@@ -3,13 +3,13 @@ import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "../constants/theme";
 import {
@@ -20,6 +20,7 @@ import { useNotifications } from "../contexts/notification-context";
 
 export default function ProfessionalNotificationsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const {
     notificacoesPrestador: notificacoes,
     sincronizarPrestador,
@@ -81,8 +82,8 @@ export default function ProfessionalNotificationsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <MaterialIcons name="arrow-back" size={24} color={Colors.white} />
         </TouchableOpacity>
@@ -152,8 +153,8 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: Colors.background },
   header: {
     backgroundColor: Colors.primary,
-    minHeight: 72,
     paddingHorizontal: 20,
+    paddingBottom: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

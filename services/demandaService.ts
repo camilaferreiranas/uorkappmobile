@@ -69,6 +69,7 @@ export interface CandidaturaDemanda {
   demandaId: number;
   prestadorId: number;
   nomePrestador: string;
+  fotoPerfilUrl: string | null;
   mensagem: string;
   valor: number;
   status: StatusCandidatura;

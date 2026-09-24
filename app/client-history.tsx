@@ -1,11 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Linking,
+  type LayoutChangeEvent,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -79,6 +80,15 @@ function pertenceAoFiltro(status: StatusProposta, filtro: FiltroHistorico) {
 
 export default function ClientHistoryScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ propostaId?: string | string[] }>();
+  const propostaIdParam = Array.isArray(params.propostaId)
+    ? params.propostaId[0]
+    : params.propostaId;
+  const propostaIdDestacada = propostaIdParam && /^\d+$/.test(propostaIdParam)
+    ? Number(propostaIdParam)
+    : null;
+  const scrollRef = useRef<ScrollView>(null);
+  const navegouAtePropostaRef = useRef(false);
   const [historico, setHistorico] = useState<HistoricoCliente[]>([]);
   const [filtro, setFiltro] = useState<FiltroHistorico>("TODOS");
   const [carregando, setCarregando] = useState(true);
@@ -86,6 +96,11 @@ export default function ClientHistoryScreen() {
   const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
   const [respondendoConclusaoId, setRespondendoConclusaoId] = useState<number | null>(null);
   const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    navegouAtePropostaRef.current = false;
+    if (propostaIdDestacada != null) setFiltro("TODOS");
+  }, [propostaIdDestacada]);
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
     if (exibirCarregamento) setCarregando(true);
@@ -165,6 +180,13 @@ export default function ClientHistoryScreen() {
     }
   }
 
+  function posicionarProposta(event: LayoutChangeEvent, propostaId: number) {
+    if (propostaId !== propostaIdDestacada || navegouAtePropostaRef.current) return;
+    navegouAtePropostaRef.current = true;
+    const y = Math.max(0, event.nativeEvent.layout.y - 12);
+    setTimeout(() => scrollRef.current?.scrollTo({ y, animated: true }), 100);
+  }
+
   async function responderConclusao(item: HistoricoCliente, confirmar: boolean) {
     if (respondendoConclusaoId != null) return;
     setRespondendoConclusaoId(item.propostaId);
@@ -211,6 +233,7 @@ export default function ClientHistoryScreen() {
         </View>
       ) : (
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -256,7 +279,14 @@ export default function ClientHistoryScreen() {
             itensFiltrados.map((item) => {
               const status = statusConfig[item.status];
               return (
-                <View key={item.propostaId} style={styles.historyCard}>
+                <View
+                  key={item.propostaId}
+                  onLayout={(event) => posicionarProposta(event, item.propostaId)}
+                  style={[
+                    styles.historyCard,
+                    item.propostaId === propostaIdDestacada && styles.highlightedCard,
+                  ]}
+                >
                   <View style={styles.cardTop}>
                     <View style={styles.cardTitleContent}>
                       <Text style={styles.cardTitle}>{item.titulo}</Text>
@@ -429,6 +459,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
   },
+  highlightedCard: { borderColor: Colors.primary, borderWidth: 2 },
   cardTop: { flexDirection: "row", alignItems: "flex-start", gap: 10 },
   cardTitleContent: { flex: 1 },
   cardTitle: { color: "#111", fontSize: 16, fontWeight: "800", lineHeight: 21 },

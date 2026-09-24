@@ -64,7 +64,10 @@ export default function ClientNotificationsScreen() {
         await marcarComoLida("cliente", notificacao.id);
       }
       if (notificacao.titulo === "Confirme a conclusão do serviço") {
-        router.push("/client-history");
+        router.push({
+          pathname: "/client-history",
+          params: { propostaId: String(notificacao.propostaId) },
+        });
       } else if (notificacao.demandaId) {
         router.push(`/demand-candidates?id=${notificacao.demandaId}` as Href);
       }

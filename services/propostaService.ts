@@ -71,6 +71,7 @@ export interface DetalheDemanda {
   distancia: number | null;
   descricao: string;
   nomePrestador: string;
+  status: StatusProposta;
   mediaAvaliacoesCliente: number;
   totalServicosFinalizados: number;
 }
@@ -280,6 +281,27 @@ export async function aceitarProposta(propostaId: number): Promise<PropostaRespo
   if (!response.ok || !json?.success) {
     throw new Error(
       json?.erros?.[0] ?? json?.message ?? "Não foi possível aceitar a proposta."
+    );
+  }
+
+  return json.data;
+}
+
+export async function recusarProposta(propostaId: number): Promise<PropostaResponse> {
+  const storedToken = await getToken();
+  if (!storedToken || storedToken.expiresAt <= Date.now()) {
+    throw new Error("Sessão expirada. Entre novamente.");
+  }
+
+  const response = await fetch(`${API_URL}/propostas/${propostaId}/recusar`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
+  });
+  const json = await response.json().catch(() => null);
+
+  if (!response.ok || !json?.success) {
+    throw new Error(
+      json?.erros?.[0] ?? json?.message ?? "Não foi possível recusar a proposta."
     );
   }
 

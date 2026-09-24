@@ -7,6 +7,7 @@ interface ProfileAvatarProps {
   initials: string;
   size?: number;
   backgroundColor?: string;
+  initialsColor?: string;
   borderColor?: string;
   borderWidth?: number;
   style?: StyleProp<ViewStyle>;
@@ -17,6 +18,7 @@ export function ProfileAvatar({
   initials,
   size = 80,
   backgroundColor = Colors.primary,
+  initialsColor = Colors.white,
   borderColor = "transparent",
   borderWidth = 0,
   style,
@@ -48,7 +50,7 @@ export function ProfileAvatar({
           transition={180}
         />
       ) : (
-        <Text style={[styles.initials, { fontSize: size * 0.34 }]}>{initials}</Text>
+        <Text style={[styles.initials, { color: initialsColor, fontSize: size * 0.34 }]}>{initials}</Text>
       )}
     </View>
   );
@@ -65,7 +67,6 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   initials: {
-    color: Colors.white,
     fontWeight: "700",
   },
 });

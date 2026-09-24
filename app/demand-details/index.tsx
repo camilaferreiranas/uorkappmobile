@@ -19,6 +19,8 @@ import {
   aceitarProposta,
   buscarContatoWhatsApp,
   buscarDetalheDemanda,
+  recusarProposta,
+  type StatusProposta,
 } from "../../services/propostaService";
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
@@ -42,8 +44,9 @@ export default function DemandDetailsScreen() {
     description: string;
   }>();
 
-  const [status, setStatus] = useState<"pending" | "accepted" | "refused">("pending");
-  const [processando, setProcessando] = useState(false);
+  const [status, setStatus] = useState<StatusProposta>("PENDENTE");
+  const [acaoEmAndamento, setAcaoEmAndamento] = useState<"aceitar" | "recusar" | null>(null);
+  const [statusCarregado, setStatusCarregado] = useState(false);
   const [abrindoWhatsApp, setAbrindoWhatsApp] = useState(false);
   const [erro, setErro] = useState("");
   const [resumoCliente, setResumoCliente] = useState<{
@@ -66,6 +69,7 @@ export default function DemandDetailsScreen() {
     }
 
     setCarregandoResumo(true);
+    setStatusCarregado(false);
     setErroResumo("");
     buscarDetalheDemanda(propostaId)
       .then((detalhe) => {
@@ -75,6 +79,8 @@ export default function DemandDetailsScreen() {
           totalServicosFinalizados:
             Number(detalhe.totalServicosFinalizados) || 0,
         });
+        setStatus(detalhe.status);
+        setStatusCarregado(true);
       })
       .catch(() => {
         if (telaAtiva) setErroResumo("Dados do cliente indisponíveis");
@@ -98,19 +104,38 @@ export default function DemandDetailsScreen() {
       return;
     }
 
-    setProcessando(true);
+    setAcaoEmAndamento("aceitar");
     setErro("");
     try {
       await aceitarProposta(propostaId);
-      setStatus("accepted");
+      setStatus("ACEITA");
       void sincronizarPrestador();
     } catch (error) {
       setErro(error instanceof Error ? error.message : "Não foi possível aceitar a proposta.");
     } finally {
-      setProcessando(false);
+      setAcaoEmAndamento(null);
     }
   };
-  const handleRefuse = () => setStatus("refused");
+
+  const handleRefuse = async () => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0) {
+      setErro("Não foi possível identificar esta proposta.");
+      return;
+    }
+
+    setAcaoEmAndamento("recusar");
+    setErro("");
+    try {
+      await recusarProposta(propostaId);
+      setStatus("RECUSADA");
+      void sincronizarPrestador();
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível recusar a proposta.");
+    } finally {
+      setAcaoEmAndamento(null);
+    }
+  };
 
   const handleContact = async () => {
     const propostaId = Number(params.id);
@@ -130,7 +155,19 @@ export default function DemandDetailsScreen() {
     }
   };
 
-  if (status !== "pending") {
+  if (status !== "PENDENTE") {
+    const statusPositivo = status === "ACEITA"
+      || status === "AGUARDANDO_CONFIRMACAO"
+      || status === "FINALIZADA";
+    const tituloResultado = status === "RECUSADA"
+      ? "Demanda recusada"
+      : status === "CANCELADA"
+        ? "Demanda cancelada"
+        : status === "FINALIZADA"
+          ? "Demanda finalizada"
+          : status === "AGUARDANDO_CONFIRMACAO"
+            ? "Conclusão aguardando confirmação"
+            : "Demanda aceita!";
     return (
       <View
         style={[
@@ -139,22 +176,22 @@ export default function DemandDetailsScreen() {
         ]}
       >
         <View style={styles.resultContainer}>
-          <View style={[styles.resultIcon, { backgroundColor: status === "accepted" ? "#EAF7ED" : "#FDECEA" }]}>
+          <View style={[styles.resultIcon, { backgroundColor: statusPositivo ? "#EAF7ED" : "#FDECEA" }]}>
             <MaterialIcons
-              name={status === "accepted" ? "check-circle" : "cancel"}
+              name={statusPositivo ? "check-circle" : "cancel"}
               size={64}
-              color={status === "accepted" ? Colors.success : Colors.error}
+              color={statusPositivo ? Colors.success : Colors.error}
             />
           </View>
-          <Text style={styles.resultTitle}>
-            {status === "accepted" ? "Demanda aceita!" : "Demanda recusada"}
-          </Text>
+          <Text style={styles.resultTitle}>{tituloResultado}</Text>
           <Text style={styles.resultText}>
-            {status === "accepted"
+            {status === "ACEITA"
               ? `Você aceitou a demanda "${params.title}". Agora você ou o cliente podem iniciar a conversa para combinar o serviço.`
-              : `Você recusou a demanda "${params.title}".`}
+              : status === "RECUSADA"
+                ? `Você recusou a demanda "${params.title}".`
+                : `Esta proposta não está mais pendente de resposta.`}
           </Text>
-          {status === "accepted" ? (
+          {status === "ACEITA" || status === "AGUARDANDO_CONFIRMACAO" ? (
             <TouchableOpacity
               style={styles.contactButton}
               onPress={() => void handleContact()}
@@ -264,7 +301,7 @@ export default function DemandDetailsScreen() {
         </View>
       </ScrollView>
 
-      <View
+      {statusCarregado ? <View
         style={[
           styles.actionBar,
           { paddingBottom: Math.max(insets.bottom, 16) },
@@ -272,30 +309,34 @@ export default function DemandDetailsScreen() {
       >
         {erro ? <Text style={styles.actionError}>{erro}</Text> : null}
         <TouchableOpacity
-          style={[styles.refuseButton, processando && styles.actionButtonDisabled]}
-          onPress={handleRefuse}
+          style={[styles.refuseButton, acaoEmAndamento && styles.actionButtonDisabled]}
+          onPress={() => void handleRefuse()}
           activeOpacity={0.8}
-          disabled={processando}
+          disabled={acaoEmAndamento !== null}
         >
-          <MaterialIcons name="close" size={20} color={Colors.error} />
-          <Text style={styles.refuseText}>Recusar</Text>
+          {acaoEmAndamento === "recusar"
+            ? <ActivityIndicator size="small" color={Colors.error} />
+            : <MaterialIcons name="close" size={20} color={Colors.error} />}
+          <Text style={styles.refuseText}>
+            {acaoEmAndamento === "recusar" ? "Recusando..." : "Recusar"}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.acceptButton, processando && styles.actionButtonDisabled]}
+          style={[styles.acceptButton, acaoEmAndamento && styles.actionButtonDisabled]}
           onPress={() => void handleAccept()}
           activeOpacity={0.8}
-          disabled={processando}
+          disabled={acaoEmAndamento !== null}
         >
-          {processando ? (
+          {acaoEmAndamento === "aceitar" ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
             <MaterialIcons name="check" size={20} color="#fff" />
           )}
           <Text style={styles.acceptText}>
-            {processando ? "Aceitando..." : "Aceitar demanda"}
+            {acaoEmAndamento === "aceitar" ? "Aceitando..." : "Aceitar demanda"}
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> : null}
     </View>
   );
 }

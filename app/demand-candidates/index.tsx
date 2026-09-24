@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../constants/theme";
+import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { buscarContatoWhatsApp } from "../../services/propostaService";
 import {
   buscarCandidaturasDaDemanda,
@@ -75,7 +76,13 @@ function CandidatoCard({
         accessibilityHint="Exibe as informações e avaliações do prestador"
       >
         <View style={styles.cardHeader}>
-          <View style={styles.avatar}><Text style={styles.avatarText}>{iniciais || "P"}</Text></View>
+          <ProfileAvatar
+            imageUrl={candidato.fotoPerfilUrl}
+            initials={iniciais || "P"}
+            size={48}
+            backgroundColor={Colors.primaryLight}
+            initialsColor={Colors.primary}
+          />
           <View style={styles.professionalInfo}>
             <Text style={styles.professionalName}>{candidato.nomePrestador}</Text>
             <View style={styles.ratingRow}>
@@ -348,8 +355,6 @@ const styles = StyleSheet.create({
   profileArea: { gap: 14 },
   selectedCard: { borderColor: Colors.success, borderWidth: 2 },
   cardHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
-  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.primaryLight, alignItems: "center", justifyContent: "center" },
-  avatarText: { color: Colors.primary, fontSize: 16, fontWeight: "800" },
   professionalInfo: { flex: 1, minWidth: 0 },
   professionalName: { color: Colors.ink, fontSize: 16, fontWeight: "700" },
   ratingRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
