@@ -9,3 +9,7 @@ export async function obterUsuario() {
 
   return usuario ? JSON.parse(usuario) : null;
 }
+
+export async function limparUsuario() {
+  await AsyncStorage.removeItem("usuario");
+}

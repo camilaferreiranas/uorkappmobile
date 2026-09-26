@@ -11,6 +11,17 @@ interface ApiError {
   message?: string;
   erros?: string[];
 }
+
+export class ApiRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
+}
+
 export interface Endereco {
   rua: string | null;
   numero: string | null;
@@ -82,6 +93,17 @@ export interface AuthResponse {
   expiresIn: number;
 }
 
+function readAuthResponse(json: AuthResponse & { data?: AuthResponse }): AuthResponse {
+  const data = json?.data?.accessToken ? json.data : json;
+  if (!data?.accessToken) {
+    throw new Error("Resposta de login inválida.");
+  }
+
+  return {
+    accessToken: data.accessToken,
+    expiresIn: Number(data.expiresIn),
+  };
+}
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
   const response = await fetch(`${API_URL}/login`, {
@@ -99,7 +121,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
     );
   }
 
-  return response.json();
+  return readAuthResponse(await response.json());
 }
 
 export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthResponse> {
@@ -114,7 +136,7 @@ export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthR
     throw new Error(error?.message ?? 'Erro ao autenticar com Google. Tente novamente.');
   }
 
-  return response.json();
+  return readAuthResponse(await response.json());
 }
 
 export async function getUserProfile(
@@ -127,13 +149,14 @@ export async function getUserProfile(
     },
   });
 
-  const json: ApiResponse<UserProfile> | ApiError = await response.json();
+  const json: ApiResponse<UserProfile> | ApiError = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(
+    throw new ApiRequestError(
       ("erros" in json ? json.erros?.[0] : undefined) ??
       json.message ??
-      "Não foi possível carregar os dados do usuário."
+      "Não foi possível carregar os dados do usuário.",
+      response.status
     );
   }
 

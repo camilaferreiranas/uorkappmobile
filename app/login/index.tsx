@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
@@ -15,7 +15,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -24,6 +24,12 @@ export default function LoginScreen() {
   const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
     router.replace("/home")
   );
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/home");
+    }
+  }, [loading, router, user]);
 
   const emailError = useMemo(() => {
     if (!email.trim()) return "Informe o e-mail.";

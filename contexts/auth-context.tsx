@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
+  ApiRequestError,
   AuthResponse,
   Endereco,
   GoogleAuthPayload,
@@ -14,6 +15,7 @@ import {
   updateUserProfile as updateUserProfileRequest,
   updateUserAddress as updateUserAddressRequest,
 } from '../services/api';
+import { limparUsuario, obterUsuario, salvarUsuario } from '../services/storageService';
 import { clearToken, getToken, saveToken } from '../services/token-storage';
 import { removerPushTokenAtual } from '../services/push-notification-service';
 
@@ -41,21 +43,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession();
   }, []);
 
+  function isCurrent(operation: number) {
+    return operation === authOperation.current;
+  }
+
+  function sessionRejected(error: unknown) {
+    return error instanceof ApiRequestError && (error.status === 401 || error.status === 403);
+  }
+
+  async function rememberUser(profile: UserProfile) {
+    setUser(profile);
+    await salvarUsuario(profile);
+  }
+
+  async function forgetSession() {
+    setUser(null);
+    await Promise.all([
+      clearToken().catch(() => undefined),
+      limparUsuario().catch(() => undefined),
+    ]);
+  }
+
   async function restoreSession() {
     const operation = authOperation.current;
 
     try {
       const stored = await getToken();
-      if (stored && stored.expiresAt > Date.now()) {
+      if (!stored || stored.expiresAt <= Date.now()) {
+        if (isCurrent(operation)) await forgetSession();
+        return;
+      }
+
+      const cached = (await obterUsuario()) as UserProfile | null;
+      if (cached && isCurrent(operation)) {
+        setUser(cached);
+        setLoading(false);
+      }
+
+      try {
         const profile = await getUserProfile(stored.accessToken);
-        if (operation === authOperation.current) setUser(profile);
-      } else if (stored && operation === authOperation.current) {
-        await clearToken();
+        if (!isCurrent(operation)) return;
+        await rememberUser(profile);
+      } catch (error) {
+        if (!isCurrent(operation) || !sessionRejected(error)) return;
+        await forgetSession();
       }
     } catch {
-      if (operation === authOperation.current) await clearToken();
+      // Falha ao ler o armazenamento não deve apagar o token já salvo.
     } finally {
-      if (operation === authOperation.current) setLoading(false);
+      if (isCurrent(operation)) setLoading(false);
     }
   }
 
@@ -77,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       await saveToken(auth.accessToken, auth.expiresIn);
+      await salvarUsuario(profile);
 
       if (operation !== authOperation.current) {
         throw new Error("Autenticação cancelada.");
@@ -85,8 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(profile);
     } catch (error) {
       if (operation === authOperation.current) {
-        setUser(null);
-        await clearToken().catch(() => undefined);
+        await forgetSession();
       }
       throw error;
     } finally {
@@ -109,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const profile = await updateUserProfileRequest(stored.accessToken, payload);
-    setUser(profile);
+    await rememberUser(profile);
     return profile;
   }
 
@@ -120,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const profile = await updateUserAddressRequest(stored.accessToken, endereco);
-    setUser(profile);
+    await rememberUser(profile);
     return profile;
   }
 
@@ -131,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const profile = await uploadUserProfilePhoto(stored.accessToken, photo);
-    setUser(profile);
+    await rememberUser(profile);
     return profile;
   }
 
@@ -142,7 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const profile = await removeUserProfilePhoto(stored.accessToken);
-    setUser(profile);
+    await rememberUser(profile);
     return profile;
   }
 
@@ -158,7 +194,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // O logout local não deve ser bloqueado por indisponibilidade da rede.
     } finally {
-      await clearToken();
+      await Promise.all([
+        clearToken().catch(() => undefined),
+        limparUsuario().catch(() => undefined),
+      ]);
     }
   }
 
@@ -169,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const profile = await updateUserProfileRequest(stored.accessToken, { telefone });
-    setUser(profile);
+    await rememberUser(profile);
     return profile;
   }
 
