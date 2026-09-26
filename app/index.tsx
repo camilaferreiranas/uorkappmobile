@@ -8,11 +8,13 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme";
 import { Button } from "../components/ui/button";
+import { useAuth } from "../contexts/auth-context";
 
 export default function SplashScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -21,6 +23,12 @@ export default function SplashScreen() {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/home");
+    }
+  }, [loading, router, user]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,27 +39,29 @@ export default function SplashScreen() {
         </Text>
       </Animated.View>
 
-      <Animated.View
-        style={[
-          styles.actions,
-          { opacity: fadeAnim, paddingBottom: Math.max(insets.bottom + 24, 56) },
-        ]}
-      >
-        <Button
-          title="Criar conta"
-          variant="primary"
-          onPress={() => router.replace("/signup")}
-          style={styles.primaryButton}
-          textStyle={styles.primaryButtonText}
-        />
-        <Button
-          title="Já tenho conta"
-          variant="ghost"
-          onPress={() => router.replace("/login")}
-          style={styles.secondaryButton}
-          textStyle={styles.secondaryButtonText}
-        />
-      </Animated.View>
+      {!loading && !user ? (
+        <Animated.View
+          style={[
+            styles.actions,
+            { opacity: fadeAnim, paddingBottom: Math.max(insets.bottom + 24, 56) },
+          ]}
+        >
+          <Button
+            title="Criar conta"
+            variant="primary"
+            onPress={() => router.replace("/signup")}
+            style={styles.primaryButton}
+            textStyle={styles.primaryButtonText}
+          />
+          <Button
+            title="Já tenho conta"
+            variant="ghost"
+            onPress={() => router.replace("/login")}
+            style={styles.secondaryButton}
+            textStyle={styles.secondaryButtonText}
+          />
+        </Animated.View>
+      ) : null}
     </SafeAreaView>
   );
 }
