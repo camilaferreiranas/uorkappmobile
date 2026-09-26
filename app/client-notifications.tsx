@@ -63,14 +63,18 @@ export default function ClientNotificationsScreen() {
       if (!notificacao.lida) {
         await marcarComoLida("cliente", notificacao.id);
       }
-      if (notificacao.titulo === "Confirme a conclusão do serviço") {
-        router.push({
-          pathname: "/client-history",
-          params: { propostaId: String(notificacao.propostaId) },
-        });
-      } else if (notificacao.demandaId) {
+      if (
+        notificacao.titulo === "Novo candidato para sua demanda" &&
+        notificacao.demandaId
+      ) {
         router.push(`/demand-candidates?id=${notificacao.demandaId}` as Href);
+        return;
       }
+
+      router.push({
+        pathname: "/client-history",
+        params: { propostaId: String(notificacao.propostaId) },
+      });
     } catch (error) {
       setErro(
         error instanceof Error
@@ -148,7 +152,7 @@ export default function ClientNotificationsScreen() {
             >
               <TouchableOpacity
                 style={styles.notificationRow}
-                activeOpacity={notificacao.lida && !notificacao.demandaId ? 1 : 0.75}
+                activeOpacity={0.75}
                 onPress={() => void abrir(notificacao)}
               >
                 <View style={[styles.icon, !notificacao.lida && styles.iconUnread]}>

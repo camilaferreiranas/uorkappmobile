@@ -18,6 +18,7 @@ import {
   type Notificacao,
 } from "../services/notificacaoService";
 import { getToken } from "../services/token-storage";
+import { buscarDetalheDemanda } from "../services/propostaService";
 import {
   consumirUltimoToqueEmPush,
   observarMensagemPushEmPrimeiroPlano,
@@ -84,6 +85,17 @@ function lerNotificacao(message: IMessage): Notificacao | null {
   }
 }
 
+function lerIdPush(valor: unknown): number | null {
+  const id = Number(valor);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+function urgenciaParaTela(urgencia: string | null) {
+  if (urgencia === "URGENTE") return "Urgente";
+  if (urgencia === "HOJE") return "Hoje";
+  return "Normal";
+}
+
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const router = useRouter();
@@ -102,11 +114,53 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const abrirPush = useCallback(
-    (data: Record<string, unknown>) => {
-      if (data.contexto === "PRESTADOR") {
-        router.push("/professional-notifications");
-      } else if (data.contexto === "CLIENTE") {
-        router.push("/client-notifications");
+    async (data: Record<string, unknown>) => {
+      const contexto = String(data.contexto ?? "");
+      const tipo = String(data.tipo ?? "");
+      const propostaId = lerIdPush(data.propostaId);
+      const demandaId = lerIdPush(data.demandaId);
+
+      if (contexto === "CLIENTE") {
+        if (tipo === "CANDIDATURA_RECEBIDA" && demandaId) {
+          router.push({
+            pathname: "/demand-candidates",
+            params: { id: String(demandaId) },
+          });
+        } else if (propostaId) {
+          router.push({
+            pathname: "/client-history",
+            params: { propostaId: String(propostaId) },
+          });
+        } else {
+          router.push("/client-notifications");
+        }
+        return;
+      }
+
+      if (contexto === "PRESTADOR") {
+        if (!propostaId) {
+          router.push("/professional-notifications");
+          return;
+        }
+
+        try {
+          const detalhe = await buscarDetalheDemanda(propostaId);
+          router.push({
+            pathname: "/demand-details",
+            params: {
+              id: String(detalhe.propostaId),
+              title: detalhe.titulo,
+              subtitle: "Proposta recebida",
+              urgency: urgenciaParaTela(detalhe.urgencia),
+              location: detalhe.localizacao ?? "Localização não informada",
+              photoUrl: detalhe.fotoUrl ?? "",
+              client: detalhe.nomeCliente,
+              description: detalhe.descricao,
+            },
+          });
+        } catch {
+          router.push("/professional-notifications");
+        }
       }
     },
     [router]

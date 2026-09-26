@@ -1,6 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -11,31 +14,36 @@ import {
 import { Colors } from "../../constants/theme";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { ProfileAvatar } from "../../components/ui/profile-avatar";
-import { useAuth } from "../../contexts/auth-context";
 import { getInitials } from "../../utils/get-initials";
+import {
+  buscarMeuPerfilPrestador,
+  type PerfilPrestador,
+} from "../../services/prestadorService";
 
-const professionalMock = {
-  specialty: "Técnico em Eletrônica",
-  location: "Barra, Salvador - BA",
-  phone: "(71) 99876-5432",
-  memberSince: "Março de 2023",
-  rating: 4.9,
-  totalRatings: 120,
-  completionRate: 98,
-  totalEarned: "R$ 8.240",
-};
+function formatCurrency(value: number) {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  });
+}
 
-const services = [
-  { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
-  { title: "Troca de lâmpadas", price: "R$ 90", subtitle: "Residencial e comercial", rating: 4.7 },
-  { title: "Laudo técnico", price: "R$ 250", subtitle: "Inspeção completa", rating: 4.8 },
-];
+function formatPhone(phone: string | null) {
+  if (!phone) return "Telefone não informado";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 11) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  }
+  return phone;
+}
 
-const recentReviews = [
-  { name: "Mariana Costa", comment: "Serviço impecável, pontual e muito atencioso.", rating: 5.0, date: "2 dias atrás" },
-  { name: "Felipe Alves", comment: "Muito profissional e conhecimento técnico.", rating: 4.8, date: "1 semana atrás" },
-  { name: "Beatriz Rocha", comment: "Resolveu o problema rapidamente. Recomendo!", rating: 5.0, date: "2 semanas atrás" },
-];
+function formatLocation(profile: PerfilPrestador) {
+  const cityState = [profile.cidade, profile.estado].filter(Boolean).join(" - ");
+  return [profile.bairro, cityState].filter(Boolean).join(", ") || "Localização não informada";
+}
 
 const menuItems = [
   { icon: "edit", label: "Editar perfil" },
@@ -47,7 +55,31 @@ const menuItems = [
 
 export default function ProfessionalProfileScreen() {
   const router = useRouter();
-  const { user } = useAuth();
+  const [profile, setProfile] = useState<PerfilPrestador | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const carregarPerfil = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      setProfile(await buscarMeuPerfilPrestador());
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Não foi possível carregar o perfil profissional."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void carregarPerfil();
+    }, [carregarPerfil])
+  );
 
   function handleMenuPress(label: string) {
     if (label === "Editar perfil") {
@@ -60,30 +92,64 @@ export default function ProfessionalProfileScreen() {
     }
   }
 
+  if (loading && !profile) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centerState}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.stateText}>Carregando perfil profissional...</Text>
+        </View>
+        <ProfessionalNavBar active="perfil" />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.centerState}>
+          <MaterialIcons name="error-outline" size={48} color={Colors.error} />
+          <Text style={styles.errorText}>
+            {error || "Não foi possível carregar o perfil profissional."}
+          </Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => void carregarPerfil()}>
+            <Text style={styles.retryText}>Tentar novamente</Text>
+          </TouchableOpacity>
+        </View>
+        <ProfessionalNavBar active="perfil" />
+      </SafeAreaView>
+    );
+  }
+
+  const nameParts = profile.nome.trim().split(/\s+/);
+  const initials = getInitials(
+    nameParts[0],
+    nameParts.length > 1 ? nameParts[nameParts.length - 1] : undefined
+  );
+  const specialty = profile.categorias.join(", ") || "Prestador de serviço";
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <ProfileAvatar
-            imageUrl={user?.fotoPerfilUrl}
-            initials={getInitials(user?.nome, user?.sobrenome)}
+            imageUrl={profile.fotoPerfilUrl}
+            initials={initials}
             size={80}
             backgroundColor="rgba(255,255,255,0.2)"
             borderColor="rgba(255,255,255,0.5)"
             borderWidth={3}
             style={styles.avatar}
           />
-          <Text style={styles.name}>
-            {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
-          </Text>
-          <Text style={styles.specialty}>{professionalMock.specialty}</Text>
+          <Text style={styles.name}>{profile.nome}</Text>
+          <Text style={styles.specialty}>{specialty}</Text>
           <View style={styles.locationRow}>
             <MaterialIcons name="location-on" size={14} color={Colors.primaryLight} />
-            <Text style={styles.location}>{professionalMock.location}</Text>
+            <Text style={styles.location}>{formatLocation(profile)}</Text>
           </View>
           <View style={styles.memberBadge}>
             <MaterialIcons name="verified" size={14} color={Colors.warning} />
-            <Text style={styles.memberText}>Membro desde {professionalMock.memberSince}</Text>
+            <Text style={styles.memberText}>Membro desde {profile.dataCriacao}</Text>
           </View>
         </View>
 
@@ -91,18 +157,20 @@ export default function ProfessionalProfileScreen() {
           <View style={styles.statItem}>
             <View style={styles.statIconRow}>
               <MaterialIcons name="star" size={16} color={Colors.warning} />
-              <Text style={styles.statValue}>{professionalMock.rating}</Text>
+              <Text style={styles.statValue}>{(profile.notaMedia ?? 0).toFixed(1)}</Text>
             </View>
-            <Text style={styles.statLabel}>{professionalMock.totalRatings} avaliações</Text>
+            <Text style={styles.statLabel}>{profile.totalAvaliacoes ?? 0} avaliações</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{professionalMock.completionRate}%</Text>
+            <Text style={styles.statValue}>
+              {(profile.percentualConclusao ?? 0).toFixed(0)}%
+            </Text>
             <Text style={styles.statLabel}>Conclusão</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{professionalMock.totalEarned}</Text>
+            <Text style={styles.statValue}>{formatCurrency(profile.totalGanho ?? 0)}</Text>
             <Text style={styles.statLabel}>Total ganho</Text>
           </View>
         </View>
@@ -111,52 +179,35 @@ export default function ProfessionalProfileScreen() {
           <Text style={styles.sectionTitle}>Contato</Text>
           <View style={styles.contactItem}>
             <MaterialIcons name="phone" size={18} color={Colors.primary} />
-            <Text style={styles.contactText}>{professionalMock.phone}</Text>
+            <Text style={styles.contactText}>{formatPhone(profile.telefone)}</Text>
           </View>
           <View style={styles.contactItem}>
             <MaterialIcons name="email" size={18} color={Colors.primary} />
-            <Text style={styles.contactText}>{user?.email ?? ""}</Text>
+            <Text style={styles.contactText}>{profile.email}</Text>
           </View>
         </View>
 
         <Text style={styles.sectionTitleStandalone}>Serviços oferecidos</Text>
 
-        {services.map((service) => (
-          <View key={service.title} style={styles.serviceCard}>
+        {profile.servicos.length === 0 ? (
+          <View style={styles.emptyServicesCard}>
+            <Text style={styles.stateText}>Nenhum serviço cadastrado.</Text>
+          </View>
+        ) : profile.servicos.map((service) => (
+          <View key={service.titulo} style={styles.serviceCard}>
             <View style={styles.serviceInfo}>
-              <Text style={styles.serviceTitle}>{service.title}</Text>
-              <Text style={styles.serviceSubtitle}>{service.subtitle}</Text>
+              <Text style={styles.serviceTitle}>{service.titulo}</Text>
+              <Text style={styles.serviceSubtitle}>{service.descricao}</Text>
             </View>
             <View style={styles.serviceRight}>
-              <Text style={styles.servicePrice}>{service.price}</Text>
+              <Text style={styles.servicePrice}>{formatCurrency(service.valorMedio ?? 0)}</Text>
               <View style={styles.serviceRating}>
                 <MaterialIcons name="star" size={12} color={Colors.warning} />
-                <Text style={styles.serviceRatingText}>{service.rating.toFixed(1)}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
-
-        <Text style={styles.sectionTitleStandalone}>Avaliações recentes</Text>
-
-        {recentReviews.map((review) => (
-          <View key={review.name} style={styles.reviewCard}>
-            <View style={styles.reviewHeader}>
-              <View style={styles.reviewAvatar}>
-                <Text style={styles.reviewAvatarText}>
-                  {review.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                <Text style={styles.serviceRatingText}>
+                  {(service.avaliacao ?? 0).toFixed(1)}
                 </Text>
               </View>
-              <View style={styles.reviewMeta}>
-                <Text style={styles.reviewName}>{review.name}</Text>
-                <Text style={styles.reviewDate}>{review.date}</Text>
-              </View>
-              <View style={styles.reviewRating}>
-                <MaterialIcons name="star" size={14} color={Colors.warning} />
-                <Text style={styles.reviewRatingText}>{review.rating.toFixed(1)}</Text>
-              </View>
             </View>
-            <Text style={styles.reviewComment}>{review.comment}</Text>
           </View>
         ))}
 
@@ -191,6 +242,33 @@ const styles = StyleSheet.create({
   container: {
     paddingBottom: 110,
   },
+  centerState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    paddingHorizontal: 30,
+    paddingBottom: 90,
+  },
+  stateText: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+  },
+  retryButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 11,
+  },
+  retryText: { color: Colors.white, fontWeight: "700" },
   header: {
     backgroundColor: Colors.primary,
     paddingTop: 30,
@@ -325,6 +403,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
+  emptyServicesCard: {
+    backgroundColor: Colors.white,
+    marginHorizontal: 20,
+    marginBottom: 10,
+    borderRadius: 14,
+    padding: 20,
+    alignItems: "center",
+  },
   serviceInfo: {
     flex: 1,
   },
@@ -356,65 +442,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textSecondary,
     fontWeight: "600",
-  },
-  reviewCard: {
-    backgroundColor: Colors.white,
-    marginHorizontal: 20,
-    marginBottom: 10,
-    borderRadius: 14,
-    padding: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  reviewHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-    gap: 10,
-  },
-  reviewAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  reviewAvatarText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: Colors.primary,
-  },
-  reviewMeta: {
-    flex: 1,
-  },
-  reviewName: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111",
-    marginBottom: 2,
-  },
-  reviewDate: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-  },
-  reviewRating: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  reviewRatingText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111",
-  },
-  reviewComment: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    lineHeight: 18,
   },
   menuCard: {
     backgroundColor: Colors.white,

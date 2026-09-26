@@ -255,8 +255,10 @@ export interface PerfilPrestador {
   nome: string;
   fotoPerfilUrl: string | null;
   descricao: string;
-  cidade: string;
-  estado: string;
+  categorias: string[];
+  bairro: string | null;
+  cidade: string | null;
+  estado: string | null;
   dataCriacao: string;
   notaMedia: number;
   totalAvaliacoes: number;
@@ -267,9 +269,8 @@ export interface PerfilPrestador {
   servicos: ServicoPrestador[];
 }
 
-export async function buscarPerfilPrestador(prestadorId: number): Promise<PerfilPrestador> {
+async function carregarPerfilPrestador(url: string): Promise<PerfilPrestador> {
   try {
-    const url = `${API_URL}/prestadores/${prestadorId}/perfil`;
     const storedToken = await getToken();
 
     if (!storedToken || storedToken.expiresAt <= Date.now()) {
@@ -283,14 +284,14 @@ export async function buscarPerfilPrestador(prestadorId: number): Promise<Perfil
     });
 
 
-    if (!response.ok) {
-      throw new Error(`Erro na requisição: ${response.status}`);
-    }
+    const json = await response.json().catch(() => null);
 
-    const json = await response.json();
-
-    if (!json.success) {
-      throw new Error(json.message ?? "Falha ao carregar perfil");
+    if (!response.ok || !json?.success) {
+      throw new Error(
+        json?.erros?.[0] ??
+        json?.message ??
+        "Não foi possível carregar o perfil profissional."
+      );
     }
 
     return json.data;
@@ -299,4 +300,12 @@ export async function buscarPerfilPrestador(prestadorId: number): Promise<Perfil
     console.error("Erro ao buscar perfil do prestador:", error);
     throw error;
   }
+}
+
+export async function buscarPerfilPrestador(prestadorId: number): Promise<PerfilPrestador> {
+  return carregarPerfilPrestador(`${API_URL}/prestadores/${prestadorId}/perfil`);
+}
+
+export async function buscarMeuPerfilPrestador(): Promise<PerfilPrestador> {
+  return carregarPerfilPrestador(`${API_URL}/prestadores/me/perfil`);
 }
