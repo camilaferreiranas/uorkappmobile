@@ -143,11 +143,12 @@ export async function buscarPaginaPrestadoresProximos(
   size = 10,
   avaliacaoMinima?: number | null
 ): Promise<PaginaPrestadores> {
-  await garantirLocalizacaoSincronizada();
+  const usarLocalizacao = await tentarSincronizarLocalizacao();
 
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
+    usarLocalizacao: String(usarLocalizacao),
   });
 
   if (avaliacaoMinima != null) {
@@ -163,11 +164,12 @@ export async function buscarPrestadoresCategoria(
   categoriaId: number,
   avaliacaoMinima?: number | null
 ): Promise<Prestador[]> {
-  await garantirLocalizacaoSincronizada();
+  const usarLocalizacao = await tentarSincronizarLocalizacao();
   const params = new URLSearchParams({
     categoriaId: String(categoriaId),
     page: "0",
     size: "30",
+    usarLocalizacao: String(usarLocalizacao),
   });
 
   if (avaliacaoMinima != null) {
@@ -182,10 +184,11 @@ export async function buscarPrestadoresPorTermo(
   page = 0,
   size = 30
 ): Promise<PaginaPrestadores> {
-  await garantirLocalizacaoSincronizada();
+  const usarLocalizacao = await tentarSincronizarLocalizacao();
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
+    usarLocalizacao: String(usarLocalizacao),
   });
   const termo = busca.trim();
 
@@ -198,12 +201,12 @@ export async function buscarPrestadoresPorTermo(
   );
 }
 
-async function garantirLocalizacaoSincronizada(): Promise<void> {
-  const autorizada = await sincronizarLocalizacaoUsuario();
-  if (!autorizada) {
-    throw new Error(
-      "Autorize a localização do dispositivo para encontrar prestadores em até 50 km."
-    );
+async function tentarSincronizarLocalizacao(): Promise<boolean> {
+  try {
+    return await sincronizarLocalizacaoUsuario();
+  } catch (error) {
+    console.warn("Busca seguirá sem o filtro de proximidade:", error);
+    return false;
   }
 }
 

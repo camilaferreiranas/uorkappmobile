@@ -218,25 +218,29 @@ async function consultarDemandaDisponivel<T>(
   caminho: string,
   signal?: AbortSignal
 ): Promise<T> {
-  const autorizada = await sincronizarLocalizacaoUsuario();
-  if (!autorizada) {
-    throw new Error(
-      "Autorize a localização do dispositivo para consultar demandas em até 50 km."
-    );
+  let usarLocalizacao = false;
+  try {
+    usarLocalizacao = await sincronizarLocalizacaoUsuario();
+  } catch (error) {
+    console.warn("Busca seguirá sem o filtro de proximidade:", error);
   }
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
   }
 
-  const response = await fetch(`${API_URL}/demandas/disponiveis${caminho}`, {
+  const separador = caminho.includes("?") ? "&" : "?";
+  const response = await fetch(
+    `${API_URL}/demandas/disponiveis${caminho}${separador}usarLocalizacao=${usarLocalizacao}`,
+    {
     method: "GET",
     signal,
     headers: {
       Accept: "application/json",
       Authorization: `Bearer ${storedToken.accessToken}`,
     },
-  });
+    }
+  );
   const json = (await response.json().catch(() => null)) as
     | ApiResponse<T>
     | ApiError

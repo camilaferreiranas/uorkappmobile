@@ -48,6 +48,9 @@ export default function NearbyProfessionalsScreen() {
   const [avaliacaoMinima, setAvaliacaoMinima] = useState<number | null>(null);
   const [avaliacaoTemporaria, setAvaliacaoTemporaria] = useState<number | null>(null);
   const [filtroAberto, setFiltroAberto] = useState(false);
+  const usandoProximidade = prestadores.some(
+    (prestador) => prestador.distanciaKm !== null
+  );
 
   const carregar = useCallback(async (pagina = 0, substituir = true) => {
     if (substituir) setCarregando(true);
@@ -112,7 +115,7 @@ export default function NearbyProfessionalsScreen() {
   const emptyComponent = carregando ? (
     <View style={styles.centerState}>
       <ActivityIndicator size="large" color={Colors.primary} />
-      <Text style={styles.stateText}>Buscando profissionais próximos...</Text>
+      <Text style={styles.stateText}>Buscando profissionais...</Text>
     </View>
   ) : erro ? (
     <View style={styles.centerState}>
@@ -127,7 +130,7 @@ export default function NearbyProfessionalsScreen() {
       <MaterialIcons name="person-search" size={52} color={Colors.textSecondary} />
       <Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text>
       <Text style={styles.stateText}>
-        Tente atualizar a localização ou consulte novamente mais tarde.
+        Consulte novamente mais tarde ou ajuste os filtros.
       </Text>
     </View>
   );
@@ -135,7 +138,7 @@ export default function NearbyProfessionalsScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
       <ProfileScreenHeader
-        title="Profissionais próximos"
+        title={usandoProximidade ? "Profissionais próximos" : "Profissionais disponíveis"}
         subtitle={total === 1 ? "1 profissional encontrado" : `${total} profissionais encontrados`}
       />
 

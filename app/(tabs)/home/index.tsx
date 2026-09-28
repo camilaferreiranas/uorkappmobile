@@ -44,6 +44,9 @@ export default function HomeScreen() {
   const [professionals, setProfessionals] = useState<Prestador[]>([]);
   const [loadingProfessionals, setLoadingProfessionals] = useState(true);
   const [professionalsError, setProfessionalsError] = useState("");
+  const usandoProximidade = professionals.some(
+    (professional) => professional.distanciaKm !== null
+  );
   const ultimaNotificacao = notificacoesCliente.find((notificacao) => !notificacao.lida) ?? null;
 
 
@@ -184,7 +187,7 @@ export default function HomeScreen() {
 
         {/* Professionals */}
         <SectionHeader
-          title="Profissionais próximos"
+          title={usandoProximidade ? "Profissionais próximos" : "Profissionais disponíveis"}
           subtitle="Ver todos"
           onSubtitlePress={() => router.push("/nearby-professionals" as Href)}
           style={styles.sectionHeader}

@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then((autorizada) => {
         if (ativo && !autorizada) {
           Alert.alert(
-            'Localização necessária',
-            'Autorize a localização do dispositivo para encontrar profissionais e demandas em até 50 km.'
+            'Localização opcional',
+            'Sem a localização, exibiremos todos os profissionais e demandas. Autorize o acesso para ver somente os resultados em até 50 km.'
           );
         }
       })
