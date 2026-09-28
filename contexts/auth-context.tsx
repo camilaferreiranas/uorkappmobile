@@ -18,6 +18,8 @@ import {
 import { limparUsuario, obterUsuario, salvarUsuario } from '../services/storageService';
 import { clearToken, getToken, saveToken } from '../services/token-storage';
 import { removerPushTokenAtual } from '../services/push-notification-service';
+import { sincronizarLocalizacaoUsuario } from '../services/locationService';
+import { Alert } from 'react-native';
 
 interface AuthContextValue {
   user: UserProfile | null;
@@ -42,6 +44,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     restoreSession();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    let ativo = true;
+
+    void sincronizarLocalizacaoUsuario(true)
+      .then((autorizada) => {
+        if (ativo && !autorizada) {
+          Alert.alert(
+            'Localização necessária',
+            'Autorize a localização do dispositivo para encontrar profissionais e demandas em até 50 km.'
+          );
+        }
+      })
+      .catch((error) => {
+        console.warn('Não foi possível sincronizar a localização:', error);
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [user?.id]);
 
   function isCurrent(operation: number) {
     return operation === authOperation.current;

@@ -120,6 +120,7 @@ export default function PublicarScreen() {
 
   useEffect(() => {
     void carregarCategorias();
+    void usarLocalizacaoAtual();
   }, [carregarCategorias]);
 
   const nomesCategorias = useMemo(
@@ -143,7 +144,7 @@ export default function PublicarScreen() {
       if (!atual) {
         Alert.alert(
           "Localização não disponível",
-          "Permita o acesso à localização ou informe um CEP ou ponto de referência."
+          "Permita o acesso à localização do dispositivo para publicar a demanda."
         );
         return;
       }
@@ -245,8 +246,8 @@ export default function PublicarScreen() {
       novosErros.localizacao = "A localização é obrigatória.";
     } else if (localizacaoSemEspacos.length > LOCALIZACAO_MAX_LENGTH) {
       novosErros.localizacao = `A localização deve ter no máximo ${LOCALIZACAO_MAX_LENGTH} caracteres.`;
-    } else if ((latitude == null) !== (longitude == null)) {
-      novosErros.localizacao = "Latitude e longitude devem ser informadas juntas.";
+    } else if (latitude == null || longitude == null) {
+      novosErros.localizacao = "Autorize e atualize a localização do dispositivo.";
     } else if (
       latitude != null &&
       longitude != null &&
@@ -384,19 +385,14 @@ export default function PublicarScreen() {
         <Input
           label="Localização"
           value={localizacao}
-          onChangeText={(valor) => {
-            setLocalizacao(valor);
-            setLatitude(undefined);
-            setLongitude(undefined);
-            setErros((atuais) => ({ ...atuais, localizacao: undefined }));
-          }}
-          placeholder="CEP ou ponto de referência"
+          editable={false}
+          placeholder="Localização obtida pelo dispositivo"
           maxLength={LOCALIZACAO_MAX_LENGTH}
           error={erros.localizacao}
           style={styles.whiteInput}
         />
         <Button
-          title={obtendoLocalizacao ? "Obtendo localização..." : "Usar localização atual"}
+          title={obtendoLocalizacao ? "Obtendo localização..." : "Atualizar localização"}
           onPress={() => void usarLocalizacaoAtual()}
           loading={obtendoLocalizacao}
           disabled={obtendoLocalizacao}

@@ -1,5 +1,8 @@
 import { API_URL } from "./api_url";
-import { obterLocalizacaoAtual } from "./locationService";
+import {
+  obterLocalizacaoAtual,
+  sincronizarLocalizacaoUsuario,
+} from "./locationService";
 import { getToken } from "./token-storage";
 
 export interface Prestador {
@@ -140,17 +143,12 @@ export async function buscarPaginaPrestadoresProximos(
   size = 10,
   avaliacaoMinima?: number | null
 ): Promise<PaginaPrestadores> {
-  const localizacao = await obterLocalizacaoAtual();
+  await garantirLocalizacaoSincronizada();
 
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
   });
-
-  if (localizacao) {
-    params.set("latitude", String(localizacao.latitude));
-    params.set("longitude", String(localizacao.longitude));
-  }
 
   if (avaliacaoMinima != null) {
     params.set("avaliacaoMinima", String(avaliacaoMinima));
@@ -165,7 +163,7 @@ export async function buscarPrestadoresCategoria(
   categoriaId: number,
   avaliacaoMinima?: number | null
 ): Promise<Prestador[]> {
-  const localizacao = await obterLocalizacaoAtual();
+  await garantirLocalizacaoSincronizada();
   const params = new URLSearchParams({
     categoriaId: String(categoriaId),
     page: "0",
@@ -176,11 +174,6 @@ export async function buscarPrestadoresCategoria(
     params.set("avaliacaoMinima", String(avaliacaoMinima));
   }
 
-  if (localizacao) {
-    params.set("latitude", String(localizacao.latitude));
-    params.set("longitude", String(localizacao.longitude));
-  }
-
   return buscarPrestadores(`${API_URL}/prestadores?${params.toString()}`);
 }
 
@@ -189,6 +182,7 @@ export async function buscarPrestadoresPorTermo(
   page = 0,
   size = 30
 ): Promise<PaginaPrestadores> {
+  await garantirLocalizacaoSincronizada();
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
@@ -202,6 +196,15 @@ export async function buscarPrestadoresPorTermo(
   return buscarPaginaPrestadores(
     `${API_URL}/prestadores?${params.toString()}`
   );
+}
+
+async function garantirLocalizacaoSincronizada(): Promise<void> {
+  const autorizada = await sincronizarLocalizacaoUsuario();
+  if (!autorizada) {
+    throw new Error(
+      "Autorize a localização do dispositivo para encontrar prestadores em até 50 km."
+    );
+  }
 }
 
 export async function atualizarLocalizacaoPrestador(): Promise<LocalizacaoPrestador> {

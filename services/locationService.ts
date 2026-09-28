@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { Platform } from "react-native";
+import { API_URL } from "./api_url";
+import { getToken } from "./token-storage";
 
 export interface Coordenadas {
   latitude: number;
@@ -17,6 +19,9 @@ interface LocalizacaoSalva extends Coordenadas {
 
 const LOCALIZACAO_KEY = "ultima_localizacao";
 const LOCALIZACAO_VALIDADE_MS = 15 * 60 * 1000;
+const SINCRONIZACAO_VALIDADE_MS = 5 * 60 * 1000;
+let ultimaSincronizacao = 0;
+let sincronizacaoEmAndamento: Promise<boolean> | null = null;
 
 async function lerLocalizacaoSalva(): Promise<LocalizacaoSalva | null> {
   try {
@@ -57,6 +62,20 @@ async function salvarLocalizacao(localizacao: LocalizacaoSalva): Promise<void> {
 }
 
 export async function obterLocalizacaoAtual(): Promise<Coordenadas | null> {
+  try {
+    const permissaoAtual = await Location.getForegroundPermissionsAsync();
+    const permissao =
+      permissaoAtual.status === Location.PermissionStatus.GRANTED
+        ? permissaoAtual
+        : await Location.requestForegroundPermissionsAsync();
+    if (permissao.status !== Location.PermissionStatus.GRANTED) {
+      return null;
+    }
+  } catch (error) {
+    console.warn("Não foi possível solicitar a permissão de localização:", error);
+    return null;
+  }
+
   const localizacaoSalva = await lerLocalizacaoSalva();
 
   if (
@@ -70,12 +89,6 @@ export async function obterLocalizacaoAtual(): Promise<Coordenadas | null> {
   }
 
   try {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-
-    if (status !== Location.PermissionStatus.GRANTED) {
-      return null;
-    }
-
     const location = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
     });
@@ -131,5 +144,51 @@ export async function obterLocalizacaoDetalhadaAtual(): Promise<LocalizacaoDetal
       ...coordenadas,
       descricao: `${coordenadas.latitude.toFixed(6)}, ${coordenadas.longitude.toFixed(6)}`,
     };
+  }
+}
+
+export async function sincronizarLocalizacaoUsuario(
+  forcar = false
+): Promise<boolean> {
+  if (!forcar && Date.now() - ultimaSincronizacao < SINCRONIZACAO_VALIDADE_MS) {
+    return true;
+  }
+  if (sincronizacaoEmAndamento) return sincronizacaoEmAndamento;
+
+  sincronizacaoEmAndamento = (async () => {
+    const [localizacao, storedToken] = await Promise.all([
+      obterLocalizacaoAtual(),
+      getToken(),
+    ]);
+    if (!localizacao) return false;
+    if (!storedToken || storedToken.expiresAt <= Date.now()) {
+      throw new Error("Sessão expirada. Entre novamente.");
+    }
+
+    const response = await fetch(`${API_URL}/localizacoes/me`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${storedToken.accessToken}`,
+      },
+      body: JSON.stringify(localizacao),
+    });
+    const json = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(
+        json?.erros?.[0] ??
+          json?.message ??
+          "Não foi possível atualizar sua localização."
+      );
+    }
+
+    ultimaSincronizacao = Date.now();
+    return true;
+  })();
+
+  try {
+    return await sincronizacaoEmAndamento;
+  } finally {
+    sincronizacaoEmAndamento = null;
   }
 }

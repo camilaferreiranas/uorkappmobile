@@ -1,5 +1,9 @@
 import { API_URL } from "./api_url";
 import { getToken } from "./token-storage";
+import {
+  obterLocalizacaoAtual,
+  sincronizarLocalizacaoUsuario,
+} from "./locationService";
 
 export type UrgenciaDemanda = "NORMAL" | "URGENTE" | "HOJE";
 
@@ -112,6 +116,22 @@ export async function publicarDemanda(
     throw new Error("Sessão expirada. Entre novamente.");
   }
 
+  const autorizada = await sincronizarLocalizacaoUsuario();
+  if (!autorizada) {
+    throw new Error(
+      "Autorize a localização do dispositivo para publicar a demanda."
+    );
+  }
+  const localizacaoAtual =
+    payload.latitude != null && payload.longitude != null
+      ? { latitude: payload.latitude, longitude: payload.longitude }
+      : await obterLocalizacaoAtual();
+  if (!localizacaoAtual) {
+    throw new Error(
+      "Não foi possível obter a localização necessária para publicar a demanda."
+    );
+  }
+
   const form = new FormData();
   form.append("categoriaId", String(payload.categoriaId));
   form.append("titulo", payload.titulo);
@@ -119,12 +139,8 @@ export async function publicarDemanda(
   form.append("localizacao", payload.localizacao);
   form.append("urgencia", payload.urgencia);
 
-  if (payload.latitude != null) {
-    form.append("latitude", String(payload.latitude));
-  }
-  if (payload.longitude != null) {
-    form.append("longitude", String(payload.longitude));
-  }
+  form.append("latitude", String(localizacaoAtual.latitude));
+  form.append("longitude", String(localizacaoAtual.longitude));
   if (payload.orcamento != null) {
     form.append("orcamento", String(payload.orcamento));
   }
@@ -202,6 +218,12 @@ async function consultarDemandaDisponivel<T>(
   caminho: string,
   signal?: AbortSignal
 ): Promise<T> {
+  const autorizada = await sincronizarLocalizacaoUsuario();
+  if (!autorizada) {
+    throw new Error(
+      "Autorize a localização do dispositivo para consultar demandas em até 50 km."
+    );
+  }
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
