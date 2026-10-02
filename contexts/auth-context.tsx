@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   ApiRequestError,
   AuthResponse,
@@ -18,12 +18,18 @@ import {
 import { limparUsuario, obterUsuario, salvarUsuario } from '../services/storageService';
 import { clearToken, getToken, saveToken } from '../services/token-storage';
 import { removerPushTokenAtual } from '../services/push-notification-service';
-import { sincronizarLocalizacaoUsuario } from '../services/locationService';
-import { Alert } from 'react-native';
+import {
+  ResultadoPermissaoLocalizacao,
+  sincronizarLocalizacaoUsuario,
+  solicitarOuAbrirConfiguracoesLocalizacao,
+} from '../services/locationService';
+import { Alert, AppState, InteractionManager } from 'react-native';
 
 interface AuthContextValue {
   user: UserProfile | null;
   loading: boolean;
+  localizacaoAutorizada: boolean | null;
+  autorizarLocalizacao: () => Promise<ResultadoPermissaoLocalizacao>;
   login: (email: string, senha: string) => Promise<void>;
   loginWithGoogle: (payload: GoogleAuthPayload) => Promise<void>;
   updateProfile: (payload: UpdateUserProfilePayload) => Promise<UserProfile>;
@@ -39,33 +45,81 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [localizacaoAutorizada, setLocalizacaoAutorizada] = useState<boolean | null>(null);
   const authOperation = useRef(0);
+  const appState = useRef(AppState.currentState);
+
+  const tentarAtivarLocalizacao = useCallback(async () => {
+    const resultado = await solicitarOuAbrirConfiguracoesLocalizacao();
+    if (resultado === 'concedida') {
+      setLocalizacaoAutorizada(true);
+    }
+    return resultado;
+  }, []);
+
+  const solicitarLocalizacaoAoAbrir = useCallback(async () => {
+    try {
+      const autorizada = await sincronizarLocalizacaoUsuario(true);
+      setLocalizacaoAutorizada(autorizada);
+      if (autorizada) return;
+
+      Alert.alert(
+        'Permitir localização',
+        'Ative a localização para encontrar profissionais e demandas em até 50 km. Sem a permissão, continuaremos exibindo todos os resultados.',
+        [
+          { text: 'Agora não', style: 'cancel' },
+          {
+            text: 'Ativar localização',
+            onPress: () => void tentarAtivarLocalizacao(),
+          },
+        ]
+      );
+    } catch (error) {
+      setLocalizacaoAutorizada(false);
+      console.warn('Não foi possível sincronizar a localização:', error);
+    }
+  }, [tentarAtivarLocalizacao]);
 
   useEffect(() => {
     restoreSession();
   }, []);
 
   useEffect(() => {
-    if (!user) return;
-    let ativo = true;
+    if (!user) {
+      setLocalizacaoAutorizada(null);
+      return;
+    }
 
-    void sincronizarLocalizacaoUsuario(true)
-      .then((autorizada) => {
-        if (ativo && !autorizada) {
-          Alert.alert(
-            'Localização opcional',
-            'Sem a localização, exibiremos todos os profissionais e demandas. Autorize o acesso para ver somente os resultados em até 50 km.'
-          );
-        }
-      })
-      .catch((error) => {
-        console.warn('Não foi possível sincronizar a localização:', error);
-      });
+    let cancelado = false;
+    let temporizador: ReturnType<typeof setTimeout> | null = null;
+    setLocalizacaoAutorizada(null);
+
+    const tarefa = InteractionManager.runAfterInteractions(() => {
+      temporizador = setTimeout(() => {
+        if (!cancelado) void solicitarLocalizacaoAoAbrir();
+      }, 250);
+    });
 
     return () => {
-      ativo = false;
+      cancelado = true;
+      tarefa.cancel();
+      if (temporizador) clearTimeout(temporizador);
     };
-  }, [user?.id]);
+  }, [solicitarLocalizacaoAoAbrir, user?.id]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (proximoEstado) => {
+      const voltouDoSegundoPlano =
+        appState.current === 'background' && proximoEstado === 'active';
+      appState.current = proximoEstado;
+
+      if (voltouDoSegundoPlano && user && localizacaoAutorizada !== true) {
+        void solicitarLocalizacaoAoAbrir();
+      }
+    });
+
+    return () => subscription.remove();
+  }, [localizacaoAutorizada, solicitarLocalizacaoAoAbrir, user]);
 
   function isCurrent(operation: number) {
     return operation === authOperation.current;
@@ -241,6 +295,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         loading,
+        localizacaoAutorizada,
+        autorizarLocalizacao: tentarAtivarLocalizacao,
         login,
         loginWithGoogle,
         updateProfile,

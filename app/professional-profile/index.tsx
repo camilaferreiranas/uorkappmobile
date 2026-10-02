@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -19,6 +20,7 @@ import {
   buscarMeuPerfilPrestador,
   type PerfilPrestador,
 } from "../../services/prestadorService";
+import { useAuth } from "../../contexts/auth-context";
 
 function formatCurrency(value: number) {
   return value.toLocaleString("pt-BR", {
@@ -47,6 +49,7 @@ function formatLocation(profile: PerfilPrestador) {
 
 const menuItems = [
   { icon: "edit", label: "Editar perfil" },
+  { icon: "my-location", label: "Ativar localização" },
   { icon: "add-circle-outline", label: "Adicionar serviço" },
   { icon: "badge", label: "Certificações" },
   { icon: "notifications", label: "Notificações" },
@@ -55,6 +58,7 @@ const menuItems = [
 
 export default function ProfessionalProfileScreen() {
   const router = useRouter();
+  const { autorizarLocalizacao } = useAuth();
   const [profile, setProfile] = useState<PerfilPrestador | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -81,9 +85,25 @@ export default function ProfessionalProfileScreen() {
     }, [carregarPerfil])
   );
 
-  function handleMenuPress(label: string) {
+  async function handleMenuPress(label: string) {
     if (label === "Editar perfil") {
       router.push("/edit-profile");
+      return;
+    }
+
+    if (label === "Ativar localização") {
+      const resultado = await autorizarLocalizacao();
+      if (resultado === "concedida") {
+        Alert.alert(
+          "Localização ativada",
+          "Agora você poderá visualizar demandas próximas e aparecer para clientes da região."
+        );
+      } else if (resultado === "negada") {
+        Alert.alert(
+          "Localização não autorizada",
+          "Você poderá tentar novamente por este botão quando quiser."
+        );
+      }
       return;
     }
 
@@ -216,7 +236,7 @@ export default function ProfessionalProfileScreen() {
             <TouchableOpacity
               key={item.label}
               style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
-              onPress={() => handleMenuPress(item.label)}
+              onPress={() => void handleMenuPress(item.label)}
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>

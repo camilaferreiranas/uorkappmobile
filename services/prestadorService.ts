@@ -1,7 +1,8 @@
 import { API_URL } from "./api_url";
+import { validarConteudoPublico } from "../utils/content-moderation";
 import {
   obterLocalizacaoAtual,
-  sincronizarLocalizacaoUsuario,
+  sincronizarLocalizacaoParaBusca,
 } from "./locationService";
 import { getToken } from "./token-storage";
 
@@ -71,6 +72,10 @@ export async function verificarCadastroPrestador(): Promise<boolean> {
 export async function cadastrarPrestador(
   payload: CadastroPrestadorPayload
 ): Promise<void> {
+  validarConteudoPublico([
+    { nome: "descrição profissional", valor: payload.descricao },
+  ]);
+
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
@@ -202,12 +207,7 @@ export async function buscarPrestadoresPorTermo(
 }
 
 async function tentarSincronizarLocalizacao(): Promise<boolean> {
-  try {
-    return await sincronizarLocalizacaoUsuario();
-  } catch (error) {
-    console.warn("Busca seguirá sem o filtro de proximidade:", error);
-    return false;
-  }
+  return sincronizarLocalizacaoParaBusca();
 }
 
 export async function atualizarLocalizacaoPrestador(): Promise<LocalizacaoPrestador> {

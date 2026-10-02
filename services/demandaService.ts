@@ -1,7 +1,9 @@
 import { API_URL } from "./api_url";
 import { getToken } from "./token-storage";
+import { validarConteudoPublico } from "../utils/content-moderation";
 import {
   obterLocalizacaoAtual,
+  sincronizarLocalizacaoParaBusca,
   sincronizarLocalizacaoUsuario,
 } from "./locationService";
 
@@ -111,6 +113,11 @@ interface ApiError {
 export async function publicarDemanda(
   payload: CriarDemandaPayload
 ): Promise<DemandaPublicada> {
+  validarConteudoPublico([
+    { nome: "título", valor: payload.titulo },
+    { nome: "descrição", valor: payload.descricao },
+  ]);
+
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
@@ -220,7 +227,7 @@ async function consultarDemandaDisponivel<T>(
 ): Promise<T> {
   let usarLocalizacao = false;
   try {
-    usarLocalizacao = await sincronizarLocalizacaoUsuario();
+    usarLocalizacao = await sincronizarLocalizacaoParaBusca();
   } catch (error) {
     console.warn("Busca seguirá sem o filtro de proximidade:", error);
   }
@@ -321,6 +328,7 @@ export async function enviarCandidatura(
   if (!Number.isSafeInteger(demandaId) || demandaId <= 0) throw new Error("Demanda inválida.");
   if (!Number.isFinite(valor) || valor <= 0) throw new Error("Informe um valor válido para a proposta.");
   if (mensagem.trim().length > 500) throw new Error("A mensagem deve ter no máximo 500 caracteres.");
+  validarConteudoPublico([{ nome: "mensagem", valor: mensagem }]);
   const token = await tokenValido();
   const response = await fetch(`${API_URL}/demandas/${demandaId}/candidaturas`, {
     method: "POST",

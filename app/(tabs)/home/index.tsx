@@ -1,8 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { type Href, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -39,36 +40,50 @@ const categories = [
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, localizacaoAutorizada } = useAuth();
   const { notificacoesCliente, naoLidasCliente } = useNotifications();
   const [professionals, setProfessionals] = useState<Prestador[]>([]);
   const [loadingProfessionals, setLoadingProfessionals] = useState(true);
+  const [refreshingProfessionals, setRefreshingProfessionals] = useState(false);
   const [professionalsError, setProfessionalsError] = useState("");
+  const usuarioAtualizadoComLocalizacao = useRef<string | null>(null);
   const usandoProximidade = professionals.some(
     (professional) => professional.distanciaKm !== null
   );
   const ultimaNotificacao = notificacoesCliente.find((notificacao) => !notificacao.lida) ?? null;
 
 
-  useEffect(() => {
-    async function carregarProfissionais() {
-      try {
-        setLoadingProfessionals(true);
-        setProfessionalsError("");
-        setProfessionals(await buscarPrestadoresProximos());
-      } catch (error) {
-        setProfessionalsError(
-          error instanceof Error
-            ? error.message
-            : "Não foi possível carregar os profissionais."
-        );
-      } finally {
-        setLoadingProfessionals(false);
-      }
+  const carregarProfissionais = useCallback(async (atualizando = false) => {
+    try {
+      if (atualizando) setRefreshingProfessionals(true);
+      else setLoadingProfessionals(true);
+      setProfessionalsError("");
+      setProfessionals(await buscarPrestadoresProximos());
+    } catch (error) {
+      setProfessionalsError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível carregar os profissionais."
+      );
+    } finally {
+      if (atualizando) setRefreshingProfessionals(false);
+      else setLoadingProfessionals(false);
     }
-
-    carregarProfissionais();
   }, []);
+
+  useEffect(() => {
+    void carregarProfissionais();
+  }, [carregarProfissionais]);
+
+  useEffect(() => {
+    if (!user?.id || localizacaoAutorizada !== true) return;
+
+    const usuarioId = String(user.id);
+    if (usuarioAtualizadoComLocalizacao.current === usuarioId) return;
+
+    usuarioAtualizadoComLocalizacao.current = usuarioId;
+    void carregarProfissionais();
+  }, [carregarProfissionais, localizacaoAutorizada, user?.id]);
 
   
   return (
@@ -76,6 +91,14 @@ export default function HomeScreen() {
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshingProfessionals}
+            onRefresh={() => void carregarProfissionais(true)}
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
+          />
+        }
       >
         {/* Header */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>

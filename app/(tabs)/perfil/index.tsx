@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { type Href, useRouter } from "expo-router";
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -18,6 +19,7 @@ const menuItems = [
   { icon: "send", label: "Minhas propostas" },
   { icon: "edit", label: "Editar perfil" },
   { icon: "location-on", label: "Meu endereço" },
+  { icon: "my-location", label: "Ativar localização" },
   { icon: "notifications", label: "Notificações" },
   // { icon: "payment", label: "Formas de pagamento" },
   { icon: "history", label: "Histórico de serviços" },
@@ -27,7 +29,7 @@ const menuItems = [
 
 export default function PerfilScreen() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, autorizarLocalizacao } = useAuth();
 
   async function handleMenuPress(label: string) {
     if (label === "Minhas demandas") {
@@ -47,6 +49,22 @@ export default function PerfilScreen() {
 
     if (label === "Meu endereço") {
       router.push("/address");
+      return;
+    }
+
+    if (label === "Ativar localização") {
+      const resultado = await autorizarLocalizacao();
+      if (resultado === "concedida") {
+        Alert.alert(
+          "Localização ativada",
+          "Agora você poderá encontrar profissionais e demandas próximos."
+        );
+      } else if (resultado === "negada") {
+        Alert.alert(
+          "Localização não autorizada",
+          "Você poderá tentar novamente por este botão quando quiser."
+        );
+      }
       return;
     }
 

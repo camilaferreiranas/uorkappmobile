@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
-import { Platform } from "react-native";
+import { Linking, Platform } from "react-native";
 import { API_URL } from "./api_url";
 import { getToken } from "./token-storage";
 
@@ -20,8 +20,23 @@ interface LocalizacaoSalva extends Coordenadas {
 const LOCALIZACAO_KEY = "ultima_localizacao";
 const LOCALIZACAO_VALIDADE_MS = 15 * 60 * 1000;
 const SINCRONIZACAO_VALIDADE_MS = 5 * 60 * 1000;
+const VERIFICACAO_PERMISSAO_TIMEOUT_MS = 1500;
+const SINCRONIZACAO_BUSCA_TIMEOUT_MS = 6000;
 let ultimaSincronizacao = 0;
 let sincronizacaoEmAndamento: Promise<boolean> | null = null;
+
+async function aguardarComLimite<T>(
+  operacao: Promise<T>,
+  tempoLimiteMs: number,
+  valorPadrao: T
+): Promise<T> {
+  return Promise.race([
+    operacao,
+    new Promise<T>((resolve) => {
+      setTimeout(() => resolve(valorPadrao), tempoLimiteMs);
+    }),
+  ]);
+}
 
 async function lerLocalizacaoSalva(): Promise<LocalizacaoSalva | null> {
   try {
@@ -190,5 +205,57 @@ export async function sincronizarLocalizacaoUsuario(
     return await sincronizacaoEmAndamento;
   } finally {
     sincronizacaoEmAndamento = null;
+  }
+}
+
+export async function sincronizarLocalizacaoParaBusca(): Promise<boolean> {
+  try {
+    const permissao = await aguardarComLimite(
+      Location.getForegroundPermissionsAsync(),
+      VERIFICACAO_PERMISSAO_TIMEOUT_MS,
+      null
+    );
+
+    if (permissao?.status !== Location.PermissionStatus.GRANTED) {
+      return false;
+    }
+
+    return await aguardarComLimite(
+      sincronizarLocalizacaoUsuario(),
+      SINCRONIZACAO_BUSCA_TIMEOUT_MS,
+      false
+    );
+  } catch (error) {
+    console.warn("A busca seguirá sem o filtro de localização:", error);
+    return false;
+  }
+}
+
+export type ResultadoPermissaoLocalizacao =
+  | "concedida"
+  | "negada"
+  | "configuracoes";
+
+export async function solicitarOuAbrirConfiguracoesLocalizacao(): Promise<ResultadoPermissaoLocalizacao> {
+  try {
+    const permissaoAtual = await Location.getForegroundPermissionsAsync();
+    if (permissaoAtual.status === Location.PermissionStatus.GRANTED) {
+      return (await sincronizarLocalizacaoUsuario(true)) ? "concedida" : "negada";
+    }
+
+    if (!permissaoAtual.canAskAgain) {
+      await Linking.openSettings();
+      return "configuracoes";
+    }
+
+    const permissao = await Location.requestForegroundPermissionsAsync();
+    if (permissao.status !== Location.PermissionStatus.GRANTED) {
+      return "negada";
+    }
+
+    return (await sincronizarLocalizacaoUsuario(true)) ? "concedida" : "negada";
+  } catch (error) {
+    console.warn("Não foi possível solicitar a permissão de localização:", error);
+    return "negada";
   }
 }

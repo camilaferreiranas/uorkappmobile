@@ -1,5 +1,6 @@
 import { API_URL } from "./api_url";
 import { getToken } from "./token-storage";
+import { validarConteudoPublico } from "../utils/content-moderation";
 
 export interface NovaProposta {
   prestadorId: number;
@@ -16,6 +17,11 @@ export interface NovaProposta {
 
 export async function enviarProposta(proposta: NovaProposta): Promise<void> {
   try {
+    validarConteudoPublico([
+      { nome: "tipo de serviço", valor: proposta.tipoServico },
+      { nome: "descrição", valor: proposta.descricao },
+    ]);
+
     const url = `${API_URL}/propostas`;
     const storedToken = await getToken();
 
@@ -391,6 +397,11 @@ export async function avaliarPrestador(
   propostaId: number,
   avaliacao: AvaliacaoPrestadorPayload
 ): Promise<AvaliacaoPrestadorResponse> {
+  validarConteudoPublico([
+    { nome: "destaque", valor: avaliacao.destaque },
+    { nome: "comentário", valor: avaliacao.comentario },
+  ]);
+
   const storedToken = await getToken();
   if (!storedToken || storedToken.expiresAt <= Date.now()) {
     throw new Error("Sessão expirada. Entre novamente.");
