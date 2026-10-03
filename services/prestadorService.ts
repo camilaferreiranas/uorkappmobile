@@ -1,3 +1,4 @@
+import { request } from './request';
 import { API_URL } from "./api_url";
 
 export interface Prestador {
@@ -11,7 +12,7 @@ export async function buscarPrestadoresCategoria(categoriaId: number): Promise<P
    try {
     const url =  `${API_URL}/prestadores?categoriaId=${categoriaId}&page=0&size=10`;
 
-    const response = await fetch(url);
+    const response = await request(url);
 
     if (!response.ok) {
         const erroTexto = await response.text();
@@ -58,7 +59,7 @@ export async function buscarPerfilPrestador(prestadorId: number): Promise<Perfil
   try {
     const url = `${API_URL}/prestadores/prestadores/${prestadorId}/perfil`;
 
-    const response = await fetch(url);
+    const response = await request(url);
 
 
     if (!response.ok) {

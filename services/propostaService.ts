@@ -1,3 +1,4 @@
+import { request } from './request';
 import { API_URL } from "./api_url";
 
 export interface NovaProposta {
@@ -13,7 +14,7 @@ export async function enviarProposta(proposta: NovaProposta): Promise<void> {
     const url = `${API_URL}/propostas`;
 
 
-    const response = await fetch(url, {
+    const response = await request(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

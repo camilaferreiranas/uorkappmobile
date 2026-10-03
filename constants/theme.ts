@@ -14,6 +14,10 @@ import { Platform } from 'react-native';
 
 /** Raw brand values — the single source of truth. */
 const palette = {
+  olive: '#40511E', // Prestador — verde-oliva da paleta Uork
+  oliveTint: '#EDF0E6',
+  oliveMuted: '#A5AF91',
+
   blue600: '#2563EB', // brand.primary — Azul Uork
   blue500: '#3B82F6',
   blue300: '#93C5FD', // muted brand (disabled primary)
@@ -103,6 +107,18 @@ export const Colors = {
     tabIconDefault: palette.slate400,
     tabIconSelected: palette.white,
   },
+};
+
+/** Professional identity; status colours retain their semantic meaning. */
+export const ProfessionalColors = {
+  ...Colors,
+  brandPrimary: palette.olive,
+  brandPrimaryHover: palette.olive,
+  brandPrimaryMuted: palette.oliveMuted,
+  brandDark: palette.olive,
+  brandTint: palette.oliveTint,
+  gradientStart: palette.olive,
+  gradientEnd: palette.oliveMuted,
 };
 
 /** Spacing rhythm — 16px gutters, 24–32px between sections, 12–16px within. */

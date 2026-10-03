@@ -115,6 +115,7 @@ export default function SignupScreen() {
           label="Cadastrar com Google"
           onPress={promptAsync}
           loading={googleLoading}
+          disabled={loading}
         />
 
         {googleError ? (
@@ -196,7 +197,7 @@ export default function SignupScreen() {
         <Button
           title="Criar conta"
           onPress={handleSignup}
-          disabled={!isFormValid || loading}
+          disabled={!isFormValid || loading || googleLoading}
           loading={loading}
           disabledReason="Preencha seus dados e confirme a senha de ao menos 8 caracteres."
           style={styles.submitButton}

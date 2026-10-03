@@ -63,6 +63,7 @@ export default function LoginScreen() {
         <GoogleSignInButton
           onPress={promptAsync}
           loading={googleLoading}
+          disabled={submitting}
         />
 
         {googleError ? (
@@ -104,7 +105,7 @@ export default function LoginScreen() {
         <Button
           title="Entrar"
           onPress={handleLogin}
-          disabled={!isFormValid || submitting}
+          disabled={!isFormValid || submitting || googleLoading}
           loading={submitting}
           disabledReason="Informe um e-mail válido e uma senha de ao menos 8 caracteres."
           style={styles.submitButton}

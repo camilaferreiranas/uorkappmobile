@@ -14,7 +14,7 @@ import { ReviewCard } from "../../components/ui/review-card";
 import { Chip, ChipRow } from "../../components/ui/chip";
 import { ListCard } from "../../components/ui/list-card";
 import { SectionHeader } from "../../components/ui/section-header";
-import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
+import { ProfessionalColors as Colors, Radii, Shadow, Spacing } from "../../constants/theme";
 
 const lastReview = {
   name: "Mariana Costa",
@@ -93,6 +93,7 @@ export default function ProfessionalHomeScreen() {
       >
         <View style={styles.topBar}>
           <View>
+            <Text style={styles.profileLabel}>PERFIL PRESTADOR</Text>
             <Text style={styles.hello}>Olá, {user?.nome ?? "profissional"}</Text>
             <View style={styles.statusRow}>
               <MaterialIcons name="circle" size={9} color={Colors.success} />
@@ -129,7 +130,7 @@ export default function ProfessionalHomeScreen() {
         <View style={styles.chips}>
           <ChipRow>
             {filters.map((f, i) => (
-              <Chip key={f} label={f} active={i === 0} />
+              <Chip tone="professional" key={f} label={f} active={i === 0} />
             ))}
           </ChipRow>
         </View>
@@ -149,6 +150,7 @@ export default function ProfessionalHomeScreen() {
               </View>
             )}
             <ListCard
+              tone="professional"
               title={d.title}
               subtitle={d.subtitle}
               subtitleIcon="place"
@@ -159,7 +161,7 @@ export default function ProfessionalHomeScreen() {
           </View>
         ))}
         <SectionHeader title="Última avaliação" />
-        <ReviewCard name={lastReview.name} comment={lastReview.comment} rating={lastReview.rating} distance={lastReview.date} />
+        <ReviewCard tone="professional" name={lastReview.name} comment={lastReview.comment} rating={lastReview.rating} distance={lastReview.date} />
       </ScrollView>
 
       <ProfessionalNavBar active="inicio" />
@@ -182,6 +184,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
+  },
+  profileLabel: {
+    color: Colors.brandPrimary,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1,
+    marginBottom: 6,
   },
   hello: {
     fontSize: 22,
@@ -215,7 +224,7 @@ const styles = StyleSheet.create({
   stats: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.surfaceNeutral,
+    backgroundColor: Colors.brandTint,
     borderRadius: Radii.lg,
     paddingVertical: 16,
     marginBottom: 24,

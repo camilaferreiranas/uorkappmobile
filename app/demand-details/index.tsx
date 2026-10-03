@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
   Urgente: { bg: "#FFF0EB", text: "#D86A3F" },
@@ -147,10 +147,10 @@ export default function DemandDetailsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.surfaceNeutral,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     paddingHorizontal: 20,
     paddingTop: 18,
     paddingBottom: 20,
@@ -280,14 +280,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.brandTint,
     alignItems: "center",
     justifyContent: "center",
   },
   clientAvatarText: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#0D3D8B",
+    color: Colors.brandPrimary,
   },
   clientName: {
     fontSize: 15,
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     borderRadius: 16,
     paddingVertical: 16,
   },
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   backHomeButton: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 16,

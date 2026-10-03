@@ -1,3 +1,4 @@
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
@@ -80,7 +81,7 @@ const allDemands = [
 ];
 
 const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
-  new: { label: "Nova", color: "#0D3D8B", bg: "#E8EDFA" },
+  new: { label: "Nova", color: Colors.brandPrimary, bg: Colors.brandTint },
   accepted: { label: "Em andamento", color: "#2E7D32", bg: "#EAFAF1" },
   completed: { label: "Concluída", color: "#6B6B6B", bg: "#F4F4F4" },
 };
@@ -163,10 +164,10 @@ export default function ProfessionalDemandsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.surfaceNeutral,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 22,
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    color: "#B8CCF6",
+    color: Colors.textOnBrandMuted,
     fontSize: 13,
   },
   container: {
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#0D3D8B",
+    color: Colors.brandPrimary,
     marginBottom: 4,
   },
   summaryLabel: {

@@ -1,3 +1,4 @@
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   SafeAreaView,
@@ -54,7 +55,7 @@ export default function ProfessionalReportScreen() {
 
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <MaterialIcons name="assignment-turned-in" size={24} color="#0D3D8B" />
+            <MaterialIcons name="assignment-turned-in" size={24} color={Colors.brandPrimary} />
             <Text style={styles.statValue}>{summary.completedDemands}</Text>
             <Text style={styles.statLabel}>Concluídas</Text>
           </View>
@@ -98,7 +99,7 @@ export default function ProfessionalReportScreen() {
                 <MaterialIcons
                   name="flash-on"
                   size={18}
-                  color="#0D3D8B"
+                  color={Colors.brandPrimary}
                 />
               </View>
               <View style={styles.transactionInfo}>
@@ -126,10 +127,10 @@ export default function ProfessionalReportScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.surfaceNeutral,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 22,
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    color: "#B8CCF6",
+    color: Colors.textOnBrandMuted,
     fontSize: 13,
   },
   container: {
@@ -150,14 +151,14 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
   balanceCard: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     borderRadius: 20,
     padding: 22,
     marginBottom: 16,
     alignItems: "center",
   },
   balanceLabel: {
-    color: "#B8CCF6",
+    color: Colors.textOnBrandMuted,
     fontSize: 13,
     marginBottom: 6,
   },
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   balanceSubText: {
-    color: "#D1E0FF",
+    color: Colors.textOnBrandMuted,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
   },
   monthBarFill: {
     height: "100%",
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     borderRadius: 4,
   },
   monthDemands: {
@@ -296,7 +297,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.brandTint,
     alignItems: "center",
     justifyContent: "center",
   },

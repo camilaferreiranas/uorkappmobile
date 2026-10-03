@@ -1,8 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Colors, Radii } from '../../constants/theme';
+import { Colors, ProfessionalColors, Radii } from '../../constants/theme';
 
 interface ListCardProps {
+  tone?: 'client' | 'professional';
   title: string;
   /** Secondary line, usually a place or role. */
   subtitle?: string;
@@ -21,6 +22,7 @@ interface ListCardProps {
 }
 
 export function ListCard({
+  tone = 'client',
   title,
   subtitle,
   subtitleIcon = 'place',
@@ -34,6 +36,8 @@ export function ListCard({
   onToggleFavorite,
   onPress,
 }: ListCardProps) {
+  const Colors = tone === 'professional' ? ProfessionalColors : ClientColors;
+  const styles = tone === 'professional' ? professionalStyles : clientStyles;
   return (
     <Pressable
       accessibilityRole="button"
@@ -102,7 +106,7 @@ export function ListCard({
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: typeof ClientColors) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -181,3 +185,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const ClientColors = Colors;
+const clientStyles = createStyles(ClientColors);
+const professionalStyles = createStyles(ProfessionalColors);

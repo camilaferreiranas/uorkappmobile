@@ -1,15 +1,18 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { Colors, Radii } from '../../constants/theme';
+import { Colors, ProfessionalColors, Radii } from '../../constants/theme';
 
 interface ChipProps {
+  tone?: 'client' | 'professional';
   label: string;
   active?: boolean;
   icon?: keyof typeof MaterialIcons.glyphMap;
   onPress?: () => void;
 }
 
-export function Chip({ label, active = false, icon, onPress }: ChipProps) {
+export function Chip({ label, active = false, icon, onPress, tone = 'client' }: ChipProps) {
+  const Colors = tone === 'professional' ? ProfessionalColors : ClientColors;
+  const styles = tone === 'professional' ? professionalStyles : clientStyles;
   return (
     <Pressable
       accessibilityRole="button"
@@ -43,15 +46,15 @@ export function ChipRow({ children }: ChipRowProps) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.row}
-      style={styles.scroll}
+      contentContainerStyle={clientStyles.row}
+      style={clientStyles.scroll}
     >
       {children}
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: typeof ClientColors) => StyleSheet.create({
   scroll: {
     marginHorizontal: -16,
   },
@@ -83,3 +86,7 @@ const styles = StyleSheet.create({
     color: Colors.textOnBrand,
   },
 });
+
+const ClientColors = Colors;
+const clientStyles = createStyles(ClientColors);
+const professionalStyles = createStyles(ProfessionalColors);

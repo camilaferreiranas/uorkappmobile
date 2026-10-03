@@ -1,86 +1,34 @@
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import { GOOGLE_CLIENT_IDS } from '../constants/env';
-import { useAuth } from '../contexts/auth-context';
+import { useGoogleLogin } from './useGoogleLogin';
 
-WebBrowser.maybeCompleteAuthSession();
-
-interface GoogleUser {
-  id: string;
-  email: string;
-  given_name: string;
-  family_name: string;
-  picture?: string;
-}
-
-interface UseGoogleAuthResult {
-  promptAsync: () => void;
-  loading: boolean;
-  error: string;
-}
-
-export function useGoogleAuth(onSuccess: () => void): UseGoogleAuthResult {
-  const { loginWithGoogle } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const [, response, promptAsync] = Google.useAuthRequest({
-    webClientId: GOOGLE_CLIENT_IDS.web,
-    iosClientId: GOOGLE_CLIENT_IDS.ios,
-    androidClientId: GOOGLE_CLIENT_IDS.android,
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const accessToken = response.authentication?.accessToken;
-      if (accessToken) {
-        handleGoogleResponse(accessToken);
-      }
-    } else if (response?.type === 'error') {
-      setError('Erro ao autenticar com Google. Tente novamente.');
-      setLoading(false);
+// Loaded only after checking Expo Go, which does not contain the native module.
+export function useGoogleAuth(onSuccess: () => void) {
+  return useGoogleLogin(async () => {
+    if (Constants.appOwnership === 'expo') {
+      throw new Error('O login com Google exige uma build própria do app. Não está disponível no Expo Go.');
     }
-  }, [response]);
-
-  async function handleGoogleResponse(accessToken: string) {
-    setLoading(true);
-    setError('');
-
+    if (!GOOGLE_CLIENT_IDS.web || (Platform.OS === 'ios' && !GOOGLE_CLIENT_IDS.ios)) {
+      throw new Error('Configure as credenciais do Google para esta plataforma.');
+    }
+    const { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } = await import('@react-native-google-signin/google-signin');
+    GoogleSignin.configure({ webClientId: GOOGLE_CLIENT_IDS.web, iosClientId: GOOGLE_CLIENT_IDS.ios || undefined });
     try {
-      const userInfoResponse = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-
-      if (!userInfoResponse.ok) {
-        throw new Error('Não foi possível obter os dados do Google.');
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const result = await GoogleSignin.signIn();
+      if (!isSuccessResponse(result)) return null;
+      const { idToken, user } = result.data;
+      if (!idToken) throw new Error('O Google não retornou um token de identidade. Verifique o client ID Web.');
+      return { idToken, googleId: user.id, email: user.email, nome: user.givenName ?? '', sobrenome: user.familyName ?? '', avatarUrl: user.photo ?? undefined };
+    } catch (error) {
+      if (isErrorWithCode(error)) {
+        if (error.code === statusCodes.SIGN_IN_CANCELLED) return null;
+        if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          throw new Error('Atualize ou ative o Google Play Services para continuar.');
+        }
       }
-
-      const user: GoogleUser = await userInfoResponse.json();
-
-      await loginWithGoogle({
-        googleId: user.id,
-        email: user.email,
-        nome: user.given_name,
-        sobrenome: user.family_name ?? '',
-        avatarUrl: user.picture,
-      });
-
-      onSuccess();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao autenticar com Google.';
-      setError(message);
-    } finally {
-      setLoading(false);
+      throw error;
     }
-  }
-
-  return {
-    promptAsync: () => {
-      setError('');
-      promptAsync();
-    },
-    loading,
-    error,
-  };
+  }, onSuccess);
 }

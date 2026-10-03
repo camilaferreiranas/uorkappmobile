@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
-import { Colors, Radii } from '../../constants/theme';
+import { Colors, ProfessionalColors, Radii } from '../../constants/theme';
 import { Card } from './card';
 
 interface ReviewCardProps {
+  tone?: 'client' | 'professional';
   name: string;
   comment: string;
   rating: number;
@@ -11,7 +12,9 @@ interface ReviewCardProps {
   distance?: string;
 }
 
-export function ReviewCard({ name, comment, rating, date, distance }: ReviewCardProps) {
+export function ReviewCard({ name, comment, rating, date, distance, tone = 'client' }: ReviewCardProps) {
+  const Colors = tone === 'professional' ? ProfessionalColors : ClientColors;
+  const styles = tone === 'professional' ? professionalStyles : clientStyles;
   return (
     <Card style={styles.card}>
       <View style={styles.header}>
@@ -35,7 +38,7 @@ export function ReviewCard({ name, comment, rating, date, distance }: ReviewCard
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (Colors: typeof ClientColors) => StyleSheet.create({
   card: {
     marginHorizontal: 16,
     marginTop: 12,
@@ -92,3 +95,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 });
+
+const ClientColors = Colors;
+const clientStyles = createStyles(ClientColors);
+const professionalStyles = createStyles(ProfessionalColors);

@@ -127,3 +127,39 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 ---
 
 Desenvolvido com ❤️ usando Expo e React Native.
+
+## Login com Google
+
+O login e o cadastro usam o SDK nativo no Android/iOS e OAuth no navegador.
+Copie `.env.example` para `.env.local` e configure os identificadores públicos
+(nunca inclua um client secret no aplicativo).
+
+- **Google Cloud:** configure a tela de consentimento e os usuários de teste.
+- **Android:** crie um cliente OAuth Android com package `br.com.uork` e o SHA-1
+  do certificado de cada build (debug, produção e Play App Signing). O SDK usa
+  o client ID **Web** para emitir o ID token destinado ao servidor.
+- **iOS:** crie um cliente OAuth iOS para `br.com.uork` e preencha
+  `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`. `app.config.ts` registra o URL scheme.
+- **Web:** no cliente OAuth Web, autorize a origem e os URIs de redirecionamento
+  exatos das telas `/login` e `/signup`, incluindo protocolo, porta e eventual
+  barra final (ex.: `http://localhost:8081/login`). Use HTTPS em produção.
+- **Execução mobile:** execute `npx expo run:android` ou `npx expo run:ios`.
+  Recompile após mudar a configuração nativa. Google Sign-In não roda no Expo Go.
+
+### Contrato do backend
+
+`POST /auth/google` recebe `{ idToken, googleId, email, nome, sobrenome, avatarUrl }`
+e deve retornar `{ accessToken, expiresIn }` (`expiresIn` em segundos).
+O backend **precisa validar o ID token** usando a biblioteca oficial do Google:
+assinatura, emissor, expiração, audiência permitida e e-mail verificado.
+Use o `sub` e o e-mail do token validado para identificar/criar a conta; os demais
+campos enviados pelo cliente são apenas sugestões e não comprovam identidade.
+Autorize as audiências Web/iOS correspondentes às credenciais configuradas.
+Não vincule contas existentes com base em um e-mail não verificado.
+
+O backend não está neste repositório: confirme essa validação antes de liberar
+em produção. Após autenticar, o app carrega `/usuario/perfil`, salva a sessão e
+navega para a home apenas se todas as etapas terminarem com sucesso.
+
+Referências: [Expo](https://docs.expo.dev/guides/google-authentication/) e
+[configuração do SDK](https://react-native-google-signin.github.io/docs/setting-up/expo).

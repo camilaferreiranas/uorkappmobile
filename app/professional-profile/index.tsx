@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { useAuth } from "../../contexts/auth-context";
 import { getInitials } from "../../utils/get-initials";
@@ -58,7 +58,7 @@ export default function ProfessionalProfileScreen() {
           </Text>
           <Text style={styles.specialty}>{professionalMock.specialty}</Text>
           <View style={styles.locationRow}>
-            <MaterialIcons name="location-on" size={14} color="#FFE5D9" />
+            <MaterialIcons name="location-on" size={14} color={Colors.textOnBrandMuted} />
             <Text style={styles.location}>{professionalMock.location}</Text>
           </View>
           <View style={styles.memberBadge}>
@@ -148,7 +148,7 @@ export default function ProfessionalProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
-                <MaterialIcons name={item.icon as any} size={18} color="#0D3D8B" />
+                <MaterialIcons name={item.icon as any} size={18} color={Colors.brandPrimary} />
               </View>
               <Text style={styles.menuLabel}>{item.label}</Text>
               <MaterialIcons name="chevron-right" size={20} color="#C4C4C4" />
@@ -165,13 +165,13 @@ export default function ProfessionalProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F2F4FB",
+    backgroundColor: Colors.surfaceNeutral,
   },
   container: {
     paddingBottom: 110,
   },
   header: {
-    backgroundColor: "#0D3D8B",
+    backgroundColor: Colors.brandPrimary,
     paddingTop: 30,
     paddingBottom: 30,
     alignItems: "center",
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   specialty: {
-    color: "#B8CCF6",
+    color: Colors.textOnBrandMuted,
     fontSize: 14,
     marginBottom: 8,
   },
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   location: {
-    color: "#FFE5D9",
+    color: Colors.textOnBrandMuted,
     fontSize: 13,
   },
   memberBadge: {
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   memberText: {
-    color: "#D1E0FF",
+    color: Colors.textOnBrandMuted,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -371,14 +371,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.brandTint,
     alignItems: "center",
     justifyContent: "center",
   },
   reviewAvatarText: {
     fontSize: 12,
     fontWeight: "800",
-    color: "#0D3D8B",
+    color: Colors.brandPrimary,
   },
   reviewMeta: {
     flex: 1,
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 10,
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.brandTint,
     alignItems: "center",
     justifyContent: "center",
   },

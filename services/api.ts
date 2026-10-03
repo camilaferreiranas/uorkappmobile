@@ -1,3 +1,4 @@
+import { request } from './request';
 const BASE_URL = 'http://192.168.15.27:8080';
 
 export interface CreateUserPayload {
@@ -10,6 +11,7 @@ export interface CreateUserPayload {
 }
 
 export interface GoogleAuthPayload {
+  idToken: string;
   googleId: string;
   email: string;
   nome: string;
@@ -59,7 +61,7 @@ interface ApiResponse<T> {
 }
 
 export async function createUser(payload: CreateUserPayload): Promise<void> {
-  const response = await fetch(`${BASE_URL}/usuario`, {
+  const response = await request(`${BASE_URL}/usuario`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -72,7 +74,7 @@ export async function createUser(payload: CreateUserPayload): Promise<void> {
 }
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
-  const response = await fetch(`${BASE_URL}/login`, {
+  const response = await request(`${BASE_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -87,7 +89,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 }
 
 export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthResponse> {
-  const response = await fetch(`${BASE_URL}/auth/google`, {
+  const response = await request(`${BASE_URL}/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -102,7 +104,7 @@ export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthR
 }
 
 export async function getUserProfile(accessToken: string, email: string): Promise<UserProfile> {
-  const response = await fetch(`${BASE_URL}/usuario/perfil?email=${encodeURIComponent(email)}`, {
+  const response = await request(`${BASE_URL}/usuario/perfil?email=${encodeURIComponent(email)}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
@@ -120,7 +122,7 @@ export async function updateUserProfile(
   email: string,
   payload: UpdateUserProfilePayload
 ): Promise<UserProfile> {
-  const response = await fetch(`${BASE_URL}/usuario/perfil?email=${encodeURIComponent(email)}`, {
+  const response = await request(`${BASE_URL}/usuario/perfil?email=${encodeURIComponent(email)}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

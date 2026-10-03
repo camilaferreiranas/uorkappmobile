@@ -36,30 +36,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    restoreSession();
-  }, []);
-
-  async function restoreSession() {
-    try {
-      const stored = await getToken();
-      if (stored) {
-        if (stored.expiresAt <= Date.now()) {
-          await clearToken();
-        } else {
-          try {
-            const profile = await getUserProfile(stored.accessToken, stored.email);
-            setUser(profile);
-          } catch {
-            setUser(null);
+    async function restoreSession() {
+      try {
+        const stored = await getToken();
+        if (stored) {
+          if (stored.expiresAt <= Date.now()) {
+            await clearToken();
+          } else {
+            try {
+              const profile = await getUserProfile(stored.accessToken, stored.email);
+              setUser(profile);
+            } catch {
+              setUser(null);
+            }
           }
         }
+      } catch {
+        await clearToken();
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      await clearToken();
-    } finally {
-      setLoading(false);
     }
-  }
+
+    void restoreSession();
+  }, []);
 
   async function login(email: string, senha: string) {
     const auth = await loginRequest({ email, senha });
@@ -69,7 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function loginWithGoogle(payload: GoogleAuthPayload) {
     const auth = await loginWithGoogleRequest(payload);
-    const profile = await loadProfile(auth, payload.email);
+    if (!auth.accessToken || !Number.isFinite(auth.expiresIn) || auth.expiresIn <= 0) {
+      throw new Error('Resposta de autenticação inválida. Tente novamente.');
+    }
+    const profile = await getUserProfile(auth.accessToken, payload.email);
+    if (!profile) throw new Error('Não foi possível carregar o perfil. Tente novamente.');
+    await saveToken(auth.accessToken, auth.expiresIn, profile.email);
     setUser(profile);
   }
 

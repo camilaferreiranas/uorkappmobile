@@ -1,3 +1,4 @@
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -40,7 +41,7 @@ export function ProfessionalNavBar({ active }: ProfessionalNavBarProps) {
               <MaterialIcons
                 name={item.icon as any}
                 size={22}
-                color={isActive ? "#0D3D8B" : "#7A7A95"}
+                color={isActive ? Colors.brandPrimary : "#7A7A95"}
               />
             </View>
             <Text style={[styles.label, isActive && styles.labelActive]}>
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   iconWrapperActive: {
-    backgroundColor: "#E8EDFA",
+    backgroundColor: Colors.brandTint,
   },
   label: {
     color: "#7A7A95",
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   labelActive: {
-    color: "#0D3D8B",
+    color: Colors.brandPrimary,
     fontWeight: "700",
   },
 });
