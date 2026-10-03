@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Alert,
   ActivityIndicator,
@@ -42,27 +42,32 @@ function getPhotoContentType(
 export default function EditProfileScreen() {
   const router = useRouter();
   const { user, updateProfile, updatePhoto, removePhoto, logout } = useAuth();
-  const [nome, setNome] = useState("");
-  const [sobrenome, setSobrenome] = useState("");
-  const [email, setEmail] = useState("");
-  const [tipoPessoa, setTipoPessoa] = useState<"CPF" | "CNPJ">("CPF");
-  const [documento, setDocumento] = useState("");
-  const [telefone, setTelefone] = useState("");
+  const [nome, setNome] = useState(() => user?.nome ?? "");
+  const [sobrenome, setSobrenome] = useState(() => user?.sobrenome ?? "");
+  const [email, setEmail] = useState(() => user?.email ?? "");
+  const [tipoPessoa, setTipoPessoa] = useState<"CPF" | "CNPJ">(
+    () => user?.tipoPessoa ?? "CPF"
+  );
+  const [documento, setDocumento] = useState(() => user?.documento ?? "");
+  const [telefone, setTelefone] = useState(() => user?.telefone ?? "");
   const [senha, setSenha] = useState("");
   const [confirmacaoSenha, setConfirmacaoSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  useEffect(() => {
-    if (!user) return;
-    setNome(user.nome ?? "");
-    setSobrenome(user.sobrenome ?? "");
-    setEmail(user.email ?? "");
-    setTipoPessoa(user.tipoPessoa ?? "CPF");
-    setDocumento(user.documento ?? "");
-    setTelefone(user.telefone ?? "");
-  }, [user]);
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser) {
+    setPrevUser(user);
+    if (user) {
+      setNome(user.nome ?? "");
+      setSobrenome(user.sobrenome ?? "");
+      setEmail(user.email ?? "");
+      setTipoPessoa(user.tipoPessoa ?? "CPF");
+      setDocumento(user.documento ?? "");
+      setTelefone(user.telefone ?? "");
+    }
+  }
 
   const telefoneError = useMemo(() => erroTelefoneBrasileiro(telefone), [telefone]);
 

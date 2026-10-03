@@ -19,35 +19,34 @@ import { getAddressByCep } from "../services/api";
 export default function AddressScreen() {
   const router = useRouter();
   const { user, updateAddress } = useAuth();
-  const [cep, setCep] = useState("");
-  const [rua, setRua] = useState("");
-  const [numero, setNumero] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [estado, setEstado] = useState("");
+  const [cep, setCep] = useState(() => user?.endereco?.cep ?? "");
+  const [rua, setRua] = useState(() => user?.endereco?.rua ?? "");
+  const [numero, setNumero] = useState(() => user?.endereco?.numero ?? "");
+  const [bairro, setBairro] = useState(() => user?.endereco?.bairro ?? "");
+  const [cidade, setCidade] = useState(() => user?.endereco?.cidade ?? "");
+  const [estado, setEstado] = useState(() => user?.endereco?.estado ?? "");
   const [consultingCep, setConsultingCep] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cepError, setCepError] = useState("");
   const [submitError, setSubmitError] = useState("");
 
-  useEffect(() => {
-    if (!user?.endereco) return;
-    setCep(user.endereco.cep ?? "");
-    setRua(user.endereco.rua ?? "");
-    setNumero(user.endereco.numero ?? "");
-    setBairro(user.endereco.bairro ?? "");
-    setCidade(user.endereco.cidade ?? "");
-    setEstado(user.endereco.estado ?? "");
-  }, [user]);
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser) {
+    setPrevUser(user);
+    if (user?.endereco) {
+      setCep(user.endereco.cep ?? "");
+      setRua(user.endereco.rua ?? "");
+      setNumero(user.endereco.numero ?? "");
+      setBairro(user.endereco.bairro ?? "");
+      setCidade(user.endereco.cidade ?? "");
+      setEstado(user.endereco.estado ?? "");
+    }
+  }
 
   const normalizedCep = cep.replace(/\D/g, "");
 
   useEffect(() => {
-    if (normalizedCep.length !== 8) {
-      setCepError("");
-      setConsultingCep(false);
-      return;
-    }
+    if (normalizedCep.length !== 8) return;
 
     let active = true;
     const timeout = setTimeout(async () => {
@@ -91,8 +90,10 @@ export default function AddressScreen() {
   }, [bairro, cidade, estado, normalizedCep, numero, rua]);
 
   function handleCepChange(value: string) {
-    setCep(value.replace(/\D/g, "").slice(0, 8));
+    const somenteDigitos = value.replace(/\D/g, "").slice(0, 8);
+    setCep(somenteDigitos);
     setCepError("");
+    if (somenteDigitos.length !== 8) setConsultingCep(false);
   }
 
   async function handleSave() {

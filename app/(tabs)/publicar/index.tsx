@@ -103,8 +103,6 @@ export default function PublicarScreen() {
   const [erros, setErros] = useState<ErrosFormulario>({});
 
   const carregarCategorias = useCallback(async () => {
-    setCarregandoCategorias(true);
-    setErroCategorias("");
     try {
       setCategorias(await buscarCategorias());
     } catch (error) {
@@ -119,7 +117,10 @@ export default function PublicarScreen() {
   }, []);
 
   useEffect(() => {
-    void carregarCategorias();
+    const timeout = setTimeout(() => {
+      void carregarCategorias();
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [carregarCategorias]);
 
   const nomesCategorias = useMemo(
@@ -346,7 +347,13 @@ export default function PublicarScreen() {
       {erroCategorias ? (
         <View style={styles.inlineError}>
           <Text style={styles.inlineErrorText}>{erroCategorias}</Text>
-          <TouchableOpacity onPress={() => void carregarCategorias()}>
+          <TouchableOpacity
+            onPress={() => {
+              setCarregandoCategorias(true);
+              setErroCategorias("");
+              void carregarCategorias();
+            }}
+          >
             <Text style={styles.retryText}>Tentar novamente</Text>
           </TouchableOpacity>
         </View>
@@ -363,6 +370,7 @@ export default function PublicarScreen() {
         maxLength={TITULO_MAX_LENGTH}
         error={erros.titulo}
         style={styles.whiteInput}
+        testID="publish-title-input"
       />
 
       <Input
@@ -378,6 +386,7 @@ export default function PublicarScreen() {
         maxLength={DESCRICAO_MAX_LENGTH}
         error={erros.descricao}
         style={[styles.whiteInput, styles.textArea]}
+        testID="publish-description-input"
       />
 
       <View style={styles.fieldGroup}>
@@ -394,6 +403,7 @@ export default function PublicarScreen() {
           maxLength={LOCALIZACAO_MAX_LENGTH}
           error={erros.localizacao}
           style={styles.whiteInput}
+          testID="publish-location-input"
         />
         <Button
           title={obtendoLocalizacao ? "Obtendo localização..." : "Usar localização atual"}
@@ -402,6 +412,7 @@ export default function PublicarScreen() {
           disabled={obtendoLocalizacao}
           style={styles.gpsButton}
           textStyle={styles.gpsButtonText}
+          testID="publish-gps-button"
         />
       </View>
 
@@ -428,6 +439,7 @@ export default function PublicarScreen() {
         maxLength={18}
         error={erros.orcamento}
         style={styles.whiteInput}
+        testID="publish-budget-input"
       />
 
       <View style={styles.fieldGroup}>
@@ -462,7 +474,11 @@ export default function PublicarScreen() {
         />
       </View>
 
-      {erroPublicacao ? <Text style={styles.submitError}>{erroPublicacao}</Text> : null}
+      {erroPublicacao ? (
+        <Text testID="publish-error-message" style={styles.submitError}>
+          {erroPublicacao}
+        </Text>
+      ) : null}
 
       <Button
         title="Publicar demanda"
@@ -470,6 +486,7 @@ export default function PublicarScreen() {
         loading={publicando}
         disabled={publicando || carregandoCategorias || Boolean(erroCategorias)}
         style={styles.publishButton}
+        testID="publish-submit-button"
       />
     </ScreenContainer>
   );

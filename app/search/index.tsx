@@ -3,10 +3,9 @@ import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Chip, ChipRow } from "../../components/ui/chip";
-import { ListCard } from "../../components/ui/list-card";
+import { ProfessionalCard } from "../../components/ui/professional-card";
 import { ScreenContainer } from "../../components/ui/screen-container";
-import { ScreenHeader } from "../../components/ui/screen-header";
-import { Colors, Radii } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 
 const filters = [
   { key: "categoria", label: "Eletrônica" },
@@ -94,6 +93,7 @@ export default function SearchScreen() {
           onChangeText={setQuery}
           returnKeyType="search"
           autoFocus
+          testID="search-input"
         />
         {query.length > 0 && (
           <Pressable
@@ -101,6 +101,7 @@ export default function SearchScreen() {
             hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel="Limpar busca"
+            testID="search-clear-button"
           >
             <MaterialIcons name="close" size={18} color={Colors.textSecondary} />
           </Pressable>
@@ -122,18 +123,20 @@ export default function SearchScreen() {
         </ChipRow>
       </View>
 
-      <Text style={styles.count}>
+      <Text testID="search-results-count" style={styles.resultCount}>
         {results.length} {results.length === 1 ? "profissional" : "profissionais"}
       </Text>
 
-      {filteredProfessionals.map((professional) => (
-        <ProfessionalCard
-          key={professional.name}
-          {...professional}
-          style={styles.professionalCard}
-          onPress={() => router.push("/profile")}
-        />
-      ))}
+      <View testID="search-results-list">
+        {filteredProfessionals.map((professional) => (
+          <ProfessionalCard
+            key={professional.name}
+            {...professional}
+            style={styles.professionalCard}
+            onPress={() => router.push("/profile")}
+          />
+        ))}
+      </View>
     </ScreenContainer>
   );
 }

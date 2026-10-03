@@ -56,21 +56,23 @@ export default function DemandDetailsScreen() {
   const [carregandoResumo, setCarregandoResumo] = useState(true);
   const [erroResumo, setErroResumo] = useState("");
 
-  useEffect(() => {
-    const propostaId = Number(params.id);
-    let telaAtiva = true;
+  const propostaIdResumo = Number(params.id);
+  const resumoValido =
+    Number.isInteger(propostaIdResumo) && propostaIdResumo > 0;
 
-    if (!Number.isInteger(propostaId) || propostaId <= 0) {
-      setCarregandoResumo(false);
-      setErroResumo("Dados do cliente indisponíveis");
-      return () => {
-        telaAtiva = false;
-      };
-    }
-
+  const [prevIdResumo, setPrevIdResumo] = useState(params.id);
+  if (prevIdResumo !== params.id) {
+    setPrevIdResumo(params.id);
     setCarregandoResumo(true);
     setStatusCarregado(false);
     setErroResumo("");
+  }
+
+  useEffect(() => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0) return;
+
+    let telaAtiva = true;
     buscarDetalheDemanda(propostaId)
       .then((detalhe) => {
         if (!telaAtiva) return;
@@ -280,7 +282,11 @@ export default function DemandDetailsScreen() {
           <View>
             <Text style={styles.clientName}>{params.client}</Text>
             <View style={styles.clientRatingRow}>
-              {carregandoResumo ? (
+              {!resumoValido ? (
+                <Text style={styles.clientRatingText}>
+                  Dados do cliente indisponíveis
+                </Text>
+              ) : carregandoResumo ? (
                 <ActivityIndicator size="small" color={Colors.primary} />
               ) : erroResumo ? (
                 <Text style={styles.clientRatingText}>{erroResumo}</Text>

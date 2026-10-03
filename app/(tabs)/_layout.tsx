@@ -79,6 +79,7 @@ export default function TabLayout() {
         name="home/index"
         options={{
           title: "Início",
+          tabBarButtonTestID: "tabs-home-button",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name="home" color={color} focused={focused} />
           ),
@@ -88,6 +89,7 @@ export default function TabLayout() {
         name="explore/index"
         options={{
           title: "Buscar",
+          tabBarButtonTestID: "tabs-search-button",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name="search" color={color} focused={focused} />
           ),
@@ -97,6 +99,7 @@ export default function TabLayout() {
         name="publicar/index"
         options={{
           title: "Publicar",
+          tabBarButtonTestID: "tabs-publish-button",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name="add-circle" color={color} focused={focused} />
           ),
@@ -106,6 +109,7 @@ export default function TabLayout() {
         name="perfil/index"
         options={{
           title: "Perfil",
+          tabBarButtonTestID: "tabs-profile-button",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name="person" color={color} focused={focused} />
           ),

@@ -92,6 +92,7 @@ export default function LoginScreen() {
           placeholder="email@teste.com"
           error={emailError}
           textContentType="emailAddress"
+          testID="login-email-input"
         />
 
         <Input
@@ -102,10 +103,13 @@ export default function LoginScreen() {
           secureTextEntry
           error={passwordError}
           textContentType="password"
+          testID="login-password-input"
         />
 
         {submitError ? (
-          <Text style={styles.errorText}>{submitError}</Text>
+          <Text testID="login-error-message" style={styles.errorText}>
+            {submitError}
+          </Text>
         ) : null}
 
         <Button
@@ -115,6 +119,7 @@ export default function LoginScreen() {
           loading={submitting}
           disabledReason="Informe um e-mail válido e uma senha de ao menos 8 caracteres."
           style={styles.submitButton}
+          testID="login-submit-button"
         />
 
         <Pressable

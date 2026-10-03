@@ -1,6 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { type Href, useRouter } from "expo-router";
+import { useFocusEffect, type Href, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,

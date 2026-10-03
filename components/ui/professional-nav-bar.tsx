@@ -3,7 +3,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "../../constants/theme";
 
 export type ProfessionalTab = "inicio" | "demandas" | "relatorio" | "perfil";
 

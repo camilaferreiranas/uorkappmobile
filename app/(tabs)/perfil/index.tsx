@@ -14,15 +14,15 @@ import { useAuth } from "../../../contexts/auth-context";
 import { getInitials } from "../../../utils/get-initials";
 
 const menuItems = [
-  { icon: "assignment", label: "Minhas demandas" },
-  { icon: "send", label: "Minhas propostas" },
-  { icon: "edit", label: "Editar perfil" },
-  { icon: "location-on", label: "Meu endereço" },
-  { icon: "notifications", label: "Notificações" },
+  { icon: "assignment", label: "Minhas demandas", id: "my-demands" },
+  { icon: "send", label: "Minhas propostas", id: "my-proposals" },
+  { icon: "edit", label: "Editar perfil", id: "edit-profile" },
+  { icon: "location-on", label: "Meu endereço", id: "address" },
+  { icon: "notifications", label: "Notificações", id: "notifications" },
   // { icon: "payment", label: "Formas de pagamento" },
-  { icon: "history", label: "Histórico de serviços" },
-  { icon: "help-outline", label: "Ajuda e suporte" },
-  { icon: "logout", label: "Sair da conta" },
+  { icon: "history", label: "Histórico de serviços", id: "history" },
+  { icon: "help-outline", label: "Ajuda e suporte", id: "help" },
+  { icon: "logout", label: "Sair da conta", id: "logout" },
 ];
 
 export default function PerfilScreen() {
@@ -79,10 +79,12 @@ export default function PerfilScreen() {
             borderWidth={3}
             style={styles.avatar}
           />
-          <Text style={styles.name}>
+          <Text testID="profile-name-text" style={styles.name}>
             {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
           </Text>
-          <Text style={styles.email}>{user?.email ?? ""}</Text>
+          <Text testID="profile-email-text" style={styles.email}>
+            {user?.email ?? ""}
+          </Text>
         </View>
 
         <View style={styles.statsRow}>
@@ -99,13 +101,14 @@ export default function PerfilScreen() {
           </View>
         </View>
 
-        <View style={styles.menuCard}>
+        <View style={styles.menuCard} testID="profile-menu-list">
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={item.label}
               style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
               onPress={() => handleMenuPress(item.label)}
               activeOpacity={0.7}
+              testID={`profile-${item.id}-button`}
             >
               <View style={styles.menuIconWrapper}>
                 <MaterialIcons

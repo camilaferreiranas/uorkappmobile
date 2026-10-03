@@ -44,9 +44,6 @@ export default function ProfessionalRegistrationScreen() {
   const [erro, setErro] = useState("");
 
   const carregarCategorias = useCallback(async () => {
-    setCarregando(true);
-    setErro("");
-
     try {
       const resultado = await buscarCategorias();
       setCategorias(
@@ -64,17 +61,16 @@ export default function ProfessionalRegistrationScreen() {
   }, []);
 
   useEffect(() => {
-    void carregarCategorias();
+    const timeout = setTimeout(() => {
+      void carregarCategorias();
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [carregarCategorias]);
 
   const cepNormalizado = cep.replace(/\D/g, "");
 
   useEffect(() => {
-    if (etapa !== 2 || cepNormalizado.length !== 8) {
-      setCepErro("");
-      setConsultandoCep(false);
-      return;
-    }
+    if (etapa !== 2 || cepNormalizado.length !== 8) return;
 
     let active = true;
     const timer = setTimeout(async () => {
@@ -133,9 +129,20 @@ export default function ProfessionalRegistrationScreen() {
   function voltar() {
     if (etapa === 2) {
       setEtapa(1);
+      setCepErro("");
+      setConsultandoCep(false);
       return;
     }
     router.back();
+  }
+
+  function handleCepChange(value: string) {
+    const somenteDigitos = value.replace(/\D/g, "").slice(0, 8);
+    setCep(somenteDigitos);
+    if (somenteDigitos.length !== 8) {
+      setCepErro("");
+      setConsultandoCep(false);
+    }
   }
 
   function manterCampoVisivel() {
@@ -147,6 +154,8 @@ export default function ProfessionalRegistrationScreen() {
   async function concluirCadastro() {
     if (categoriaId === null || !descricao.trim()) {
       setEtapa(1);
+      setCepErro("");
+      setConsultandoCep(false);
       return;
     }
 
@@ -256,7 +265,11 @@ export default function ProfessionalRegistrationScreen() {
                 <Text style={styles.errorText}>{erro}</Text>
                 <TouchableOpacity
                   style={styles.retryButton}
-                  onPress={() => void carregarCategorias()}
+                  onPress={() => {
+                    setCarregando(true);
+                    setErro("");
+                    void carregarCategorias();
+                  }}
                 >
                   <Text style={styles.retryButtonText}>Tentar novamente</Text>
                 </TouchableOpacity>
@@ -339,7 +352,7 @@ export default function ProfessionalRegistrationScreen() {
             <Input
               label="CEP"
               value={cep}
-              onChangeText={(value) => setCep(value.replace(/\D/g, "").slice(0, 8))}
+              onChangeText={handleCepChange}
               placeholder="00000000"
               keyboardType="numeric"
               maxLength={8}

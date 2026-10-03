@@ -136,6 +136,7 @@ export default function SignupScreen() {
           returnKeyType="next"
           autoCapitalize="words"
           error={nomeError}
+          testID="signup-name-input"
         />
 
         <Input
@@ -146,6 +147,7 @@ export default function SignupScreen() {
           returnKeyType="next"
           autoCapitalize="words"
           error={sobrenomeError}
+          testID="signup-lastname-input"
         />
 
         <Input
@@ -156,6 +158,7 @@ export default function SignupScreen() {
           returnKeyType="next"
           autoCapitalize="none"
           error={documentoError}
+          testID="signup-document-input"
         />
 
         <Input
@@ -168,6 +171,7 @@ export default function SignupScreen() {
           autoComplete="email"
           textContentType="emailAddress"
           error={emailError}
+          testID="signup-email-input"
         />
 
         <Input
@@ -178,6 +182,7 @@ export default function SignupScreen() {
           secureTextEntry
           textContentType="newPassword"
           error={passwordError}
+          testID="signup-password-input"
         />
 
         <Input
@@ -188,10 +193,13 @@ export default function SignupScreen() {
           secureTextEntry
           textContentType="password"
           error={confirmPasswordError}
+          testID="signup-confirm-password-input"
         />
 
         {submitError ? (
-          <Text style={styles.errorText}>{submitError}</Text>
+          <Text testID="signup-error-message" style={styles.errorText}>
+            {submitError}
+          </Text>
         ) : null}
 
         <Button
@@ -201,6 +209,7 @@ export default function SignupScreen() {
           loading={loading}
           disabledReason="Preencha seus dados e confirme a senha de ao menos 8 caracteres."
           style={styles.submitButton}
+          testID="signup-submit-button"
         />
     </ScreenContainer>
   );

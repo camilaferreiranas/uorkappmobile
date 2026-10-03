@@ -1,0 +1,16 @@
+# Smoke: fresh launch reaches the root screen and can navigate to login.
+appId: br.com.uork
+name: Launch
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "Simples. Confiável. Feito para você."
+    timeout: 30000
+- tapOn: "Já tenho conta"
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 15000

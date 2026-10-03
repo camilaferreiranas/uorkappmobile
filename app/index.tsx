@@ -1,9 +1,10 @@
 import { useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
     Animated,
     StyleSheet,
     Text,
+    View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/theme";
@@ -13,7 +14,7 @@ import { useAuth } from "../contexts/auth-context";
 export default function SplashScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [fadeAnim] = useState(() => new Animated.Value(0));
   const { user, loading } = useAuth();
 
   useEffect(() => {

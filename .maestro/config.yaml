@@ -1,0 +1,14 @@
+# Maestro workspace configuration
+# Docs: https://docs.maestro.dev/reference/workspace-configuration
+
+# Discover all flows recursively under .maestro/
+flows:
+  - "**"
+
+# Tag conventions:
+#   smoke     -> fast, critical-path flows (launch, login success)
+#   regression-> longer / state-dependent flows
+# Run only the fast suite:  npm run e2e:smoke  (maestro test .maestro --include-tags=smoke)
+# By default no includeTags/excludeTags are set, so `npm run e2e` runs ALL flows.
+
+testOutputDir: .maestro/report

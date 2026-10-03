@@ -130,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     void restoreSession();
-  }, []);
+  }
 
   async function login(email: string, senha: string) {
     await authenticate(() => loginRequest({ email, senha }));

@@ -1,4 +1,3 @@
-import { ProfessionalColors as Colors } from "../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   SafeAreaView,

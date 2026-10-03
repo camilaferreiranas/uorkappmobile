@@ -1,0 +1,30 @@
+# Auth: invalid credentials stay on login and show an error message.
+# Credentials below are intentionally invalid — never real secrets.
+appId: br.com.uork
+name: Login failure
+tags:
+  - regression
+  - auth
+---
+- launchApp:
+    clearState: true
+- tapOn: "Já tenho conta"
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 15000
+- tapOn:
+    id: "login-email-input"
+- inputText: e2e-invalido@exemplo.com
+- tapOn:
+    id: "login-password-input"
+- inputText: senha-invalida-123
+- hideKeyboard
+- tapOn:
+    id: "login-submit-button"
+- extendedWaitUntil:
+    visible:
+      id: "login-error-message"
+    timeout: 30000
+- assertVisible:
+    id: "login-email-input"

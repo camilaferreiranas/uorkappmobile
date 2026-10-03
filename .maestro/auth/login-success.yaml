@@ -1,0 +1,27 @@
+# Auth: valid credentials (MAESTRO_TEST_EMAIL / MAESTRO_TEST_PASSWORD) redirect to home.
+appId: br.com.uork
+name: Login success
+tags:
+  - smoke
+  - auth
+---
+- launchApp:
+    clearState: true
+- tapOn: "Já tenho conta"
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 15000
+- tapOn:
+    id: "login-email-input"
+- inputText: ${MAESTRO_TEST_EMAIL}
+- tapOn:
+    id: "login-password-input"
+- inputText: ${MAESTRO_TEST_PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login-submit-button"
+- extendedWaitUntil:
+    visible:
+      id: "home-welcome-text"
+    timeout: 30000

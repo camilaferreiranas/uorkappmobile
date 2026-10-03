@@ -33,9 +33,16 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env.e2e
+
+# maestro e2e
+.maestro/report/
 
 # typescript
 *.tsbuildinfo
+
+# jest
+coverage/
 
 app-example
 

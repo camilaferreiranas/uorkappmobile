@@ -1,25 +1,28 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { type Href, useRouter } from "expo-router";
+import { useFocusEffect, useRouter, type Href } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Chip, ChipRow } from "../../components/ui/chip";
 import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponiveis";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
-import { Colors } from "../../constants/theme";
+import { Colors, Radii } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { useNotifications } from "../../contexts/notification-context";
-import { buscarResumoPrestador, type ResumoPrestador } from "../../services/propostaService";
 import {
   atualizarLocalizacaoPrestador,
   verificarCadastroPrestador,
 } from "../../services/prestadorService";
+import { buscarResumoPrestador, type ResumoPrestador } from "../../services/propostaService";
 
 function formatarValor(valor: number) {
   return valor.toLocaleString("pt-BR", {
@@ -344,16 +347,16 @@ export default function ProfessionalHomeScreen() {
               <Text style={styles.metricLabel} numberOfLines={2}>{m.label}</Text>
               <Text style={styles.metricNote}>{m.note}</Text>
             </View>
-          </View>
-          <Pressable
-            style={styles.switch}
-            onPress={() => router.push("/home")}
-            accessibilityRole="button"
-          >
-            <MaterialIcons name="swap-horiz" size={16} color={Colors.brandPrimary} />
-            <Text style={styles.switchText}>Cliente</Text>
-          </Pressable>
+          ))}
         </View>
+        <Pressable
+          style={styles.switch}
+          onPress={() => router.push("/home")}
+          accessibilityRole="button"
+        >
+          <MaterialIcons name="swap-horiz" size={16} color={Colors.brandPrimary} />
+          <Text style={styles.switchText}>Cliente</Text>
+        </Pressable>
 
         <View style={styles.stats}>
           <View style={styles.stat}>
@@ -406,9 +409,8 @@ export default function ProfessionalHomeScreen() {
               </Text>
             </View>
           </View>
-        ))}
-        <SectionHeader title="Última avaliação" />
-        <ReviewCard tone="professional" name={lastReview.name} comment={lastReview.comment} rating={lastReview.rating} distance={lastReview.date} />
+          <Text style={styles.reviewComment}>{lastReview.comment}</Text>
+        </View>
       </ScrollView>
 
       <ProfessionalNavBar active="inicio" />
@@ -522,7 +524,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   headerTitle: {
-    color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
     color: Colors.brandDark,
@@ -545,7 +546,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.success,
   },
   onlineBadgeText: {
-    color: Colors.primaryLight,
     fontSize: 12,
     color: Colors.textSecondary,
   },
@@ -679,8 +679,6 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     flex: 1,
-    borderRadius: 16,
-    padding: 12,
     gap: 4,
     backgroundColor: Colors.brandTint,
     borderRadius: Radii.pill,
@@ -850,10 +848,6 @@ const styles = StyleSheet.create({
   },
   reviewBadge: {
     flexDirection: "row",
-    backgroundColor: "#EAF7ED",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
     alignItems: "center",
     gap: 3,
     alignSelf: "flex-start",

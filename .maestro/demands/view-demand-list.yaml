@@ -1,0 +1,44 @@
+# Demands: authenticated user opens "Minhas demandas" and sees the list or empty state.
+appId: br.com.uork
+name: View demand list
+tags:
+  - regression
+  - demands
+---
+- launchApp:
+    clearState: true
+- tapOn: "Já tenho conta"
+- extendedWaitUntil:
+    visible:
+      id: "login-email-input"
+    timeout: 15000
+- tapOn:
+    id: "login-email-input"
+- inputText: ${MAESTRO_TEST_EMAIL}
+- tapOn:
+    id: "login-password-input"
+- inputText: ${MAESTRO_TEST_PASSWORD}
+- hideKeyboard
+- tapOn:
+    id: "login-submit-button"
+- extendedWaitUntil:
+    visible:
+      id: "home-welcome-text"
+    timeout: 30000
+- tapOn:
+    id: "tabs-profile-button"
+- extendedWaitUntil:
+    visible:
+      id: "profile-menu-list"
+    timeout: 15000
+- tapOn:
+    id: "profile-my-demands-button"
+- extendedWaitUntil:
+    visible: "Minhas demandas"
+    timeout: 15000
+- extendedWaitUntil:
+    notVisible: "Carregando suas demandas..."
+    timeout: 20000
+- assertNotVisible: "Não foi possível carregar"
+- assertVisible:
+    id: "my-demands-list"

@@ -1,8 +1,6 @@
-import { ProfessionalColors as Colors } from "../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -130,9 +128,13 @@ export default function ProfessionalDemandsScreen() {
     }, [aba, carregar])
   );
 
-  useEffect(() => {
-    if (abaInicial === "disponiveis" || abaInicial === "recebidas") setAba(abaInicial);
-  }, [abaInicial]);
+  const [prevAbaInicial, setPrevAbaInicial] = useState(abaInicial);
+  if (prevAbaInicial !== abaInicial) {
+    setPrevAbaInicial(abaInicial);
+    if (abaInicial === "disponiveis" || abaInicial === "recebidas") {
+      setAba(abaInicial);
+    }
+  }
 
   function atualizar() {
     setAtualizando(true);

@@ -74,6 +74,9 @@ Uork é um aplicativo móvel desenvolvido com React Native e Expo, projetado par
 - `npm run ios`: Inicia especificamente para iOS.
 - `npm run web`: Inicia especificamente para web.
 - `npm run lint`: Executa o linter para verificar código.
+- `npm run e2e`: Executa a suíte de testes de UI (Maestro) em todos os fluxos.
+- `npm run e2e:smoke`: Executa apenas os fluxos com tag `smoke` (caminho crítico).
+- `npm run e2e:android` / `npm run e2e:ios`: Executa a suíte na plataforma indicada.
 - `npm run reset-project`: Reseta o projeto para um estado inicial (move código para app-example).
 
 ## Estrutura do Projeto
@@ -115,6 +118,39 @@ uorkappmobile/
 - Siga as regras do ESLint configurado
 - Mantenha a estrutura de pastas organizada
 - Documente componentes e funções importantes
+
+### Testes de UI (Maestro)
+
+Os testes end-to-end usam [Maestro](https://maestro.mobile.dev/) e vivem em `.maestro/`.
+
+1. **Instale a CLI do Maestro**:
+   ```bash
+   curl -Ls https://get.maestro.mobile.dev | bash
+   ```
+2. **Build e instalação do app** (pastas nativas `android/` e `ios/` são geradas; app id `br.com.uork`):
+   ```bash
+   npx expo run:android   # ou: npx expo run:ios
+   ```
+   > O Expo Go não serve para e2e — os fluxos exigem o binário instalado. Para Android,
+   > mantenha um emulador aberto (ou dispositivo conectado com depuração USB).
+3. **Credenciais de teste**: copie o exemplo e preencha a conta de teste do e2e:
+   ```bash
+   cp .env.e2e.example .env.e2e
+   ```
+   O arquivo `.env.e2e` é ignorado pelo git. Variáveis com prefixo `MAESTRO_`
+   (ex.: `MAESTRO_TEST_EMAIL`, `MAESTRO_TEST_PASSWORD`) são expostas
+   automaticamente aos fluxos — nunca hardcode credenciais nos YAMLs.
+4. **Execute**:
+   ```bash
+   npm run e2e            # todos os fluxos
+   npm run e2e:smoke      # apenas a tag smoke (rápido)
+   npm run e2e:android    # força a plataforma Android
+   npm run e2e:ios        # força a plataforma iOS
+   ```
+
+Convenções: fluxos em `.maestro/<jornada>/`, seletores via `testID` (sintaxe `id:` no
+Maestro), naming de `testID` em snake_case no padrão `<tela>-<elemento>-<tipo>`.
+O resultado de cada execução é gravado em `.maestro/report/` (ignorado pelo git).
 
 ## Suporte e Contato
 

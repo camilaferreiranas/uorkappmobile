@@ -1,7 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
 import { Image } from "expo-image";
-import { type Href, useRouter } from "expo-router";
+import { useFocusEffect, type Href, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -238,6 +237,7 @@ export default function MyDemandsScreen() {
         </View>
       ) : (
         <FlatList
+          testID="my-demands-list"
           data={demandas}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (

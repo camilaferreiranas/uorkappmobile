@@ -16,7 +16,6 @@ import { PillGroup } from "../../components/ui/pill-group";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { ScreenHeader } from "../../components/ui/screen-header";
 import { StarRating } from "../../components/ui/star-rating";
-import { Colors, Radii } from "../../constants/theme";
 import { avaliarPrestador } from "../../services/propostaService";
 
 const qualityTags = ["Pontualidade", "Comunicação", "Qualidade", "Custo-benefício"];

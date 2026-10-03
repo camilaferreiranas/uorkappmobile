@@ -6,16 +6,15 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { CategoryCard } from "../../../components/ui/category-card";
+import { Chip, ChipRow } from "../../../components/ui/chip";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import { ProfileAvatar } from "../../../components/ui/profile-avatar";
 import { SectionHeader } from "../../../components/ui/section-header";
-import { Colors } from "../../../constants/theme";
+import { Colors, Radii } from "../../../constants/theme";
 import { useAuth } from "../../../contexts/auth-context";
 import { useNotifications } from "../../../contexts/notification-context";
 
@@ -78,7 +77,7 @@ export default function HomeScreen() {
           <View style={styles.headerText}>
 
 
-            <Text style={styles.welcome}>Olá, {user?.nome ?? "Usuário"}!</Text>
+            <Text testID="home-welcome-text" style={styles.welcome}>Olá, {user?.nome ?? "Usuário"}!</Text>
 
             <Text style={styles.subtitle}>
               Encontre o profissional ideal para você
@@ -91,6 +90,7 @@ export default function HomeScreen() {
               activeOpacity={0.75}
               accessibilityRole="button"
               accessibilityLabel={`Notificações: ${naoLidasCliente} não lidas`}
+              testID="home-notifications-button"
             >
               <MaterialIcons name="notifications-none" size={23} color="#fff" />
               {naoLidasCliente > 0 ? (
@@ -107,6 +107,7 @@ export default function HomeScreen() {
               activeOpacity={0.75}
               accessibilityRole="button"
               accessibilityLabel="Abrir perfil"
+              testID="home-profile-button"
             >
               <ProfileAvatar
                 imageUrl={user?.fotoPerfilUrl}
@@ -117,16 +118,13 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </View>
-        <Pressable style={styles.avatar} onPress={() => router.push("/(tabs)/perfil")} accessibilityRole="button" accessibilityLabel="Meu perfil">
-          <Text style={styles.avatarText}>{getInitials(user?.nome || "Usuário")}</Text>
-        </Pressable>
-      </View>
 
         {ultimaNotificacao ? (
           <TouchableOpacity
             style={styles.notificationCard}
             onPress={() => router.push("/client-notifications" as Href)}
             activeOpacity={0.8}
+            testID="home-notification-card"
           >
             <View style={styles.notificationCardIcon}>
               <MaterialIcons name="check-circle-outline" size={22} color={Colors.primary} />
@@ -143,12 +141,16 @@ export default function HomeScreen() {
 
         {/* Toggle Cliente/Profissional */}
         <View style={styles.switchRow}>
-          <TouchableOpacity style={[styles.switchButton, styles.switchButtonActive]}>
+          <TouchableOpacity
+            style={[styles.switchButton, styles.switchButtonActive]}
+            testID="home-cliente-toggle"
+          >
             <Text style={[styles.switchLabel, styles.switchLabelActive]}>Cliente</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.switchButton}
             onPress={() => router.push("/professional-home")}
+            testID="home-profissional-toggle"
           >
             <Text style={styles.switchLabel}>Profissional</Text>
           </TouchableOpacity>
@@ -156,7 +158,7 @@ export default function HomeScreen() {
 
       <View style={styles.chips}>
         <ChipRow>
-          {categories.map((c, i) => (
+          {serviceCategories.map((c, i) => (
             <Chip
               key={c.title}
               label={c.title}
@@ -175,7 +177,7 @@ export default function HomeScreen() {
           onSubtitlePress={() => router.push("/nearby-professionals" as Href)}
           style={styles.sectionHeader}
         />
-        <View style={styles.professionalsContainer}>
+        <View style={styles.professionalsContainer} testID="home-professionals-list">
           {loadingProfessionals ? (
             <ActivityIndicator color={Colors.primary} />
           ) : professionalsError ? (

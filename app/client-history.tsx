@@ -1,6 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -99,8 +98,13 @@ export default function ClientHistoryScreen() {
 
   useEffect(() => {
     navegouAtePropostaRef.current = false;
-    if (propostaIdDestacada != null) setFiltro("TODOS");
   }, [propostaIdDestacada]);
+
+  const [prevDestacada, setPrevDestacada] = useState(propostaIdDestacada);
+  if (prevDestacada !== propostaIdDestacada) {
+    setPrevDestacada(propostaIdDestacada);
+    if (propostaIdDestacada != null) setFiltro("TODOS");
+  }
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
     if (exibirCarregamento) setCarregando(true);

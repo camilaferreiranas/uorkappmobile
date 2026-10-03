@@ -1,9 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -42,8 +41,6 @@ function formatarData(value: string) {
 function FotoDemanda({ foto, index }: { foto: DemandaDisponivel["fotos"][number]; index: number }) {
   const [falhou, setFalhou] = useState(false);
   const cacheKey = foto.url.replace(/[?#].*$/, "");
-
-  useEffect(() => setFalhou(false), [foto.url]);
 
   return (
     <View style={styles.photoFrame}>
@@ -292,7 +289,7 @@ export default function AvailableDemandDetailsScreen() {
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Fotos da demanda ({fotos.length})</Text>
               <View style={styles.photos}>
-                {fotos.map((foto, index) => <FotoDemanda key={foto.id} foto={foto} index={index} />)}
+                {fotos.map((foto, index) => <FotoDemanda key={`${foto.id}-${foto.url}`} foto={foto} index={index} />)}
               </View>
             </View>
           ) : null}

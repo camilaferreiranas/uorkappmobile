@@ -1,6 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -11,42 +10,25 @@ import {
   View,
 } from "react-native";
 import { Button } from "../../components/ui/button";
-import { ListCard } from "../../components/ui/list-card";
-import { ReviewCard } from "../../components/ui/review-card";
+import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { ScreenHeader } from "../../components/ui/screen-header";
 import { SectionHeader } from "../../components/ui/section-header";
 import { ServiceCard } from "../../components/ui/service-card";
-import { ProfileAvatar } from "../../components/ui/profile-avatar";
-import { Colors } from "../../constants/theme";
-import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
+import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
+import { buscarPerfilPrestador, type PerfilPrestador } from "../../services/prestadorService";
 
-const services = [
-  { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
-  { title: "Troca de lâmpadas", price: "R$ 90", subtitle: "Residencial e comercial", rating: 4.7 },
-  { title: "Laudo técnico", price: "R$ 250", subtitle: "Inspeção completa", rating: 4.8 },
-];
-
-const reviews = [
-  {
-    name: "Mariana Costa",
-    comment: "Excelente trabalho e rapidez na entrega. Recomendo!",
-    rating: 5.0,
-    distance: "1,0 km",
-  },
-  {
-    name: "Felipe Alves",
-    comment: "Muito profissional e demonstrou conhecimento técnico.",
-    rating: 4.8,
-    distance: "3,2 km",
-  },
-];
+function formatCurrency(value: number) {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
 
 export default function ProfileScreen() {
-  const router = useRouter();
   const { id, modo } = useLocalSearchParams<{ id: string; modo?: string }>();
   const somenteConsulta = modo === "candidatura";
 
-function ProfileContent({ id }: { id?: string }) {
+  return <ProfileContent id={id} somenteConsulta={somenteConsulta} />;
+}
+
+function ProfileContent({ id, somenteConsulta }: { id?: string; somenteConsulta?: boolean }) {
   const router = useRouter();
   const [profile, setProfile] = useState<PerfilPrestador | null>(null);
   const [loading, setLoading] = useState(Boolean(id));
@@ -63,26 +45,30 @@ function ProfileContent({ id }: { id?: string }) {
   }, [id]);
 
   const openProposal = (serviceTitle?: string) => {
-  router.push({
-    pathname: "/send-proposal" as any,
-    params: {
-      prestadorId: id,
-      professional: profile?.nome ?? "",
-      service: serviceTitle ?? "",
-      serviceOptions: JSON.stringify(
-        profile?.servicos.map((item) => item.titulo) ?? []
-      ),
-    },
-  });
-};
+    router.push({
+      pathname: "/send-proposal" as any,
+      params: {
+        prestadorId: id,
+        professional: profile?.nome ?? "",
+        service: serviceTitle ?? "",
+        serviceOptions: JSON.stringify(
+          profile?.servicos.map((item) => item.titulo) ?? []
+        ),
+      },
+    });
+  };
 
-  if (loading || error) {
+  if (loading || error || !profile) {
     return <SafeAreaView style={styles.safeArea}>
       <ScreenHeader onBack={() => router.back()} />
       {loading ? <ActivityIndicator size="large" color={Colors.brandPrimary} /> : <Text style={styles.specialty}>{error}</Text>}
     </SafeAreaView>;
   }
 
+  const initials = profile.nome?.substring(0, 2).toUpperCase() || "US";
+  const startingPrice = profile.servicos.length > 0
+    ? formatCurrency(Math.min(...profile.servicos.map((service) => service.valorMedio)))
+    : "Sob consulta";
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -164,11 +150,6 @@ function ProfileContent({ id }: { id?: string }) {
             onPress={somenteConsulta ? undefined : () => openProposal(service.titulo)}
           />
         ))}
-
-        {!profile && <SectionHeader title="Avaliações recentes" style={styles.section} />}
-        {!profile && reviews.map((r) => (
-          <ReviewCard key={r.name} {...r} />
-        ))}
       </ScrollView>
 
       <View style={styles.ctaBar}>
@@ -220,6 +201,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
   },
+  avatarContainer: {
+    alignItems: "center",
+    marginTop: 8,
+  },
   detailsCard: {
     marginHorizontal: 20,
     marginTop: 20,
@@ -246,6 +231,16 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 13,
     color: Colors.textSecondary,
+  },
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 6,
+  },
+  statBlock: {
+    flex: 1,
+    alignItems: "center",
   },
   stats: {
     flexDirection: "row",
@@ -280,6 +275,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 3,
   },
+  ratingValue: {
+    color: Colors.black,
+    fontWeight: "800",
+    fontSize: 16,
+  },
+  contractButton: {
+    marginTop: 20,
+    borderRadius: 16,
+    paddingVertical: 16,
+  },
   messageButton: {
     marginBottom: 4,
   },
@@ -310,5 +315,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "800",
     color: Colors.brandDark,
+  },
+  ctaButton: {
+    flex: 1,
+    maxWidth: 200,
   },
 });
