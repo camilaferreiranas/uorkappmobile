@@ -53,6 +53,24 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="publicar"
+        options={{
+          title: "Publicar",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={26} name="plus.circle.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={26} name="person.fill" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

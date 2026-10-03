@@ -8,15 +8,31 @@ import {
   Text,
   View,
 } from "react-native";
+import { useAuth } from "../../contexts/auth-context";
+import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { ReviewCard } from "../../components/ui/review-card";
 import { Chip, ChipRow } from "../../components/ui/chip";
 import { ListCard } from "../../components/ui/list-card";
 import { SectionHeader } from "../../components/ui/section-header";
 import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
 
+const lastReview = {
+  name: "Mariana Costa",
+  comment: "Serviço impecável, pontual e muito atencioso.",
+  rating: 5.0,
+  date: "2 dias atrás",
+};
+
 const filters = ["Todas", "Urgentes", "Perto de mim", "Meu ramo"];
 
 const demands = [
   {
+    id: "1",
+    budget: "R$ 340",
+    urgency: "Urgente",
+    distance: "1,8 km",
+    client: "João Melo",
+    description: "Preciso instalar 3 novos pontos elétricos no apartamento. Sala e dois quartos.",
     title: "Instalação elétrica",
     subtitle: "Apartamento · 3 pontos · 1,8 km",
     price: "Orçamento R$ 340",
@@ -24,6 +40,12 @@ const demands = [
     urgent: true,
   },
   {
+    id: "2",
+    budget: "R$ 120",
+    urgency: "Normal",
+    distance: "2,3 km",
+    client: "Ana Lima",
+    description: "Torneira da cozinha com vazamento. Precisa de troca completa com peça.",
     title: "Troca de torneira",
     subtitle: "Cozinha residencial · 2,3 km",
     price: "Orçamento R$ 120",
@@ -31,6 +53,12 @@ const demands = [
     urgent: false,
   },
   {
+    id: "3",
+    budget: "R$ 420",
+    urgency: "Hoje",
+    distance: "3,1 km",
+    client: "Pedro Santos",
+    description: "Casa após reforma. Limpeza pesada em todos os cômodos, aproximadamente 120m².",
     title: "Limpeza pós-obra",
     subtitle: "Casa térrea · 3,1 km",
     price: "Orçamento R$ 420",
@@ -38,6 +66,12 @@ const demands = [
     urgent: true,
   },
   {
+    id: "4",
+    budget: "R$ 260",
+    urgency: "Normal",
+    distance: "4,0 km",
+    client: "",
+    description: "Pintura de um cômodo.",
     title: "Pintura de quarto",
     subtitle: "1 cômodo · 4,0 km",
     price: "Orçamento R$ 260",
@@ -46,15 +80,10 @@ const demands = [
   },
 ];
 
-const navItems = [
-  { label: "Demandas", icon: "list-alt" as const, active: true },
-  { label: "Propostas", icon: "send" as const },
-  { label: "Agenda", icon: "calendar-today" as const },
-  { label: "Perfil", icon: "person-outline" as const },
-];
 
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -64,7 +93,7 @@ export default function ProfessionalHomeScreen() {
       >
         <View style={styles.topBar}>
           <View>
-            <Text style={styles.hello}>Olá, Rafael</Text>
+            <Text style={styles.hello}>Olá, {user?.nome ?? "profissional"}</Text>
             <View style={styles.statusRow}>
               <MaterialIcons name="circle" size={9} color={Colors.success} />
               <Text style={styles.status}>Disponível para novas demandas</Text>
@@ -125,32 +154,15 @@ export default function ProfessionalHomeScreen() {
               subtitleIcon="place"
               price={d.price}
               icon={d.icon}
-              onPress={() => router.push("/proposals")}
+              onPress={() => router.push({ pathname: "/demand-details", params: { id: d.id, title: d.title, subtitle: d.subtitle, budget: d.budget, urgency: d.urgency, distance: d.distance, client: d.client, description: d.description } })}
             />
           </View>
         ))}
+        <SectionHeader title="Última avaliação" />
+        <ReviewCard name={lastReview.name} comment={lastReview.comment} rating={lastReview.rating} distance={lastReview.date} />
       </ScrollView>
 
-      <View style={styles.tabBar}>
-        {navItems.map((item) => (
-          <Pressable
-            key={item.label}
-            style={styles.tabItem}
-            accessibilityRole="button"
-            accessibilityState={{ selected: !!item.active }}
-            onPress={() => item.label === "Propostas" && router.push("/proposals")}
-          >
-            {item.active ? (
-              <View style={styles.tabActive}>
-                <MaterialIcons name={item.icon} size={20} color={Colors.textOnBrand} />
-                <Text style={styles.tabActiveLabel}>{item.label}</Text>
-              </View>
-            ) : (
-              <MaterialIcons name={item.icon} size={22} color={Colors.textSecondary} />
-            )}
-          </Pressable>
-        ))}
-      </View>
+      <ProfessionalNavBar active="inicio" />
     </SafeAreaView>
   );
 }

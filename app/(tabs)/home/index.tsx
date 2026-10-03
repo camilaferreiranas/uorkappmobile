@@ -1,11 +1,26 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useAuth } from "../../../contexts/auth-context";
+import { getInitials } from "../../../utils/get-initials";
+import { CategoryCard } from "../../../components/ui/category-card";
 import { Chip, ChipRow } from "../../../components/ui/chip";
 import { ListCard } from "../../../components/ui/list-card";
 import { ScreenContainer } from "../../../components/ui/screen-container";
 import { SectionHeader } from "../../../components/ui/section-header";
 import { Colors, Radii } from "../../../constants/theme";
+
+const serviceCategories = [
+  { id: 1, title: "Eletrônica", icon: "flash" },
+  { id: 2, title: "Beleza", icon: "face-woman" },
+  { id: 3, title: "Limpeza", icon: "broom" },
+  { id: 4, title: "Pintura", icon: "palette" },
+  { id: 5, title: "Serviços", icon: "wrench" },
+  { id: 6, title: "Instalação", icon: "pipe" },
+  { id: 7, title: "Jardinagem", icon: "tree-outline" },
+  { id: 8, title: "Reparo", icon: "hammer" },
+];
+
 
 const categories = [
   { title: "Todos", icon: "apps" as const },
@@ -42,22 +57,29 @@ const professionals = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuth();
 
   return (
     <ScreenContainer contentContainerStyle={styles.container}>
       <View style={styles.topBar}>
         <View>
-          <Text style={styles.hello}>Olá, Mariana</Text>
+          <Text style={styles.hello}>Olá, {user?.nome || "Usuário"}</Text>
           <View style={styles.locationRow}>
             <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
             <Text style={styles.location}>Salvador, BA</Text>
           </View>
         </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>MC</Text>
-        </View>
+        <Pressable style={styles.avatar} onPress={() => router.push("/(tabs)/perfil")} accessibilityRole="button" accessibilityLabel="Meu perfil">
+          <Text style={styles.avatarText}>{getInitials(user?.nome || "Usuário")}</Text>
+        </Pressable>
       </View>
 
+      <View style={{ marginVertical: 16 }}>
+        <ChipRow>
+          <Chip label="Cliente" active />
+          <Chip label="Profissional" onPress={() => router.push("/professional-home")} />
+        </ChipRow>
+      </View>
       <Pressable
         style={styles.search}
         onPress={() => router.push("/search")}
@@ -98,6 +120,13 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
+      <SectionHeader title="Categorias" />
+      <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
+        {serviceCategories.map((category) => (
+          <CategoryCard key={category.id} title={category.title} icon={category.icon} iconFamily="community"
+            onPress={() => router.push({ pathname: "/category-providers", params: { category: category.title, categoriaId: String(category.id) } })} />
+        ))}
+      </View>
       <SectionHeader
         title="Profissionais em destaque"
         actionLabel="Ver todos"

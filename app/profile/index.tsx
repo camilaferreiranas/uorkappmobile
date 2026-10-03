@@ -1,6 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  ActivityIndicator,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -36,7 +39,46 @@ const reviews = [
 ];
 
 export default function ProfileScreen() {
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  return <ProfileContent key={id ?? "demo"} id={id} />;
+}
+
+function ProfileContent({ id }: { id?: string }) {
   const router = useRouter();
+  const [profile, setProfile] = useState<PerfilPrestador | null>(null);
+  const [loading, setLoading] = useState(Boolean(id));
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    if (!id) return;
+    buscarPerfilPrestador(Number(id))
+      .then((data) => { if (active) setProfile(data); })
+      .catch((err) => { if (active) setError(err instanceof Error ? err.message : "Erro ao carregar perfil"); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id]);
+
+  const openProposal = (serviceTitle = "") => {
+    if (!id) { router.push("/review"); return; }
+    router.push({ pathname: "/send-proposal", params: {
+      prestadorId: id, professional: profile?.nome ?? "", service: serviceTitle,
+    } });
+  };
+  const formatCurrency = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const displayedServices = profile ? profile.servicos.map((service) => ({
+    title: service.titulo, subtitle: service.descricao,
+    price: formatCurrency(service.valorMedio), rating: service.avaliacao,
+  })) : services;
+  const startingPrice = profile ? (profile.servicos.length ? formatCurrency(Math.min(...profile.servicos.map((service) => service.valorMedio))) : "Sob consulta") : "R$ 90";
+
+  if (loading || error) {
+    return <SafeAreaView style={styles.safeArea}>
+      <ScreenHeader onBack={() => router.back()} />
+      {loading ? <ActivityIndicator size="large" color={Colors.brandPrimary} /> : <Text style={styles.specialty}>{error}</Text>}
+    </SafeAreaView>;
+  }
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -52,36 +94,36 @@ export default function ProfileScreen() {
 
         <View style={styles.identity}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>RO</Text>
+            <Text style={styles.avatarText}>{profile?.nome.substring(0, 2).toUpperCase() ?? "RO"}</Text>
           </View>
           <View style={styles.nameRow}>
-            <Text style={styles.name}>Rafael Oliveira</Text>
+            <Text style={styles.name}>{profile?.nome ?? "Rafael Oliveira"}</Text>
             <MaterialIcons name="verified" size={18} color={Colors.brandPrimary} />
           </View>
-          <Text style={styles.specialty}>Técnico em Eletrônica</Text>
+          <Text style={styles.specialty}>{profile?.descricao ?? "Técnico em Eletrônica"}</Text>
           <View style={styles.locationRow}>
             <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
-            <Text style={styles.location}>Barra, Salvador - BA</Text>
+            <Text style={styles.location}>{profile ? `${profile.cidade} - ${profile.estado}` : "Barra, Salvador - BA"}</Text>
           </View>
         </View>
 
         <View style={styles.stats}>
           <View style={styles.stat}>
-            <Text style={styles.statValue}>98%</Text>
+            <Text style={styles.statValue}>{profile ? `${profile.percentualConclusao.toFixed(0)}%` : "98%"}</Text>
             <Text style={styles.statLabel}>Conclusão</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.stat}>
             <View style={styles.ratingRow}>
               <MaterialIcons name="star" size={15} color={Colors.rating} />
-              <Text style={styles.statValue}>4.9</Text>
+              <Text style={styles.statValue}>{profile?.notaMedia.toFixed(1) ?? "4.9"}</Text>
             </View>
-            <Text style={styles.statLabel}>120 avaliações</Text>
+            <Text style={styles.statLabel}>{profile?.totalAvaliacoes ?? 120} avaliações</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.stat}>
-            <Text style={styles.statValue}>7 anos</Text>
-            <Text style={styles.statLabel}>Experiência</Text>
+            <Text style={styles.statValue}>{profile ? new Date(profile.dataCriacao).toLocaleDateString("pt-BR") : "7 anos"}</Text>
+            <Text style={styles.statLabel}>{profile ? "Membro desde" : "Experiência"}</Text>
           </View>
         </View>
 
@@ -97,7 +139,7 @@ export default function ProfileScreen() {
           subtitle="Orçamento fechado antes de contratar"
           style={styles.section}
         />
-        {services.map((s) => (
+        {displayedServices.map((s) => (
           <ListCard
             key={s.title}
             title={s.title}
@@ -107,12 +149,12 @@ export default function ProfileScreen() {
             priceUnit="preço base"
             icon="build"
             rating={s.rating}
-            onPress={() => {}}
+            onPress={() => openProposal(s.title)}
           />
         ))}
 
-        <SectionHeader title="Avaliações recentes" style={styles.section} />
-        {reviews.map((r) => (
+        {!profile && <SectionHeader title="Avaliações recentes" style={styles.section} />}
+        {!profile && reviews.map((r) => (
           <ReviewCard key={r.name} {...r} />
         ))}
       </ScrollView>
@@ -120,10 +162,10 @@ export default function ProfileScreen() {
       <View style={styles.ctaBar}>
         <View>
           <Text style={styles.ctaLabel}>A partir de</Text>
-          <Text style={styles.ctaValue}>R$ 90</Text>
+          <Text style={styles.ctaValue}>{startingPrice}</Text>
         </View>
         <View style={styles.ctaButton}>
-          <Button title="Contratar" onPress={() => router.push("/review")} />
+          <Button title="Contratar" onPress={() => openProposal()} />
         </View>
       </View>
     </SafeAreaView>

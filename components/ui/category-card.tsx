@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Colors, Radii } from '../../constants/theme';
 
@@ -6,9 +6,10 @@ interface CategoryCardProps {
   title: string;
   icon: string;
   onPress?: () => void;
+  iconFamily?: "material" | "community";
 }
 
-export function CategoryCard({ title, icon, onPress }: CategoryCardProps) {
+export function CategoryCard({ title, icon, onPress, iconFamily = "material" }: CategoryCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -17,9 +18,13 @@ export function CategoryCard({ title, icon, onPress }: CategoryCardProps) {
       onPress={onPress}
     >
       <View style={styles.iconWrapper}>
-        <MaterialIcons name={icon as any} size={22} color={Colors.brandPrimary} />
+        {iconFamily === "community" ? (
+          <MaterialCommunityIcons name={icon as any} size={22} color={Colors.brandPrimary} />
+        ) : (
+          <MaterialIcons name={icon as any} size={22} color={Colors.brandPrimary} />
+        )}
       </View>
-      <Text style={styles.label} numberOfLines={1}>
+      <Text style={styles.label} numberOfLines={2}>
         {title}
       </Text>
     </Pressable>

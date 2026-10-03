@@ -1,18 +1,28 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
-import { AuthHeader } from "../../components/ui/auth-header";
+import { StyleSheet, Text, Pressable, View } from "react-native";
+import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
-import { Colors } from "../../constants/theme";
+import { AuthHeader } from "../../components/ui/auth-header";
+import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+import { useAuth } from "../../contexts/auth-context";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
+    router.replace("/home")
+  );
 
   const emailError = useMemo(() => {
     if (!email.trim()) return "Informe o e-mail.";
@@ -29,6 +39,20 @@ export default function LoginScreen() {
 
   const isFormValid = !emailError && !passwordError;
 
+  async function handleLogin() {
+    setSubmitError("");
+    setSubmitting(true);
+    try {
+      await login(email, password);
+      router.replace("/home");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao entrar. Tente novamente.";
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <ScreenContainer>
       <AuthHeader
@@ -36,7 +60,22 @@ export default function LoginScreen() {
         subtitle="Entre com seu e-mail e senha para continuar."
       />
 
-      <Input
+        <GoogleSignInButton
+          onPress={promptAsync}
+          loading={googleLoading}
+        />
+
+        {googleError ? (
+          <Text style={styles.errorText}>{googleError}</Text>
+        ) : null}
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <Input
           label="E-mail"
           value={email}
           onChangeText={setEmail}
@@ -58,10 +97,15 @@ export default function LoginScreen() {
           textContentType="password"
         />
 
+        {submitError ? (
+          <Text style={styles.errorText}>{submitError}</Text>
+        ) : null}
+
         <Button
           title="Entrar"
-          onPress={() => router.replace("/home")}
-          disabled={!isFormValid}
+          onPress={handleLogin}
+          disabled={!isFormValid || submitting}
+          loading={submitting}
           disabledReason="Informe um e-mail válido e uma senha de ao menos 8 caracteres."
           style={styles.submitButton}
         />
@@ -69,8 +113,6 @@ export default function LoginScreen() {
         <Pressable
           onPress={() => router.push("/forgot-password")}
           style={styles.link}
-          accessibilityRole="link"
-          hitSlop={8}
         >
           <Text style={styles.linkText}>Esqueci minha senha</Text>
         </Pressable>
@@ -78,10 +120,10 @@ export default function LoginScreen() {
         <Pressable
           onPress={() => router.push("/signup")}
           style={styles.link}
-          accessibilityRole="link"
-          hitSlop={8}
         >
-          <Text style={styles.linkText}>Ainda não tem conta? Criar conta</Text>
+          <Text style={styles.linkText}>
+            Ainda não tem conta? Criar conta
+          </Text>
         </Pressable>
     </ScreenContainer>
   );
@@ -94,11 +136,31 @@ const styles = StyleSheet.create({
   link: {
     marginTop: 18,
     alignItems: "center",
-    minHeight: 44,
-    justifyContent: "center",
   },
   linkText: {
     color: Colors.brandPrimary,
     fontWeight: "700",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  dividerText: {
+    color: Colors.textSecondary,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: "center",
   },
 });

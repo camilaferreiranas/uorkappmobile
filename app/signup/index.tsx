@@ -1,27 +1,49 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { AuthHeader } from "../../components/ui/auth-header";
 import { Button } from "../../components/ui/button";
+import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
-import { AuthHeader } from "../../components/ui/auth-header";
+import { Colors } from "../../constants/theme";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+import { useAuth } from "../../contexts/auth-context";
+import { salvarUsuario } from "../../services/storageService";
+import { createUser } from "../../services/userService";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignupScreen() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("");
+  const { login } = useAuth();
+  const [nome, setNome] = useState("");
+  const [sobrenome, setSobrenome] = useState("");
+  const [documento, setDocumento] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  const fullNameError = useMemo(() => {
-    const trimmed = fullName.trim();
-    if (!trimmed) return "Informe o nome completo.";
-    if (trimmed.split(" ").filter(Boolean).length < 2)
-      return "Digite nome e sobrenome.";
+  const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
+    router.replace("/home")
+  );
+
+  const nomeError = useMemo(() => {
+    if (!nome.trim()) return "Informe o nome.";
     return "";
-  }, [fullName]);
+  }, [nome]);
+
+  const sobrenomeError = useMemo(() => {
+    if (!sobrenome.trim()) return "Informe o sobrenome.";
+    return "";
+  }, [sobrenome]);
+
+  const documentoError = useMemo(() => {
+    if (!documento.trim()) return "Informe o documento.";
+    return "";
+  }, [documento]);
 
   const emailError = useMemo(() => {
     if (!email.trim()) return "Informe o e-mail.";
@@ -44,23 +66,95 @@ export default function SignupScreen() {
   }, [confirmPassword, password]);
 
   const isFormValid =
-    !fullNameError && !emailError && !passwordError && !confirmPasswordError;
+    !nomeError &&
+    !sobrenomeError &&
+    !documentoError &&
+    !emailError &&
+    !passwordError &&
+    !confirmPasswordError;
+
+  const handleSignup = async () => {
+    setSubmitError("");
+    setLoading(true);
+
+    try {
+      const usuario = await createUser({
+        nome: nome.trim(),
+        sobrenome: sobrenome.trim(),
+        email: email.trim(),
+        senha: password,
+        documento: documento.trim(),
+        tipoPessoa: "CPF",
+      });
+
+      await salvarUsuario(usuario);
+
+      await login(email.trim(), password);
+
+      router.replace("/home");
+
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar conta. Tente novamente.";
+      setSubmitError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ScreenContainer>
       <AuthHeader
-        title="Criar conta"
+        title="Criar Conta"
         subtitle="Preencha seus dados para criar sua conta."
       />
 
-      <Input
-          label="Nome completo"
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Digite seu nome completo"
+        <GoogleSignInButton
+          label="Cadastrar com Google"
+          onPress={promptAsync}
+          loading={googleLoading}
+        />
+
+        {googleError ? (
+          <Text style={styles.errorText}>{googleError}</Text>
+        ) : null}
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou cadastre com e-mail</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <Input
+          label="Nome"
+          value={nome}
+          onChangeText={setNome}
+          placeholder="Digite seu nome"
           returnKeyType="next"
           autoCapitalize="words"
-          error={fullNameError}
+          error={nomeError}
+        />
+
+        <Input
+          label="Sobrenome"
+          value={sobrenome}
+          onChangeText={setSobrenome}
+          placeholder="Digite seu sobrenome"
+          returnKeyType="next"
+          autoCapitalize="words"
+          error={sobrenomeError}
+        />
+
+        <Input
+          label="Documento"
+          value={documento}
+          onChangeText={setDocumento}
+          placeholder="CPF ou CNPJ"
+          returnKeyType="next"
+          autoCapitalize="none"
+          error={documentoError}
         />
 
         <Input
@@ -95,11 +189,16 @@ export default function SignupScreen() {
           error={confirmPasswordError}
         />
 
+        {submitError ? (
+          <Text style={styles.errorText}>{submitError}</Text>
+        ) : null}
+
         <Button
           title="Criar conta"
-          onPress={() => router.replace("/home")}
-          disabled={!isFormValid}
-          disabledReason="Preencha nome completo, e-mail válido e senha (mín. 8 caracteres) iguais nos dois campos."
+          onPress={handleSignup}
+          disabled={!isFormValid || loading}
+          loading={loading}
+          disabledReason="Preencha seus dados e confirme a senha de ao menos 8 caracteres."
           style={styles.submitButton}
         />
     </ScreenContainer>
@@ -109,5 +208,28 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   submitButton: {
     marginTop: 4,
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 14,
+    marginTop: 12,
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  dividerText: {
+    color: Colors.textSecondary,
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

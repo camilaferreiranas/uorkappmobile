@@ -1,50 +1,129 @@
-# Welcome to your Expo app 👋
+# Uork - Plataforma Mobile para Conexão de Profissionais e Clientes
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Uork é um aplicativo móvel desenvolvido com React Native e Expo, projetado para conectar profissionais de diversos serviços com clientes que precisam de suas habilidades. A plataforma permite que usuários publiquem demandas, busquem profissionais, façam propostas, avaliem serviços e gerenciem perfis profissionais.
 
-## Get started
+## Funcionalidades Principais
 
-1. Install dependencies
+### Para Clientes:
+- **Publicar Demandas**: Crie e publique solicitações de serviços com detalhes específicos.
+- **Buscar Profissionais**: Explore categorias de profissionais e encontre o ideal para suas necessidades.
+- **Enviar Propostas**: Contate profissionais diretamente através do app.
+- **Avaliar Serviços**: Deixe reviews e classificações para profissionais após o serviço.
+- **Gerenciar Perfil**: Atualize suas informações pessoais e histórico de demandas.
 
+### Para Profissionais:
+- **Perfil Profissional**: Crie e gerencie seu perfil com especialidades, experiência e portfólio.
+- **Receber Demandas**: Visualize e responda a solicitações de clientes em sua área.
+- **Enviar Propostas**: Ofereça seus serviços com preços e condições personalizadas.
+- **Relatórios**: Acesse métricas sobre seus serviços e avaliações.
+- **Navegação Especializada**: Interface otimizada para profissionais com ferramentas dedicadas.
+
+### Recursos Gerais:
+- **Autenticação Segura**: Login, cadastro e recuperação de senha.
+- **Navegação Intuitiva**: Interface baseada em abas com navegação fluida.
+- **Suporte Multiplataforma**: Compatível com iOS, Android e Web.
+- **Experiência Personalizada**: Design responsivo com suporte a modo escuro.
+
+## Tecnologias Utilizadas
+
+- **React Native**: Framework para desenvolvimento mobile cross-platform.
+- **Expo**: Plataforma para desenvolvimento, build e deploy de apps React Native.
+- **Expo Router**: Sistema de roteamento baseado em arquivos para navegação.
+- **TypeScript**: Tipagem estática para maior robustez do código.
+- **React Navigation**: Biblioteca para navegação entre telas.
+- **Expo Vector Icons**: Conjunto de ícones vetoriais.
+- **Outros**: Expo Image, Expo Haptics, React Native Reanimated, etc.
+
+## Instalação e Configuração
+
+### Pré-requisitos
+
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Expo CLI (`npm install -g @expo/cli`)
+- Para desenvolvimento mobile: Expo Go app ou emuladores/simuladores
+
+### Passos de Instalação
+
+1. **Clone o repositório**:
+   ```bash
+   git clone <url-do-repositorio>
+   cd uorkappmobile
+   ```
+
+2. **Instale as dependências**:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Inicie o servidor de desenvolvimento**:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. **Execute o app**:
+   - **Expo Go**: Escaneie o QR code com o app Expo Go no seu dispositivo.
+   - **Emulador Android**: Pressione `a` no terminal.
+   - **Simulador iOS**: Pressione `i` no terminal (macOS apenas).
+   - **Web**: Pressione `w` no terminal.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Scripts Disponíveis
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- `npm start`: Inicia o servidor Expo.
+- `npm run android`: Inicia especificamente para Android.
+- `npm run ios`: Inicia especificamente para iOS.
+- `npm run web`: Inicia especificamente para web.
+- `npm run lint`: Executa o linter para verificar código.
+- `npm run reset-project`: Reseta o projeto para um estado inicial (move código para app-example).
 
-## Get a fresh project
+## Estrutura do Projeto
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+uorkappmobile/
+├── app/                    # Telas e roteamento (Expo Router)
+│   ├── _layout.tsx        # Layout principal
+│   ├── index.tsx          # Tela inicial
+│   ├── (tabs)/            # Navegação por abas
+│   │   ├── home/          # Tela inicial do usuário
+│   │   ├── explore/       # Exploração de serviços
+│   │   ├── perfil/        # Perfil do usuário
+│   │   └── publicar/      # Publicar demanda
+│   └── ...                # Outras telas (login, signup, etc.)
+├── components/            # Componentes reutilizáveis
+│   ├── ui/                # Componentes de UI
+│   └── ...                # Outros componentes
+├── constants/             # Constantes (temas, etc.)
+├── hooks/                 # Hooks customizados
+├── services/              # Serviços (API, etc.)
+├── assets/                # Imagens e recursos
+└── ...                    # Arquivos de configuração
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Desenvolvimento
 
-## Learn more
+### Contribuição
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Convenções de Código
 
-## Join the community
+- Use TypeScript para tipagem
+- Siga as regras do ESLint configurado
+- Mantenha a estrutura de pastas organizada
+- Documente componentes e funções importantes
 
-Join our community of developers creating universal apps.
+## Suporte e Contato
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Para dúvidas, sugestões ou problemas, entre em contato através do [GitHub Issues](https://github.com/seu-usuario/uorkappmobile/issues).
+
+## Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+
+---
+
+Desenvolvido com ❤️ usando Expo e React Native.

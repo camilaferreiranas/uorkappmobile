@@ -14,6 +14,10 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
+  'magnifyingglass': 'search',
+  'plus.circle.fill': 'add-circle',
+  'person.fill': 'person',
+  'doc.text.fill': 'description',
   'house.fill': 'home',
   'paperplane.fill': 'send',
   'square.grid.2x2.fill': 'grid-view',
