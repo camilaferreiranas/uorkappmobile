@@ -1,6 +1,7 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../../constants/theme';
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Colors, Radius } from '../../constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { ProfileAvatar } from './profile-avatar';
 
 interface ProfessionalCardProps {
   name: string;
@@ -9,9 +10,11 @@ interface ProfessionalCardProps {
   rating: number;
   distance: string;
   initials: string;
+  imageUrl?: string | null;
   onPress?: () => void;
   buttonTitle?: string;
   onButtonPress?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function ProfessionalCard({
@@ -21,22 +24,28 @@ export function ProfessionalCard({
   rating,
   distance,
   initials,
+  imageUrl,
   onPress,
   buttonTitle = 'Ver perfil',
   onButtonPress,
+  style,
 }: ProfessionalCardProps) {
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, style]}>
       <View style={styles.row}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+        <ProfileAvatar
+          imageUrl={imageUrl}
+          initials={initials}
+          size={48}
+          backgroundColor={Colors.primary}
+          style={styles.avatar}
+        />
         <View style={styles.info}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.role}>{specialty || role}</Text>
           <View style={styles.metaRow}>
             <View style={styles.ratingBadge}>
-              <MaterialIcons name="star" size={13} color="#FFB800" />
+              <MaterialIcons name="star" size={13} color={Colors.warning} />
               <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
             </View>
             <View style={styles.distanceBadge}>
@@ -59,21 +68,25 @@ export function ProfessionalCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 18,
-    shadowColor: '#000',
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5,
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    shadowColor: Colors.ink,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   avatar: {
+<<<<<<< HEAD
     width: 54,
     height: 54,
     borderRadius: 18,
@@ -86,14 +99,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '800',
+=======
+    marginRight: 12,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   info: {
     flex: 1,
   },
   name: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#111',
+    fontWeight: '700',
+    color: Colors.ink,
     marginBottom: 3,
   },
   role: {
@@ -110,13 +126,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FFF4E8',
+    backgroundColor: '#FFF7EA',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: Radius.sm,
   },
   ratingText: {
-    color: '#BF6B00',
+    color: Colors.warning,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -130,15 +146,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   button: {
+<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
     borderRadius: 14,
     paddingVertical: 13,
+=======
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.md,
+    paddingVertical: 10,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

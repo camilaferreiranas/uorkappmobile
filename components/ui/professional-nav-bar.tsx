@@ -2,6 +2,8 @@ import { ProfessionalColors as Colors } from "../../constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/theme";
 
 export type ProfessionalTab = "inicio" | "demandas" | "relatorio" | "perfil";
 
@@ -15,7 +17,7 @@ interface NavItem {
 const items: NavItem[] = [
   { label: "Início", icon: "home", tab: "inicio", route: "/professional-home" },
   { label: "Demandas", icon: "list-alt", tab: "demandas", route: "/professional-demands" },
-  { label: "Relatório", icon: "bar-chart", tab: "relatorio", route: "/professional-report" },
+  // { label: "Relatório", icon: "bar-chart", tab: "relatorio", route: "/professional-report" },
   { label: "Perfil", icon: "person", tab: "perfil", route: "/professional-profile" },
 ];
 
@@ -25,9 +27,15 @@ interface ProfessionalNavBarProps {
 
 export function ProfessionalNavBar({ active }: ProfessionalNavBarProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
-    <View style={styles.nav}>
+    <View
+      style={[
+        styles.nav,
+        { paddingBottom: Math.max(insets.bottom, 16) },
+      ]}
+    >
       {items.map((item) => {
         const isActive = active === item.tab;
         return (
@@ -41,7 +49,11 @@ export function ProfessionalNavBar({ active }: ProfessionalNavBarProps) {
               <MaterialIcons
                 name={item.icon as any}
                 size={22}
+<<<<<<< HEAD
                 color={isActive ? Colors.brandPrimary : "#7A7A95"}
+=======
+                color={isActive ? Colors.primary : Colors.textSecondary}
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
               />
             </View>
             <Text style={[styles.label, isActive && styles.labelActive]}>
@@ -60,15 +72,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 10,
-    paddingBottom: 24,
+    paddingBottom: 16,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.07,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: -4 },
@@ -87,16 +99,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   iconWrapperActive: {
+<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
+=======
+    backgroundColor: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   label: {
-    color: "#7A7A95",
+    color: Colors.textSecondary,
     fontSize: 10,
     marginTop: 2,
     fontWeight: "600",
   },
   labelActive: {
+<<<<<<< HEAD
     color: Colors.brandPrimary,
+=======
+    color: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontWeight: "700",
   },
 });

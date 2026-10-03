@@ -1,6 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { type Href, useRouter } from "expo-router";
 import {
   SafeAreaView,
   ScrollView,
@@ -9,94 +8,59 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
 import { Colors } from "../../../constants/theme";
+import { ProfileAvatar } from "../../../components/ui/profile-avatar";
 import { useAuth } from "../../../contexts/auth-context";
 import { getInitials } from "../../../utils/get-initials";
 
 const menuItems = [
+  { icon: "assignment", label: "Minhas demandas" },
+  { icon: "send", label: "Minhas propostas" },
   { icon: "edit", label: "Editar perfil" },
   { icon: "location-on", label: "Meu endereço" },
   { icon: "notifications", label: "Notificações" },
-  { icon: "payment", label: "Formas de pagamento" },
+  // { icon: "payment", label: "Formas de pagamento" },
   { icon: "history", label: "Histórico de serviços" },
   { icon: "help-outline", label: "Ajuda e suporte" },
-  { icon: "logout", label: "Sair" },
+  { icon: "logout", label: "Sair da conta" },
 ];
 
 export default function PerfilScreen() {
   const router = useRouter();
-  const { user, logout, updateProfile } = useAuth();
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState(user?.email ?? "");
-  const [senha, setSenha] = useState("");
-  const [rua, setRua] = useState(user?.endereco?.rua ?? "");
-  const [numero, setNumero] = useState(user?.endereco?.numero ?? "");
-  const [bairro, setBairro] = useState(user?.endereco?.bairro ?? "");
-  const [cidade, setCidade] = useState(user?.endereco?.cidade ?? "");
-  const [estado, setEstado] = useState(user?.endereco?.estado ?? "");
-  const [cep, setCep] = useState(user?.endereco?.cep ?? "");
-
-  function startEditing() {
-    setEmail(user?.email ?? "");
-    setSenha("");
-    setRua(user?.endereco?.rua ?? "");
-    setNumero(user?.endereco?.numero ?? "");
-    setBairro(user?.endereco?.bairro ?? "");
-    setCidade(user?.endereco?.cidade ?? "");
-    setEstado(user?.endereco?.estado ?? "");
-    setCep(user?.endereco?.cep ?? "");
-    setError("");
-    setIsEditing(true);
-  }
-
-  function cancelEditing() {
-    setError("");
-    setIsEditing(false);
-  }
-
-  async function saveEditing() {
-    if (!email.trim()) {
-      setError("Informe o e-mail.");
-      return;
-    }
-
-    setSaving(true);
-    setError("");
-    try {
-      const temEndereco = [rua, numero, bairro, cidade, estado, cep].some((campo) => campo.trim());
-      await updateProfile({
-        email: email.trim(),
-        senha: senha.trim() ? senha.trim() : null,
-        endereco: temEndereco
-          ? {
-              rua: rua.trim(),
-              numero: numero.trim(),
-              bairro: bairro.trim(),
-              cidade: cidade.trim(),
-              estado: estado.trim(),
-              cep: cep.trim(),
-            }
-          : null,
-      });
-      setIsEditing(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar as alterações.");
-    } finally {
-      setSaving(false);
-    }
-  }
+  const { user, logout } = useAuth();
 
   async function handleMenuPress(label: string) {
-    if (label === "Editar perfil") {
-      startEditing();
+    if (label === "Minhas demandas") {
+      router.push("/my-demands" as Href);
       return;
     }
-    if (label === "Sair") {
+
+    if (label === "Minhas propostas") {
+      router.push("/my-proposals" as Href);
+      return;
+    }
+
+    if (label === "Editar perfil") {
+      router.push("/edit-profile");
+      return;
+    }
+
+    if (label === "Meu endereço") {
+      router.push("/address");
+      return;
+    }
+
+    if (label === "Notificações") {
+      router.push("/client-notifications");
+      return;
+    }
+
+    if (label === "Histórico de serviços") {
+      router.push("/client-history");
+      return;
+    }
+
+    if (label === "Sair da conta") {
       await logout();
       router.replace("/login");
     }
@@ -106,81 +70,36 @@ export default function PerfilScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
-          </View>
+          <ProfileAvatar
+            imageUrl={user?.fotoPerfilUrl}
+            initials={getInitials(user?.nome, user?.sobrenome)}
+            size={80}
+            backgroundColor="rgba(255,255,255,0.25)"
+            borderColor="rgba(255,255,255,0.6)"
+            borderWidth={3}
+            style={styles.avatar}
+          />
           <Text style={styles.name}>
             {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
           </Text>
-          {!isEditing && <Text style={styles.email}>{user?.email ?? ""}</Text>}
+          <Text style={styles.email}>{user?.email ?? ""}</Text>
         </View>
 
-        {isEditing ? (
-          <View style={styles.editCard}>
-            <Text style={styles.editTitle}>Editar perfil</Text>
-
-            <Input
-              label="E-mail"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="E-mail"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <Input
-              label="Nova senha (opcional)"
-              value={senha}
-              onChangeText={setSenha}
-              placeholder="Deixe em branco para não alterar"
-              secureTextEntry
-            />
-
-            <Text style={styles.editSectionTitle}>Endereço</Text>
-            <Input label="Rua" value={rua} onChangeText={setRua} placeholder="Rua" />
-            <Input label="Número" value={numero} onChangeText={setNumero} placeholder="Número" />
-            <Input label="Bairro" value={bairro} onChangeText={setBairro} placeholder="Bairro" />
-            <Input label="Cidade" value={cidade} onChangeText={setCidade} placeholder="Cidade" />
-            <Input label="Estado" value={estado} onChangeText={setEstado} placeholder="Estado" />
-            <Input label="CEP" value={cep} onChangeText={setCep} placeholder="CEP" />
-
-            {error ? <Text style={styles.editError}>{error}</Text> : null}
-
-            <View style={styles.editActions}>
-              <Button
-                title="Cancelar"
-                variant="outline"
-                style={styles.editActionButton}
-                onPress={cancelEditing}
-                disabled={saving}
-              />
-              <Button
-                title="Salvar"
-                loading={saving}
-                style={styles.editActionButton}
-                onPress={saveEditing}
-                disabled={saving}
-              />
-            </View>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{user?.totalServicosFinalizados ?? 0}</Text>
+            <Text style={styles.statLabel}>Serviços</Text>
           </View>
-        ) : (
-          <>
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>14</Text>
-                <Text style={styles.statLabel}>Serviços</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>R$ 1.8k</Text>
-                <Text style={styles.statLabel}>Gasto total</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>4.8</Text>
-                <Text style={styles.statLabel}>Avaliação</Text>
-              </View>
-            </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>
+              {(user?.mediaAvaliacoesCliente ?? 0).toFixed(1)}
+            </Text>
+            <Text style={styles.statLabel}>Avaliação</Text>
+          </View>
+        </View>
 
+<<<<<<< HEAD
             <View style={styles.menuCard}>
               {menuItems.map((item, index) => (
                 <TouchableOpacity
@@ -207,6 +126,32 @@ export default function PerfilScreen() {
             </View>
           </>
         )}
+=======
+        <View style={styles.menuCard}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={item.label}
+              style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
+              onPress={() => handleMenuPress(item.label)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuIconWrapper}>
+                <MaterialIcons
+                  name={item.icon as any}
+                  size={20}
+                  color={item.label === "Sair da conta" ? Colors.error : Colors.primary}
+                />
+              </View>
+              <Text style={[styles.menuLabel, item.label === "Sair da conta" && styles.menuLabelDanger]}>
+                {item.label}
+              </Text>
+              {item.label !== "Sair da conta" && (
+                <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
       </ScrollView>
     </SafeAreaView>
   );
@@ -215,7 +160,7 @@ export default function PerfilScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: Colors.background,
   },
   container: {
     paddingBottom: 110,
@@ -227,21 +172,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.25)",
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.6)",
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 14,
   },
+<<<<<<< HEAD
   avatarText: {
     color: Colors.surfaceWhite,
     fontSize: 28,
     fontWeight: "800",
   },
+=======
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   name: {
     color: Colors.surfaceWhite,
     fontSize: 22,
@@ -249,7 +189,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   email: {
-    color: "#FFE5D9",
+    color: Colors.primaryLight,
     fontSize: 13,
   },
   statsRow: {
@@ -259,7 +199,7 @@ const styles = StyleSheet.create({
     marginTop: -20,
     borderRadius: 20,
     padding: 20,
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.08,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
@@ -278,13 +218,14 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#EFEFEF",
+    backgroundColor: Colors.border,
     marginVertical: 4,
   },
+<<<<<<< HEAD
   editCard: {
     backgroundColor: Colors.surfaceWhite,
     marginHorizontal: 20,
@@ -324,12 +265,14 @@ const styles = StyleSheet.create({
   editActionButton: {
     flex: 1,
   },
+=======
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   menuCard: {
     backgroundColor: Colors.surfaceWhite,
     marginHorizontal: 20,
     borderRadius: 20,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: Colors.ink,
     shadowOpacity: 0.05,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
@@ -344,13 +287,13 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: Colors.border,
   },
   menuIconWrapper: {
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: "#FFF0EB",
+    backgroundColor: Colors.primaryLight,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -361,6 +304,6 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   menuLabelDanger: {
-    color: "#D32F2F",
+    color: Colors.error,
   },
 });

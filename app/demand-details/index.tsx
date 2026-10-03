@@ -1,77 +1,234 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  SafeAreaView,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+<<<<<<< HEAD
 import { ProfessionalColors as Colors } from "../../constants/theme";
+=======
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/theme";
+import { useNotifications } from "../../contexts/notification-context";
+import {
+  aceitarProposta,
+  buscarContatoWhatsApp,
+  buscarDetalheDemanda,
+  recusarProposta,
+  type StatusProposta,
+} from "../../services/propostaService";
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
-  Urgente: { bg: "#FFF0EB", text: "#D86A3F" },
-  Normal: { bg: "#EAFAF1", text: "#2E7D32" },
-  Hoje: { bg: "#FFEBEE", text: "#C62828" },
+  Urgente: { bg: "#FFF7EA", text: Colors.warning },
+  Normal: { bg: "#EAF7ED", text: Colors.success },
+  Hoje: { bg: "#FDECEA", text: Colors.error },
 };
 
 export default function DemandDetailsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { sincronizarPrestador } = useNotifications();
   const params = useLocalSearchParams<{
     id: string;
     title: string;
     subtitle: string;
-    budget: string;
     urgency: string;
-    distance: string;
+    location: string;
+    photoUrl?: string;
     client: string;
     description: string;
   }>();
 
-  const [status, setStatus] = useState<"pending" | "accepted" | "refused">("pending");
+  const [status, setStatus] = useState<StatusProposta>("PENDENTE");
+  const [acaoEmAndamento, setAcaoEmAndamento] = useState<"aceitar" | "recusar" | null>(null);
+  const [statusCarregado, setStatusCarregado] = useState(false);
+  const [abrindoWhatsApp, setAbrindoWhatsApp] = useState(false);
+  const [erro, setErro] = useState("");
+  const [resumoCliente, setResumoCliente] = useState<{
+    mediaAvaliacoes: number;
+    totalServicosFinalizados: number;
+  } | null>(null);
+  const [carregandoResumo, setCarregandoResumo] = useState(true);
+  const [erroResumo, setErroResumo] = useState("");
+
+  useEffect(() => {
+    const propostaId = Number(params.id);
+    let telaAtiva = true;
+
+    if (!Number.isInteger(propostaId) || propostaId <= 0) {
+      setCarregandoResumo(false);
+      setErroResumo("Dados do cliente indisponíveis");
+      return () => {
+        telaAtiva = false;
+      };
+    }
+
+    setCarregandoResumo(true);
+    setStatusCarregado(false);
+    setErroResumo("");
+    buscarDetalheDemanda(propostaId)
+      .then((detalhe) => {
+        if (!telaAtiva) return;
+        setResumoCliente({
+          mediaAvaliacoes: Number(detalhe.mediaAvaliacoesCliente) || 0,
+          totalServicosFinalizados:
+            Number(detalhe.totalServicosFinalizados) || 0,
+        });
+        setStatus(detalhe.status);
+        setStatusCarregado(true);
+      })
+      .catch(() => {
+        if (telaAtiva) setErroResumo("Dados do cliente indisponíveis");
+      })
+      .finally(() => {
+        if (telaAtiva) setCarregandoResumo(false);
+      });
+
+    return () => {
+      telaAtiva = false;
+    };
+  }, [params.id]);
 
   const urgency = params.urgency ?? "Normal";
   const colors = urgencyColors[urgency] ?? urgencyColors["Normal"];
 
-  const handleAccept = () => setStatus("accepted");
-  const handleRefuse = () => setStatus("refused");
+  const handleAccept = async () => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0) {
+      setErro("Não foi possível identificar esta proposta.");
+      return;
+    }
 
-  if (status !== "pending") {
+    setAcaoEmAndamento("aceitar");
+    setErro("");
+    try {
+      await aceitarProposta(propostaId);
+      setStatus("ACEITA");
+      void sincronizarPrestador();
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível aceitar a proposta.");
+    } finally {
+      setAcaoEmAndamento(null);
+    }
+  };
+
+  const handleRefuse = async () => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0) {
+      setErro("Não foi possível identificar esta proposta.");
+      return;
+    }
+
+    setAcaoEmAndamento("recusar");
+    setErro("");
+    try {
+      await recusarProposta(propostaId);
+      setStatus("RECUSADA");
+      void sincronizarPrestador();
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível recusar a proposta.");
+    } finally {
+      setAcaoEmAndamento(null);
+    }
+  };
+
+  const handleContact = async () => {
+    const propostaId = Number(params.id);
+    if (!Number.isInteger(propostaId) || propostaId <= 0 || abrindoWhatsApp) return;
+
+    setAbrindoWhatsApp(true);
+    try {
+      const contato = await buscarContatoWhatsApp(propostaId);
+      await Linking.openURL(contato.whatsappUrl);
+    } catch (error) {
+      Alert.alert(
+        "Não foi possível abrir o WhatsApp",
+        error instanceof Error ? error.message : "Tente novamente em instantes."
+      );
+    } finally {
+      setAbrindoWhatsApp(false);
+    }
+  };
+
+  if (status !== "PENDENTE") {
+    const statusPositivo = status === "ACEITA"
+      || status === "AGUARDANDO_CONFIRMACAO"
+      || status === "FINALIZADA";
+    const tituloResultado = status === "RECUSADA"
+      ? "Demanda recusada"
+      : status === "CANCELADA"
+        ? "Demanda cancelada"
+        : status === "FINALIZADA"
+          ? "Demanda finalizada"
+          : status === "AGUARDANDO_CONFIRMACAO"
+            ? "Conclusão aguardando confirmação"
+            : "Demanda aceita!";
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <View
+        style={[
+          styles.safeArea,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+      >
         <View style={styles.resultContainer}>
-          <View style={[styles.resultIcon, { backgroundColor: status === "accepted" ? "#EAFAF1" : "#FFEBEE" }]}>
+          <View style={[styles.resultIcon, { backgroundColor: statusPositivo ? "#EAF7ED" : "#FDECEA" }]}>
             <MaterialIcons
-              name={status === "accepted" ? "check-circle" : "cancel"}
+              name={statusPositivo ? "check-circle" : "cancel"}
               size={64}
-              color={status === "accepted" ? "#2E7D32" : "#C62828"}
+              color={statusPositivo ? Colors.success : Colors.error}
             />
           </View>
-          <Text style={styles.resultTitle}>
-            {status === "accepted" ? "Demanda aceita!" : "Demanda recusada"}
-          </Text>
+          <Text style={styles.resultTitle}>{tituloResultado}</Text>
           <Text style={styles.resultText}>
-            {status === "accepted"
-              ? `Você aceitou a demanda "${params.title}". O cliente será notificado.`
-              : `Você recusou a demanda "${params.title}".`}
+            {status === "ACEITA"
+              ? `Você aceitou a demanda "${params.title}". Agora você ou o cliente podem iniciar a conversa para combinar o serviço.`
+              : status === "RECUSADA"
+                ? `Você recusou a demanda "${params.title}".`
+                : `Esta proposta não está mais pendente de resposta.`}
           </Text>
+          {status === "ACEITA" || status === "AGUARDANDO_CONFIRMACAO" ? (
+            <TouchableOpacity
+              style={styles.contactButton}
+              onPress={() => void handleContact()}
+              disabled={abrindoWhatsApp}
+              accessibilityRole="button"
+              accessibilityLabel={`Conversar com ${params.client} no WhatsApp`}
+            >
+              {abrindoWhatsApp ? (
+                <ActivityIndicator size="small" color={Colors.white} />
+              ) : (
+                <MaterialIcons name="chat" size={19} color={Colors.white} />
+              )}
+              <Text style={styles.contactButtonText}>
+                {abrindoWhatsApp ? "Abrindo WhatsApp..." : "Conversar no WhatsApp"}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity style={styles.backHomeButton} onPress={() => router.replace("/professional-home" as any)}>
             <Text style={styles.backHomeText}>Voltar ao início</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
+    <View style={styles.safeArea}>
+      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
           <MaterialIcons name="arrow-back" size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detalhes da Demanda</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
@@ -87,24 +244,22 @@ export default function DemandDetailsScreen() {
 
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
+<<<<<<< HEAD
             <MaterialIcons name="person" size={20} color={Colors.brandPrimary} />
             <View>
+=======
+            <MaterialIcons name="person" size={20} color={Colors.primary} />
+            <View style={styles.infoContent}>
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
               <Text style={styles.infoLabel}>Cliente</Text>
               <Text style={styles.infoValue}>{params.client}</Text>
             </View>
           </View>
           <View style={styles.infoItem}>
-            <MaterialIcons name="attach-money" size={20} color="#2E7D32" />
-            <View>
-              <Text style={styles.infoLabel}>Orçamento</Text>
-              <Text style={[styles.infoValue, { color: "#2E7D32" }]}>{params.budget}</Text>
-            </View>
-          </View>
-          <View style={styles.infoItem}>
-            <MaterialIcons name="location-on" size={20} color="#C62828" />
-            <View>
-              <Text style={styles.infoLabel}>Distância</Text>
-              <Text style={styles.infoValue}>{params.distance}</Text>
+            <MaterialIcons name="location-on" size={20} color={Colors.error} />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Localização do serviço</Text>
+              <Text style={styles.infoValue}>{params.location}</Text>
             </View>
           </View>
         </View>
@@ -113,6 +268,17 @@ export default function DemandDetailsScreen() {
           <Text style={styles.descriptionLabel}>Descrição</Text>
           <Text style={styles.descriptionText}>{params.description}</Text>
         </View>
+
+        {params.photoUrl ? (
+          <View style={styles.photoCard}>
+            <Text style={styles.descriptionLabel}>Foto do serviço</Text>
+            <Image
+              source={{ uri: params.photoUrl }}
+              style={styles.servicePhoto}
+              resizeMode="cover"
+            />
+          </View>
+        ) : null}
 
         <View style={styles.clientCard}>
           <View style={styles.clientAvatar}>
@@ -123,40 +289,86 @@ export default function DemandDetailsScreen() {
           <View>
             <Text style={styles.clientName}>{params.client}</Text>
             <View style={styles.clientRatingRow}>
-              <MaterialIcons name="star" size={14} color="#FFB800" />
-              <Text style={styles.clientRatingText}>4.7 · 8 serviços contratados</Text>
+              {carregandoResumo ? (
+                <ActivityIndicator size="small" color={Colors.primary} />
+              ) : erroResumo ? (
+                <Text style={styles.clientRatingText}>{erroResumo}</Text>
+              ) : (
+                <>
+                  <MaterialIcons name="star" size={14} color={Colors.warning} />
+                  <Text style={styles.clientRatingText}>
+                    {resumoCliente?.mediaAvaliacoes.toFixed(1) ?? "0.0"} ·{" "}
+                    {resumoCliente?.totalServicosFinalizados ?? 0}{" "}
+                    {(resumoCliente?.totalServicosFinalizados ?? 0) === 1
+                      ? "serviço finalizado"
+                      : "serviços finalizados"}
+                  </Text>
+                </>
+              )}
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View style={styles.actionBar}>
-        <TouchableOpacity style={styles.refuseButton} onPress={handleRefuse} activeOpacity={0.8}>
-          <MaterialIcons name="close" size={20} color="#C62828" />
-          <Text style={styles.refuseText}>Recusar</Text>
+      {statusCarregado ? <View
+        style={[
+          styles.actionBar,
+          { paddingBottom: Math.max(insets.bottom, 16) },
+        ]}
+      >
+        {erro ? <Text style={styles.actionError}>{erro}</Text> : null}
+        <TouchableOpacity
+          style={[styles.refuseButton, acaoEmAndamento && styles.actionButtonDisabled]}
+          onPress={() => void handleRefuse()}
+          activeOpacity={0.8}
+          disabled={acaoEmAndamento !== null}
+        >
+          {acaoEmAndamento === "recusar"
+            ? <ActivityIndicator size="small" color={Colors.error} />
+            : <MaterialIcons name="close" size={20} color={Colors.error} />}
+          <Text style={styles.refuseText}>
+            {acaoEmAndamento === "recusar" ? "Recusando..." : "Recusar"}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.acceptButton} onPress={handleAccept} activeOpacity={0.8}>
-          <MaterialIcons name="check" size={20} color="#fff" />
-          <Text style={styles.acceptText}>Aceitar demanda</Text>
+        <TouchableOpacity
+          style={[styles.acceptButton, acaoEmAndamento && styles.actionButtonDisabled]}
+          onPress={() => void handleAccept()}
+          activeOpacity={0.8}
+          disabled={acaoEmAndamento !== null}
+        >
+          {acaoEmAndamento === "aceitar" ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <MaterialIcons name="check" size={20} color="#fff" />
+          )}
+          <Text style={styles.acceptText}>
+            {acaoEmAndamento === "aceitar" ? "Aceitando..." : "Aceitar demanda"}
+          </Text>
         </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      </View> : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+<<<<<<< HEAD
     backgroundColor: Colors.surfaceNeutral,
   },
   header: {
     backgroundColor: Colors.brandPrimary,
+=======
+    backgroundColor: Colors.background,
+  },
+  header: {
+    backgroundColor: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 20,
+    paddingBottom: 16,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    justifyContent: "space-between",
   },
   backButton: {
     width: 38,
@@ -167,9 +379,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   headerTitle: {
+    flex: 1,
     color: "#fff",
     fontSize: 18,
     fontWeight: "800",
+    textAlign: "center",
+    marginHorizontal: 12,
+  },
+  headerSpacer: {
+    width: 38,
+    height: 38,
   },
   container: {
     padding: 20,
@@ -210,7 +429,7 @@ const styles = StyleSheet.create({
   },
   demandSubtitle: {
     fontSize: 14,
-    color: "#7A7A95",
+    color: Colors.textSecondary,
   },
   infoGrid: {
     backgroundColor: "#fff",
@@ -229,9 +448,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
+  infoContent: {
+    flex: 1,
+  },
   infoLabel: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
   infoValue: {
@@ -253,7 +475,7 @@ const styles = StyleSheet.create({
   descriptionLabel: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     marginBottom: 8,
     textTransform: "uppercase",
     letterSpacing: 0.5,
@@ -262,6 +484,23 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#333",
     lineHeight: 22,
+  },
+  photoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    padding: 18,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+  },
+  servicePhoto: {
+    width: "100%",
+    aspectRatio: 4 / 3,
+    borderRadius: 14,
+    backgroundColor: Colors.background,
   },
   clientCard: {
     backgroundColor: "#fff",
@@ -280,14 +519,22 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
+<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
+=======
+    backgroundColor: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },
   clientAvatarText: {
     fontSize: 16,
     fontWeight: "800",
+<<<<<<< HEAD
     color: Colors.brandPrimary,
+=======
+    color: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   clientName: {
     fontSize: 15,
@@ -302,7 +549,7 @@ const styles = StyleSheet.create({
   },
   clientRatingText: {
     fontSize: 12,
-    color: "#7A7A95",
+    color: Colors.textSecondary,
   },
   actionBar: {
     position: "absolute",
@@ -311,7 +558,6 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: "#fff",
     padding: 16,
-    paddingBottom: 28,
     flexDirection: "row",
     gap: 12,
     borderTopLeftRadius: 24,
@@ -321,6 +567,14 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     shadowOffset: { width: 0, height: -4 },
     elevation: 12,
+    flexWrap: "wrap",
+  },
+  actionError: {
+    width: "100%",
+    color: Colors.error,
+    fontSize: 12,
+    textAlign: "center",
+    marginBottom: 2,
   },
   refuseButton: {
     flex: 1,
@@ -328,14 +582,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "#FDECEA",
     borderRadius: 16,
     paddingVertical: 16,
     borderWidth: 1,
-    borderColor: "#FFCDD2",
+    borderColor: Colors.error,
   },
   refuseText: {
-    color: "#C62828",
+    color: Colors.error,
     fontWeight: "800",
     fontSize: 15,
   },
@@ -345,7 +599,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
+=======
+    backgroundColor: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     borderRadius: 16,
     paddingVertical: 16,
   },
@@ -353,6 +611,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "800",
     fontSize: 15,
+  },
+  actionButtonDisabled: {
+    opacity: 0.7,
   },
   resultContainer: {
     flex: 1,
@@ -377,19 +638,38 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 15,
-    color: "#6B6B6B",
+    color: Colors.textSecondary,
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 30,
   },
   backHomeButton: {
+<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
+=======
+    marginTop: 10,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 16,
   },
   backHomeText: {
-    color: "#fff",
+    color: Colors.primary,
+    fontWeight: "800",
+    fontSize: 15,
+  },
+  contactButton: {
+    backgroundColor: Colors.success,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  contactButtonText: {
+    color: Colors.white,
     fontWeight: "800",
     fontSize: 15,
   },

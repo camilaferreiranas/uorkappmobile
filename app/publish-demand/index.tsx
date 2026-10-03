@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -219,3 +220,6 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
 });
+=======
+export { default } from "../(tabs)/publicar";
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439

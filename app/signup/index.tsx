@@ -7,9 +7,8 @@ import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { Colors } from "../../constants/theme";
-import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { useAuth } from "../../contexts/auth-context";
-import { salvarUsuario } from "../../services/storageService";
+import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { createUser } from "../../services/userService";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,26 +75,27 @@ export default function SignupScreen() {
   const handleSignup = async () => {
     setSubmitError("");
     setLoading(true);
+    let contaCriada = false;
 
     try {
-      const usuario = await createUser({
+      const emailNormalizado = email.trim();
+      await createUser({
         nome: nome.trim(),
         sobrenome: sobrenome.trim(),
-        email: email.trim(),
+        email: emailNormalizado,
         senha: password,
         documento: documento.trim(),
         tipoPessoa: "CPF",
       });
+      contaCriada = true;
 
-      await salvarUsuario(usuario);
-
-      await login(email.trim(), password);
-
+      await login(emailNormalizado, password);
       router.replace("/home");
-
     } catch (error) {
       const message =
-        error instanceof Error
+        contaCriada
+          ? "Conta criada, mas não foi possível iniciar a sessão. Entre com seu e-mail e senha."
+          : error instanceof Error
           ? error.message
           : "Erro ao criar conta. Tente novamente.";
       setSubmitError(message);
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: Colors.border,
   },
   dividerText: {
     color: Colors.textSecondary,

@@ -1,7 +1,6 @@
 import { request } from './request';
 import { API_URL } from "./api_url";
 
-const BASE_URL = 'http://192.168.15.27:8080/usuario';
 
 export interface CreateUserPayload {
   nome: string;
@@ -24,6 +23,11 @@ interface ApiResponse<T> {
   data: T;
 }
 
+interface ApiErrorResponse {
+  erros?: string[];
+  message?: string;
+}
+
 export async function createUser(payload: CreateUserPayload): Promise<Usuario> {
   const response = await request(API_URL + "/usuario", {
     method: "POST",
@@ -31,10 +35,12 @@ export async function createUser(payload: CreateUserPayload): Promise<Usuario> {
     body: JSON.stringify(payload),
   });
 
-  const json: ApiResponse<Usuario> = await response.json();
+  const json = (await response.json()) as ApiResponse<Usuario> & ApiErrorResponse;
 
   if (!response.ok) {
-    throw new Error(json?.message ?? "Erro ao criar conta. Tente novamente.");
+    throw new Error(
+      json.erros?.[0] ?? json.message ?? "Erro ao criar conta. Tente novamente."
+    );
   }
 
   return json.data;

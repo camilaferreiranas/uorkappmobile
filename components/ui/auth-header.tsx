@@ -20,9 +20,15 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
+<<<<<<< HEAD
     color: Colors.brandDark,
     fontSize: 32,
     fontWeight: '800',
+=======
+    color: Colors.white,
+    fontSize: 34,
+    fontWeight: '700',
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     marginBottom: 8,
   },
   subtitle: {

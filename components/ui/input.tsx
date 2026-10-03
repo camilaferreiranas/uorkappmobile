@@ -1,6 +1,17 @@
 import { useState } from 'react';
+<<<<<<< HEAD
 import { StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
 import { Colors, Radii } from '../../constants/theme';
+=======
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+} from 'react-native';
+import { Colors, Radius, Spacing } from '../../constants/theme';
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -9,7 +20,11 @@ interface InputProps extends TextInputProps {
   hint?: string;
 }
 
+<<<<<<< HEAD
 export function Input({ label, error, hint, style, onFocus, onBlur, ...props }: InputProps) {
+=======
+export function Input({ label, error, style, onFocus, onBlur, ...props }: InputProps) {
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   const [focused, setFocused] = useState(false);
 
   return (
@@ -22,8 +37,12 @@ export function Input({ label, error, hint, style, onFocus, onBlur, ...props }: 
           error ? styles.inputError : null,
           style,
         ]}
+<<<<<<< HEAD
         placeholderTextColor={Colors.textMuted}
         accessibilityLabel={label}
+=======
+        placeholderTextColor={Colors.textSecondary}
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         onFocus={(e) => {
           setFocused(true);
           onFocus?.(e);
@@ -45,16 +64,25 @@ export function Input({ label, error, hint, style, onFocus, onBlur, ...props }: 
 
 const styles = StyleSheet.create({
   container: {
+<<<<<<< HEAD
     marginBottom: 16,
     width: '100%',
   },
   label: {
     color: Colors.textPrimary,
+=======
+    marginBottom: Spacing.space5,
+    width: '100%',
+  },
+  label: {
+    color: Colors.ink,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 14,
     fontWeight: '600',
-    marginBottom: 8,
+    marginBottom: Spacing.space2,
   },
   input: {
+<<<<<<< HEAD
     backgroundColor: Colors.surfaceNeutral,
     borderRadius: Radii.md,
     paddingHorizontal: 16,
@@ -64,6 +92,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1.5,
     borderColor: 'transparent',
+=======
+    backgroundColor: Colors.white,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.space4,
+    paddingVertical: 14,
+    minHeight: 44,
+    color: Colors.ink,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  inputFocused: {
+    borderColor: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   inputFocused: {
     borderColor: Colors.brandPrimary,
@@ -71,7 +113,10 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: Colors.error,
+<<<<<<< HEAD
     backgroundColor: Colors.errorSurface,
+=======
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   errorText: {
     marginTop: 6,

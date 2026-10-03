@@ -77,8 +77,17 @@ export default function SearchScreen() {
   }, [query, activeFilter]);
 
   return (
+<<<<<<< HEAD
     <ScreenContainer>
       <ScreenHeader title="Buscar" onBack={() => router.back()} />
+=======
+    <ScreenContainer backgroundColor={Colors.background}>
+      <Text style={styles.title}>Buscar profissionais</Text>
+      <Text style={styles.description}>
+        Pesquise por serviço, especialista ou localidade e encontre o
+        profissional ideal.
+      </Text>
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
       <View style={styles.searchBox}>
         <MaterialIcons name="search" size={20} color={Colors.textSecondary} />
@@ -122,6 +131,7 @@ export default function SearchScreen() {
         {results.length} {results.length === 1 ? "profissional" : "profissionais"}
       </Text>
 
+<<<<<<< HEAD
       {results.length === 0 ? (
         <View style={styles.empty}>
           <MaterialIcons name="search-off" size={36} color={Colors.textMuted} />
@@ -144,11 +154,22 @@ export default function SearchScreen() {
           />
         ))
       )}
+=======
+      {filteredProfessionals.map((professional) => (
+        <ProfessionalCard
+          key={professional.name}
+          {...professional}
+          style={styles.professionalCard}
+          onPress={() => router.push("/profile")}
+        />
+      ))}
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
@@ -188,5 +209,72 @@ const styles = StyleSheet.create({
     textAlign: "center",
     maxWidth: 260,
     lineHeight: 20,
+=======
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: Colors.black,
+    marginBottom: 6,
+  },
+  description: {
+    fontSize: 15,
+    color: Colors.textSecondary,
+    marginBottom: 18,
+  },
+  searchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.white,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    shadowColor: Colors.black,
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
+    marginBottom: 18,
+  },
+  searchInput: {
+    marginLeft: 10,
+    flex: 1,
+    fontSize: 16,
+    color: Colors.black,
+  },
+  filtersRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 18,
+  },
+  filterPill: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: Colors.white,
+    alignItems: "center",
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: "transparent",
+  },
+  filterPillActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterText: {
+    color: Colors.textSecondary,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  filterTextActive: {
+    color: Colors.white,
+  },
+  resultCount: {
+    fontSize: 14,
+    color: Colors.gray,
+    marginBottom: 16,
+  },
+  professionalCard: {
+    marginBottom: 10,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
 });

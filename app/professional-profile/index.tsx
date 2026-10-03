@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   SafeAreaView,
   ScrollView,
@@ -9,6 +10,7 @@ import {
 } from "react-native";
 import { ProfessionalColors as Colors } from "../../constants/theme";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
+import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { useAuth } from "../../contexts/auth-context";
 import { getInitials } from "../../utils/get-initials";
 
@@ -44,25 +46,47 @@ const menuItems = [
 ];
 
 export default function ProfessionalProfileScreen() {
+  const router = useRouter();
   const { user } = useAuth();
+
+  function handleMenuPress(label: string) {
+    if (label === "Editar perfil") {
+      router.push("/edit-profile");
+      return;
+    }
+
+    if (label === "Notificações") {
+      router.push("/professional-notifications");
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{getInitials(user?.nome, user?.sobrenome)}</Text>
-          </View>
+          <ProfileAvatar
+            imageUrl={user?.fotoPerfilUrl}
+            initials={getInitials(user?.nome, user?.sobrenome)}
+            size={80}
+            backgroundColor="rgba(255,255,255,0.2)"
+            borderColor="rgba(255,255,255,0.5)"
+            borderWidth={3}
+            style={styles.avatar}
+          />
           <Text style={styles.name}>
             {user ? `${user.nome} ${user.sobrenome}` : "Visitante"}
           </Text>
           <Text style={styles.specialty}>{professionalMock.specialty}</Text>
           <View style={styles.locationRow}>
+<<<<<<< HEAD
             <MaterialIcons name="location-on" size={14} color={Colors.textOnBrandMuted} />
+=======
+            <MaterialIcons name="location-on" size={14} color={Colors.primaryLight} />
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
             <Text style={styles.location}>{professionalMock.location}</Text>
           </View>
           <View style={styles.memberBadge}>
-            <MaterialIcons name="verified" size={14} color="#FFD700" />
+            <MaterialIcons name="verified" size={14} color={Colors.warning} />
             <Text style={styles.memberText}>Membro desde {professionalMock.memberSince}</Text>
           </View>
         </View>
@@ -70,7 +94,7 @@ export default function ProfessionalProfileScreen() {
         <View style={styles.statsCard}>
           <View style={styles.statItem}>
             <View style={styles.statIconRow}>
-              <MaterialIcons name="star" size={16} color="#FFB800" />
+              <MaterialIcons name="star" size={16} color={Colors.warning} />
               <Text style={styles.statValue}>{professionalMock.rating}</Text>
             </View>
             <Text style={styles.statLabel}>{professionalMock.totalRatings} avaliações</Text>
@@ -110,7 +134,7 @@ export default function ProfessionalProfileScreen() {
             <View style={styles.serviceRight}>
               <Text style={styles.servicePrice}>{service.price}</Text>
               <View style={styles.serviceRating}>
-                <MaterialIcons name="star" size={12} color="#FFB800" />
+                <MaterialIcons name="star" size={12} color={Colors.warning} />
                 <Text style={styles.serviceRatingText}>{service.rating.toFixed(1)}</Text>
               </View>
             </View>
@@ -132,7 +156,7 @@ export default function ProfessionalProfileScreen() {
                 <Text style={styles.reviewDate}>{review.date}</Text>
               </View>
               <View style={styles.reviewRating}>
-                <MaterialIcons name="star" size={14} color="#FFB800" />
+                <MaterialIcons name="star" size={14} color={Colors.warning} />
                 <Text style={styles.reviewRatingText}>{review.rating.toFixed(1)}</Text>
               </View>
             </View>
@@ -145,13 +169,18 @@ export default function ProfessionalProfileScreen() {
             <TouchableOpacity
               key={item.label}
               style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
+              onPress={() => handleMenuPress(item.label)}
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
+<<<<<<< HEAD
                 <MaterialIcons name={item.icon as any} size={18} color={Colors.brandPrimary} />
+=======
+                <MaterialIcons name={item.icon as any} size={18} color={Colors.primary} />
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
               </View>
               <Text style={styles.menuLabel}>{item.label}</Text>
-              <MaterialIcons name="chevron-right" size={20} color="#C4C4C4" />
+              <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
             </TouchableOpacity>
           ))}
         </View>
@@ -165,41 +194,40 @@ export default function ProfessionalProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+<<<<<<< HEAD
     backgroundColor: Colors.surfaceNeutral,
+=======
+    backgroundColor: Colors.background,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
     paddingBottom: 110,
   },
   header: {
+<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
+=======
+    backgroundColor: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingTop: 30,
     paddingBottom: 30,
     alignItems: "center",
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderWidth: 3,
-    borderColor: "rgba(255,255,255,0.5)",
-    alignItems: "center",
-    justifyContent: "center",
     marginBottom: 12,
   },
-  avatarText: {
-    color: "#fff",
-    fontSize: 26,
-    fontWeight: "800",
-  },
   name: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 4,
   },
   specialty: {
+<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
+=======
+    color: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 14,
     marginBottom: 8,
   },
@@ -210,7 +238,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   location: {
+<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
+=======
+    color: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
   },
   memberBadge: {
@@ -223,12 +255,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   memberText: {
+<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
+=======
+    color: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 12,
     fontWeight: "600",
   },
   statsCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginTop: -20,
     borderRadius: 18,
@@ -259,16 +295,16 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     textAlign: "center",
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#EFEFEF",
+    backgroundColor: Colors.background,
     marginVertical: 4,
   },
   contactCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     borderRadius: 18,
     padding: 18,
@@ -303,7 +339,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   serviceCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginBottom: 10,
     borderRadius: 14,
@@ -328,7 +364,7 @@ const styles = StyleSheet.create({
   },
   serviceSubtitle: {
     fontSize: 12,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   serviceRight: {
     alignItems: "flex-end",
@@ -346,11 +382,11 @@ const styles = StyleSheet.create({
   },
   serviceRatingText: {
     fontSize: 12,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     fontWeight: "600",
   },
   reviewCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginBottom: 10,
     borderRadius: 14,
@@ -371,14 +407,22 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
+<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
+=======
+    backgroundColor: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },
   reviewAvatarText: {
     fontSize: 12,
     fontWeight: "800",
+<<<<<<< HEAD
     color: Colors.brandPrimary,
+=======
+    color: Colors.primary,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   reviewMeta: {
     flex: 1,
@@ -391,7 +435,7 @@ const styles = StyleSheet.create({
   },
   reviewDate: {
     fontSize: 11,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
   },
   reviewRating: {
     flexDirection: "row",
@@ -405,11 +449,11 @@ const styles = StyleSheet.create({
   },
   reviewComment: {
     fontSize: 13,
-    color: "#505050",
+    color: Colors.textSecondary,
     lineHeight: 18,
   },
   menuCard: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.white,
     marginHorizontal: 20,
     marginTop: 20,
     borderRadius: 18,
@@ -429,13 +473,17 @@ const styles = StyleSheet.create({
   },
   menuItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
+    borderBottomColor: Colors.border,
   },
   menuIconWrapper: {
     width: 34,
     height: 34,
     borderRadius: 10,
+<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
+=======
+    backgroundColor: Colors.primaryLight,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },

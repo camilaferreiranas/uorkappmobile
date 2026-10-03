@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+import { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors, Radius } from '../../constants/theme';
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -79,11 +85,16 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
+<<<<<<< HEAD
     color: Colors.textPrimary,
+=======
+    color: Colors.ink,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontWeight: '600',
     marginBottom: 8,
   },
   input: {
+<<<<<<< HEAD
     backgroundColor: Colors.surfaceNeutral,
     borderRadius: Radii.md,
     paddingHorizontal: 16,
@@ -122,6 +133,38 @@ const styles = StyleSheet.create({
     marginTop: 8,
     overflow: 'hidden',
     ...Shadow.card,
+=======
+    backgroundColor: Colors.white,
+    borderRadius: Radius.sm,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  value: {
+    fontSize: 16,
+    color: Colors.ink,
+  },
+  placeholder: {
+    color: Colors.textSecondary,
+  },
+  dropdown: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.sm,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    overflow: 'hidden',
+    elevation: 1,
+    shadowColor: Colors.ink,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   option: {
     paddingVertical: 14,
@@ -132,12 +175,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+<<<<<<< HEAD
   },
   optionPressed: {
     backgroundColor: Colors.brandTint,
   },
   optionText: {
     color: Colors.textPrimary,
+=======
+  },
+  optionText: {
+    color: Colors.ink,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 15,
   },
 });

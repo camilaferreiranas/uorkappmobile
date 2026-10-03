@@ -6,12 +6,19 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "uork",
+<<<<<<< HEAD
     "userInterfaceStyle": "automatic",
+=======
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "br.com.uork",
+      "googleServicesFile": "./google-services.json",
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -20,12 +27,33 @@
       },
       "predictiveBackGestureEnabled": false
     },
+    "androidNavigationBar": {
+      "backgroundColor": "#FFFFFF",
+      "barStyle": "dark-content",
+      "enforceContrast": false
+    },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Permita que o Uork use sua localização para encontrar profissionais próximos."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita que o Uork acesse suas fotos para escolher uma imagem de perfil.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
       [
         "expo-splash-screen",
         {

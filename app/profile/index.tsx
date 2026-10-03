@@ -15,7 +15,14 @@ import { ListCard } from "../../components/ui/list-card";
 import { ReviewCard } from "../../components/ui/review-card";
 import { ScreenHeader } from "../../components/ui/screen-header";
 import { SectionHeader } from "../../components/ui/section-header";
+<<<<<<< HEAD
 import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
+=======
+import { ServiceCard } from "../../components/ui/service-card";
+import { ProfileAvatar } from "../../components/ui/profile-avatar";
+import { Colors } from "../../constants/theme";
+import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const services = [
   { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
@@ -39,9 +46,15 @@ const reviews = [
 ];
 
 export default function ProfileScreen() {
+<<<<<<< HEAD
   const { id } = useLocalSearchParams<{ id?: string }>();
   return <ProfileContent key={id ?? "demo"} id={id} />;
 }
+=======
+  const router = useRouter();
+  const { id, modo } = useLocalSearchParams<{ id: string; modo?: string }>();
+  const somenteConsulta = modo === "candidatura";
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 function ProfileContent({ id }: { id?: string }) {
   const router = useRouter();
@@ -59,6 +72,7 @@ function ProfileContent({ id }: { id?: string }) {
     return () => { active = false; };
   }, [id]);
 
+<<<<<<< HEAD
   const openProposal = (serviceTitle = "") => {
     if (!id) { router.push("/review"); return; }
     router.push({ pathname: "/send-proposal", params: {
@@ -71,6 +85,21 @@ function ProfileContent({ id }: { id?: string }) {
     price: formatCurrency(service.valorMedio), rating: service.avaliacao,
   })) : services;
   const startingPrice = profile ? (profile.servicos.length ? formatCurrency(Math.min(...profile.servicos.map((service) => service.valorMedio))) : "Sob consulta") : "R$ 90";
+=======
+  const openProposal = (serviceTitle?: string) => {
+  router.push({
+    pathname: "/send-proposal" as any,
+    params: {
+      prestadorId: id,
+      professional: profile?.nome ?? "",
+      service: serviceTitle ?? "",
+      serviceOptions: JSON.stringify(
+        profile?.servicos.map((item) => item.titulo) ?? []
+      ),
+    },
+  });
+};
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
   if (loading || error) {
     return <SafeAreaView style={styles.safeArea}>
@@ -92,6 +121,7 @@ function ProfileContent({ id }: { id?: string }) {
           actionLabel="Compartilhar"
         />
 
+<<<<<<< HEAD
         <View style={styles.identity}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{profile?.nome.substring(0, 2).toUpperCase() ?? "RO"}</Text>
@@ -125,6 +155,51 @@ function ProfileContent({ id }: { id?: string }) {
             <Text style={styles.statValue}>{profile ? new Date(profile.dataCriacao).toLocaleDateString("pt-BR") : "7 anos"}</Text>
             <Text style={styles.statLabel}>{profile ? "Membro desde" : "Experiência"}</Text>
           </View>
+=======
+        <View style={styles.avatarContainer}>
+          <ProfileAvatar
+            imageUrl={profile.fotoPerfilUrl}
+            initials={initials}
+            size={90}
+            backgroundColor={Colors.primary}
+            borderColor={Colors.white}
+            borderWidth={4}
+          />
+        </View>
+
+        <View style={styles.detailsCard}>
+          <Text style={styles.name}>{profile.nome}</Text>
+          <Text style={styles.specialty}>{profile.descricao}</Text>
+          <Text style={styles.location}>
+            {profile.cidade} - {profile.estado}
+          </Text>
+
+          <View style={styles.statsRow}>
+            <View style={styles.statBlock}>
+              <Text style={styles.statValue}>{profile.percentualConclusao.toFixed(0)}%</Text>
+              <Text style={styles.statLabel}>Conclusão</Text>
+            </View>
+            <View style={styles.statBlock}>
+              <View style={styles.ratingRow}>
+                <MaterialIcons name="star" size={16} color={Colors.warning} />
+                <Text style={styles.ratingValue}>{profile.notaMedia.toFixed(1)}</Text>
+              </View>
+              <Text style={styles.statLabel}>Avaliação</Text>
+            </View>
+            <View style={styles.statBlock}>
+              <Text style={styles.statValue}>{profile.totalAvaliacoes}</Text>
+              <Text style={styles.statLabel}>Avaliações</Text>
+            </View>
+          </View>
+
+          {!somenteConsulta && (
+            <Button
+              title="Contratar"
+              style={styles.contractButton}
+              onPress={() => openProposal()}
+            />
+          )}
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         </View>
 
         <Button
@@ -139,6 +214,7 @@ function ProfileContent({ id }: { id?: string }) {
           subtitle="Orçamento fechado antes de contratar"
           style={styles.section}
         />
+<<<<<<< HEAD
         {displayedServices.map((s) => (
           <ListCard
             key={s.title}
@@ -150,6 +226,17 @@ function ProfileContent({ id }: { id?: string }) {
             icon="build"
             rating={s.rating}
             onPress={() => openProposal(s.title)}
+=======
+
+        {profile.servicos.map((service) => (
+          <ServiceCard
+            key={service.titulo}
+            title={service.titulo}
+            subtitle={service.descricao}
+            price={formatCurrency(service.valorMedio)}
+            rating={service.avaliacao}
+            onPress={somenteConsulta ? undefined : () => openProposal(service.titulo)}
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
           />
         ))}
 
@@ -175,7 +262,33 @@ function ProfileContent({ id }: { id?: string }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+<<<<<<< HEAD
     backgroundColor: Colors.surfaceWhite,
+=======
+    backgroundColor: Colors.background,
+  },
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  errorText: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
+  backButton: {
+    position: "absolute",
+    top: 54,
+    left: 16,
+    zIndex: 10,
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
     paddingHorizontal: Spacing.gutter,
@@ -186,6 +299,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
   },
+<<<<<<< HEAD
   avatar: {
     width: 84,
     height: 84,
@@ -204,6 +318,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
+=======
+  detailsCard: {
+    marginHorizontal: 20,
+    marginTop: 20,
+    borderRadius: 24,
+    backgroundColor: "#fff",
+    padding: 22,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   name: {
     fontSize: 22,
@@ -213,11 +340,16 @@ const styles = StyleSheet.create({
   specialty: {
     fontSize: 14,
     color: Colors.textSecondary,
+<<<<<<< HEAD
   },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 3,
+=======
+    marginTop: 6,
+    marginBottom: 4,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   location: {
     fontSize: 13,
@@ -247,10 +379,16 @@ const styles = StyleSheet.create({
     color: Colors.brandDark,
   },
   statLabel: {
+<<<<<<< HEAD
     marginTop: 4,
     color: Colors.textSecondary,
     fontSize: 11,
     textAlign: "center",
+=======
+    marginTop: 6,
+    color: Colors.textSecondary,
+    fontSize: 12,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   ratingRow: {
     flexDirection: "row",
@@ -288,8 +426,11 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: Colors.brandDark,
   },
+<<<<<<< HEAD
   ctaButton: {
     flex: 1,
     maxWidth: 200,
   },
+=======
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 });

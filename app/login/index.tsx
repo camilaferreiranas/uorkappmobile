@@ -1,6 +1,11 @@
 import { useRouter } from "expo-router";
+<<<<<<< HEAD
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, Pressable, View } from "react-native";
+=======
+import { useEffect, useMemo, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -14,7 +19,7 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -23,6 +28,12 @@ export default function LoginScreen() {
   const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
     router.replace("/home")
   );
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/home");
+    }
+  }, [loading, router, user]);
 
   const emailError = useMemo(() => {
     if (!email.trim()) return "Informe o e-mail.";
@@ -151,7 +162,7 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "#E0E0E0",
+    backgroundColor: Colors.border,
   },
   dividerText: {
     color: Colors.textSecondary,

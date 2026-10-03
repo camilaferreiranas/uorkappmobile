@@ -1,0 +1,72 @@
+import { Image } from "expo-image";
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import { Colors } from "../../constants/theme";
+
+interface ProfileAvatarProps {
+  imageUrl?: string | null;
+  initials: string;
+  size?: number;
+  backgroundColor?: string;
+  initialsColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  style?: StyleProp<ViewStyle>;
+}
+
+export function ProfileAvatar({
+  imageUrl,
+  initials,
+  size = 80,
+  backgroundColor = Colors.primary,
+  initialsColor = Colors.white,
+  borderColor = "transparent",
+  borderWidth = 0,
+  style,
+}: ProfileAvatarProps) {
+  const imageCacheKey = imageUrl?.replace(/[?#].*$/, "");
+
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor,
+          borderColor,
+          borderWidth,
+        },
+        style,
+      ]}
+    >
+      {imageUrl ? (
+        <Image
+          source={{ uri: imageUrl, cacheKey: imageCacheKey }}
+          style={styles.image}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          recyclingKey={imageCacheKey}
+          transition={180}
+        />
+      ) : (
+        <Text style={[styles.initials, { color: initialsColor, fontSize: size * 0.34 }]}>{initials}</Text>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  initials: {
+    fontWeight: "700",
+  },
+});

@@ -1,4 +1,5 @@
 /**
+<<<<<<< HEAD
  * Uork Design System — token layer.
  *
  * Hex values live ONLY in this file. Components and screens must reference
@@ -8,6 +9,10 @@
  *  - amber → warning / rating signal
  *  - red   → error / destructive
  *  - violet→ special / promotional (sparingly)
+=======
+ * Design tokens for the app, matching /design.md (Uork Design System & Visual Identity).
+ * The colors are defined in light and dark mode.
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
  */
 
 import { Platform } from 'react-native';
@@ -48,6 +53,7 @@ const palette = {
 };
 
 export const Colors = {
+<<<<<<< HEAD
   // ---- Brand ----
   brandPrimary: palette.blue600,
   brandPrimaryHover: palette.blue500,
@@ -98,6 +104,39 @@ export const Colors = {
     icon: palette.slate600,
     tabIconDefault: palette.slate400,
     tabIconSelected: palette.blue600,
+=======
+  // Primary
+  primary: '#2563EB',
+  ink: '#0F172A',
+  white: '#FFFFFF',
+  black: '#111111',
+
+  // Supporting
+  primaryLight: '#DBEAFE',
+  background: '#F1F5F9',
+  textSecondary: '#475569',
+  border: '#E2E8F0',
+
+  // Semantic
+  success: '#16A34A',
+  warning: '#F59E0B',
+  error: '#EF4444',
+  accent: '#8B5CF6',
+
+  // Legacy aliases kept for existing call sites
+  text: '#0F172A',
+  textLight: 'rgba(255,255,255,0.92)',
+  gray: '#94A3B8',
+  lightGray: '#F1F5F9',
+
+  light: {
+    text: '#0F172A',
+    background: '#FFFFFF',
+    tint: '#2563EB',
+    icon: '#475569',
+    tabIconDefault: '#475569',
+    tabIconSelected: '#2563EB',
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   dark: {
     text: palette.white,
@@ -109,6 +148,7 @@ export const Colors = {
   },
 };
 
+<<<<<<< HEAD
 /** Professional identity; status colours retain their semantic meaning. */
 export const ProfessionalColors = {
   ...Colors,
@@ -150,6 +190,66 @@ export const Shadow = {
     elevation: 10,
   },
 } as const;
+=======
+// 4px-based spacing scale (design.md §5)
+export const Spacing = {
+  space1: 4,
+  space2: 8,
+  space3: 12,
+  space4: 16,
+  space5: 20,
+  space6: 24,
+  space8: 32,
+  space10: 40,
+  space12: 48,
+  space16: 64,
+  space20: 80,
+};
+
+// Radius scale (design.md §6)
+export const Radius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  pill: 999,
+};
+
+// Typography scale (design.md §4)
+export const Typography = {
+  display: { fontWeight: '700' as const, fontSize: 40, lineHeight: 44 },
+  h1: { fontWeight: '700' as const, fontSize: 34, lineHeight: 39 },
+  h2: { fontWeight: '600' as const, fontSize: 26, lineHeight: 31 },
+  h3: { fontWeight: '600' as const, fontSize: 20, lineHeight: 26 },
+  body: { fontWeight: '400' as const, fontSize: 16, lineHeight: 24 },
+  small: { fontWeight: '400' as const, fontSize: 13, lineHeight: 18 },
+  button: { fontWeight: '600' as const, fontSize: 15, lineHeight: 18 },
+  price: { fontWeight: '700' as const, fontSize: 24, lineHeight: 29 },
+};
+
+/**
+ * Maps a request/proposal status label (pt-BR) to its semantic color pair.
+ * Keeps status color consistent across customer and provider screens (design.md §12/§14).
+ */
+export function getStatusColor(status: string): { color: string; background: string } {
+  const normalized = status.trim().toLowerCase();
+
+  const successStates = ['concluído', 'concluida', 'concluída', 'confirmado', 'pagamento confirmado', 'aceita', 'aceito', 'agendado'];
+  const warningStates = ['aguardando resposta', 'pendente', 'em negociação', 'em análise', 'perfil incompleto', 'informação pendente'];
+  const errorStates = ['cancelado', 'cancelada', 'recusada', 'recusado', 'falha', 'expirado', 'expirada'];
+
+  if (successStates.some((s) => normalized.includes(s))) {
+    return { color: Colors.success, background: '#EAF7ED' };
+  }
+  if (errorStates.some((s) => normalized.includes(s))) {
+    return { color: Colors.error, background: '#FDECEA' };
+  }
+  if (warningStates.some((s) => normalized.includes(s))) {
+    return { color: Colors.warning, background: '#FFF7EA' };
+  }
+
+  return { color: Colors.textSecondary, background: Colors.background };
+}
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 export const Fonts = Platform.select({
   ios: {
@@ -169,7 +269,7 @@ export const Fonts = Platform.select({
     mono: 'monospace',
   },
   web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    sans: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",

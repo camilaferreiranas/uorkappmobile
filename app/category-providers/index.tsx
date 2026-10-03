@@ -2,14 +2,14 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ProfessionalCard } from "../../components/ui/professional-card";
+import { ProfileScreenHeader } from "../../components/ui/profile-screen-header";
 import { Colors } from "../../constants/theme";
 import { buscarPrestadoresCategoria, Prestador } from "../../services/prestadorService";
 /*
@@ -60,7 +60,16 @@ export default function CategoryProvidersScreen() {
     }
   }, [categoriaId]);
 
+  const subtitulo = carregando
+    ? "Carregando profissionais..."
+    : `${prestadores.length} ${
+        prestadores.length === 1
+          ? "profissional disponível"
+          : "profissionais disponíveis"
+      }`;
+
   return (
+<<<<<<< HEAD
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
@@ -71,6 +80,10 @@ export default function CategoryProvidersScreen() {
           <Text style={styles.headerSubtitle}>{prestadores.length} profissionais disponíveis</Text>
         </View>
       </View>
+=======
+    <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
+      <ProfileScreenHeader title={category ?? "Categoria"} subtitle={subtitulo} />
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
       <ScrollView
         contentContainerStyle={styles.container}
@@ -78,7 +91,7 @@ export default function CategoryProvidersScreen() {
       >
         {prestadores.length === 0 ? (
           <View style={styles.emptyState}>
-            <MaterialIcons name="search-off" size={56} color="#C4C4C4" />
+            <MaterialIcons name="search-off" size={56} color={Colors.textSecondary} />
             <Text style={styles.emptyTitle}>Nenhum profissional encontrado</Text>
             <Text style={styles.emptyText}>
               Não há profissionais cadastrados nessa categoria ainda.
@@ -88,11 +101,13 @@ export default function CategoryProvidersScreen() {
           prestadores.map((professional) => (
             <ProfessionalCard
               key={professional.id}
+              style={styles.providerCard}
               name={professional.nome}
               role="Prestador de serviço"
               rating={0}
               distance="0 km"
               initials={professional.nome?.substring(0, 2).toUpperCase() || "US"}
+              imageUrl={professional.fotoPerfilUrl}
               //category={category ?? ""}
               buttonTitle="Ver perfil"
               onPress={() =>
@@ -112,6 +127,7 @@ export default function CategoryProvidersScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+<<<<<<< HEAD
     backgroundColor: "#F7F7F7",
   },
   header: {
@@ -140,11 +156,17 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     color: "#FFE5D9",
     fontSize: 13,
+=======
+    backgroundColor: Colors.background,
+>>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
-    paddingTop: 20,
+    paddingTop: 14,
     paddingBottom: 50,
-    gap: 4,
+    gap: 6,
+  },
+  providerCard: {
+    marginHorizontal: 12,
   },
   emptyState: {
     alignItems: "center",
@@ -161,7 +183,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: "#8A8A8A",
+    color: Colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
   },
