@@ -86,22 +86,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   avatar: {
-<<<<<<< HEAD
-    width: 54,
-    height: 54,
-    borderRadius: 18,
-    backgroundColor: Colors.brandPrimary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  avatarText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '800',
-=======
     marginRight: 12,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   info: {
     flex: 1,
@@ -146,15 +131,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   button: {
-<<<<<<< HEAD
-    backgroundColor: Colors.brandPrimary,
-    borderRadius: 14,
-    paddingVertical: 13,
-=======
     backgroundColor: Colors.primary,
     borderRadius: Radius.md,
     paddingVertical: 10,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: 'center',
     justifyContent: 'center',
   },

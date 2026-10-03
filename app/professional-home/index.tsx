@@ -3,26 +3,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import { type Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-<<<<<<< HEAD
-  Pressable,
-  SafeAreaView,
-=======
   ActivityIndicator,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-<<<<<<< HEAD
-import { useAuth } from "../../contexts/auth-context";
-import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
-import { ReviewCard } from "../../components/ui/review-card";
-import { Chip, ChipRow } from "../../components/ui/chip";
-import { ListCard } from "../../components/ui/list-card";
-import { SectionHeader } from "../../components/ui/section-header";
-import { ProfessionalColors as Colors, Radii, Shadow, Spacing } from "../../constants/theme";
-=======
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponiveis";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
@@ -41,7 +27,6 @@ function formatarValor(valor: number) {
     maximumFractionDigits: 2,
   });
 }
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const lastReview = {
   name: "Mariana Costa",
@@ -50,73 +35,10 @@ const lastReview = {
   date: "2 dias atrás",
 };
 
-<<<<<<< HEAD
-const filters = ["Todas", "Urgentes", "Perto de mim", "Meu ramo"];
-
-const demands = [
-  {
-    id: "1",
-    budget: "R$ 340",
-    urgency: "Urgente",
-    distance: "1,8 km",
-    client: "João Melo",
-    description: "Preciso instalar 3 novos pontos elétricos no apartamento. Sala e dois quartos.",
-    title: "Instalação elétrica",
-    subtitle: "Apartamento · 3 pontos · 1,8 km",
-    price: "Orçamento R$ 340",
-    icon: "electrical-services" as const,
-    urgent: true,
-  },
-  {
-    id: "2",
-    budget: "R$ 120",
-    urgency: "Normal",
-    distance: "2,3 km",
-    client: "Ana Lima",
-    description: "Torneira da cozinha com vazamento. Precisa de troca completa com peça.",
-    title: "Troca de torneira",
-    subtitle: "Cozinha residencial · 2,3 km",
-    price: "Orçamento R$ 120",
-    icon: "plumbing" as const,
-    urgent: false,
-  },
-  {
-    id: "3",
-    budget: "R$ 420",
-    urgency: "Hoje",
-    distance: "3,1 km",
-    client: "Pedro Santos",
-    description: "Casa após reforma. Limpeza pesada em todos os cômodos, aproximadamente 120m².",
-    title: "Limpeza pós-obra",
-    subtitle: "Casa térrea · 3,1 km",
-    price: "Orçamento R$ 420",
-    icon: "cleaning-services" as const,
-    urgent: true,
-  },
-  {
-    id: "4",
-    budget: "R$ 260",
-    urgency: "Normal",
-    distance: "4,0 km",
-    client: "",
-    description: "Pintura de um cômodo.",
-    title: "Pintura de quarto",
-    subtitle: "1 cômodo · 4,0 km",
-    price: "Orçamento R$ 260",
-    icon: "format-paint" as const,
-    urgent: false,
-  },
-];
-
-
-=======
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
-<<<<<<< HEAD
-=======
   const {
     notificacoesPrestador,
     naoLidasPrestador,
@@ -295,7 +217,6 @@ export default function ProfessionalHomeScreen() {
       </SafeAreaView>
     );
   }
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
@@ -303,15 +224,6 @@ export default function ProfessionalHomeScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-<<<<<<< HEAD
-        <View style={styles.topBar}>
-          <View>
-            <Text style={styles.profileLabel}>PERFIL PRESTADOR</Text>
-            <Text style={styles.hello}>Olá, {user?.nome ?? "profissional"}</Text>
-            <View style={styles.statusRow}>
-              <MaterialIcons name="circle" size={9} color={Colors.success} />
-              <Text style={styles.status}>Disponível para novas demandas</Text>
-=======
         {/* ── Header ── */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <View style={styles.headerLeft}>
@@ -431,7 +343,6 @@ export default function ProfessionalHomeScreen() {
               </View>
               <Text style={styles.metricLabel} numberOfLines={2}>{m.label}</Text>
               <Text style={styles.metricNote}>{m.note}</Text>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
             </View>
           </View>
           <Pressable
@@ -468,32 +379,6 @@ export default function ProfessionalHomeScreen() {
             ))}
           </ChipRow>
         </View>
-<<<<<<< HEAD
-
-        <SectionHeader
-          title="Demandas próximas"
-          subtitle={`${demands.length} abertas perto de você`}
-          style={styles.section}
-        />
-
-        {demands.map((d) => (
-          <View key={d.title}>
-            {d.urgent && (
-              <View style={styles.urgentTag}>
-                <MaterialIcons name="bolt" size={12} color={Colors.warningText} />
-                <Text style={styles.urgentText}>Urgente</Text>
-              </View>
-            )}
-            <ListCard
-              tone="professional"
-              title={d.title}
-              subtitle={d.subtitle}
-              subtitleIcon="place"
-              price={d.price}
-              icon={d.icon}
-              onPress={() => router.push({ pathname: "/demand-details", params: { id: d.id, title: d.title, subtitle: d.subtitle, budget: d.budget, urgency: d.urgency, distance: d.distance, client: d.client, description: d.description } })}
-            />
-=======
         {erroResumo ? (
           <View style={styles.metricsError}>
             <Text style={styles.metricsErrorText}>{erroResumo}</Text>
@@ -520,7 +405,6 @@ export default function ProfessionalHomeScreen() {
                 {lastReview.rating.toFixed(1)}
               </Text>
             </View>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
           </View>
         ))}
         <SectionHeader title="Última avaliação" />
@@ -535,20 +419,13 @@ export default function ProfessionalHomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: Colors.surfaceWhite,
-=======
     backgroundColor: Colors.background,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
     paddingHorizontal: Spacing.gutter,
     paddingTop: Spacing.section,
     paddingBottom: 120,
   },
-<<<<<<< HEAD
-  topBar: {
-=======
   loadingContainer: {
     flex: 1,
     alignItems: "center",
@@ -632,7 +509,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -645,34 +521,23 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 6,
   },
-<<<<<<< HEAD
-  hello: {
-=======
   headerTitle: {
     color: Colors.white,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 22,
     fontWeight: "800",
     color: Colors.brandDark,
     marginBottom: 3,
   },
-<<<<<<< HEAD
-  statusRow: {
-=======
   headerSubtitle: {
     color: Colors.primaryLight,
     fontSize: 13,
     lineHeight: 18,
   },
   onlineBadge: {
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
   },
-<<<<<<< HEAD
-  status: {
-=======
   onlineDot: {
     width: 8,
     height: 8,
@@ -681,15 +546,11 @@ const styles = StyleSheet.create({
   },
   onlineBadgeText: {
     color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 12,
     color: Colors.textSecondary,
   },
   switch: {
     flexDirection: "row",
-<<<<<<< HEAD
-    alignItems: "center",
-=======
     backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 4,
@@ -820,7 +681,6 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     padding: 12,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     gap: 4,
     backgroundColor: Colors.brandTint,
     borderRadius: Radii.pill,
@@ -832,9 +692,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     fontSize: 13,
   },
-<<<<<<< HEAD
-  stats: {
-=======
   metricValueSlot: {
     minHeight: 32,
     justifyContent: "flex-end",
@@ -905,7 +762,6 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   demandTop: {
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: Colors.brandTint,
@@ -915,8 +771,6 @@ const styles = StyleSheet.create({
   },
   stat: {
     flex: 1,
-<<<<<<< HEAD
-=======
     fontSize: 15,
     fontWeight: "800",
     color: Colors.ink,
@@ -934,27 +788,8 @@ const styles = StyleSheet.create({
   },
   demandBottom: {
     flexDirection: "row",
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
   },
-<<<<<<< HEAD
-  statDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: Colors.border,
-  },
-  statValue: {
-    fontSize: 17,
-    fontWeight: "800",
-    color: Colors.brandDark,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-    marginTop: 3,
-  },
-  chips: {
-=======
   urgencyTag: {
     borderRadius: 999,
     paddingHorizontal: 10,
@@ -990,7 +825,6 @@ const styles = StyleSheet.create({
     padding: 18,
     marginHorizontal: 20,
     marginTop: 24,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     marginBottom: 8,
   },
   section: {
@@ -998,8 +832,6 @@ const styles = StyleSheet.create({
   },
   urgentTag: {
     flexDirection: "row",
-<<<<<<< HEAD
-=======
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: 10,
@@ -1022,7 +854,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     gap: 3,
     alignSelf: "flex-start",
@@ -1032,45 +863,6 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     marginBottom: 6,
   },
-<<<<<<< HEAD
-  urgentText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: Colors.warningText,
-  },
-  tabBar: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 24,
-    backgroundColor: Colors.surfaceWhite,
-    borderRadius: Radii.pill,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    ...Shadow.floating,
-  },
-  tabItem: {
-    minHeight: 44,
-    minWidth: 44,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tabActive: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: Colors.brandPrimary,
-    borderRadius: Radii.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  tabActiveLabel: {
-    color: Colors.textOnBrand,
-    fontWeight: "800",
-=======
   reviewBadgeText: {
     color: Colors.success,
     fontWeight: "700",
@@ -1078,7 +870,6 @@ const styles = StyleSheet.create({
   },
   reviewComment: {
     color: Colors.textSecondary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
   },
 });

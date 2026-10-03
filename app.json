@@ -6,12 +6,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "uork",
-<<<<<<< HEAD
-    "userInterfaceStyle": "automatic",
-=======
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     "ios": {
       "supportsTablet": true
     },

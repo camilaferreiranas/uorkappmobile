@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-=======
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
@@ -14,26 +9,20 @@ import {
     View,
 } from "react-native";
 import { Colors } from "../../constants/theme";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { PillGroup } from "../../components/ui/pill-group";
-<<<<<<< HEAD
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { ScreenHeader } from "../../components/ui/screen-header";
 import { StarRating } from "../../components/ui/star-rating";
 import { Colors, Radii } from "../../constants/theme";
-=======
 import { avaliarPrestador } from "../../services/propostaService";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const qualityTags = ["Pontualidade", "Comunicação", "Qualidade", "Custo-benefício"];
 
 export default function ReviewScreen() {
   const router = useRouter();
-<<<<<<< HEAD
-=======
   const { professional, propostaId } = useLocalSearchParams<{
     professional?: string;
     propostaId?: string;
@@ -43,7 +32,6 @@ export default function ReviewScreen() {
   const initials = `${partesNome[0]?.[0] ?? "P"}${
     partesNome.length > 1 ? partesNome.at(-1)?.[0] ?? "" : ""
   }`.toUpperCase();
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   const [rating, setRating] = useState(0);
   const [selectedTag, setSelectedTag] = useState("");
   const [comment, setComment] = useState("");
@@ -83,11 +71,6 @@ export default function ReviewScreen() {
   }
 
   return (
-<<<<<<< HEAD
-    <ScreenContainer>
-      <ScreenHeader title="Avaliação" onBack={() => router.back()} />
-
-=======
     <ScreenContainer backgroundColor={Colors.background}>
       <View style={styles.pageHeader}>
         <TouchableOpacity
@@ -102,19 +85,13 @@ export default function ReviewScreen() {
         <View style={styles.headerSpacer} />
       </View>
       
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
       <Card style={styles.profileCard}>
         <View style={styles.profileAvatar}>
           <Text style={styles.profileAvatarText}>{initials}</Text>
         </View>
         <View style={styles.profileInfo}>
-<<<<<<< HEAD
-          <Text style={styles.profileName}>Rafael Oliveira</Text>
-          <Text style={styles.profileRole}>Eletricista profissional</Text>
-=======
           <Text style={styles.profileName}>{professionalName}</Text>
           <Text style={styles.profileRole}>Prestador de serviço</Text>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         </View>
       </Card>
 
@@ -130,13 +107,9 @@ export default function ReviewScreen() {
         onChangeText={setComment}
         placeholder="Compartilhe sua experiência"
         multiline
-<<<<<<< HEAD
-        style={styles.textArea}
-=======
         maxLength={500}
         editable={!enviando}
         style={[styles.whiteInput, styles.textArea]}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
       />
 
       <View style={styles.banner}>
@@ -151,15 +124,9 @@ export default function ReviewScreen() {
 
       <Button
         title="Enviar avaliação"
-<<<<<<< HEAD
-        disabled={rating === 0}
-        disabledReason="Toque nas estrelas para dar uma nota antes de enviar."
-        onPress={() => {}}
-=======
         loading={enviando}
         disabled={rating === 0 || enviando}
         onPress={() => void enviarAvaliacao()}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         style={styles.submitButton}
       />
     </ScreenContainer>
@@ -167,8 +134,6 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-=======
   pageHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -188,7 +153,6 @@ const styles = StyleSheet.create({
     color: Colors.black,
     textAlign: "center",
   },
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   profileCard: {
     padding: 16,
     flexDirection: "row",
@@ -228,45 +192,28 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginBottom: 12,
   },
-<<<<<<< HEAD
-=======
   whiteInput: {
     backgroundColor: Colors.white,
     borderColor: Colors.border,
   },
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   textArea: {
     minHeight: 130,
     textAlignVertical: "top",
   },
   banner: {
-<<<<<<< HEAD
-    padding: 16,
-    borderRadius: Radii.lg,
-    backgroundColor: Colors.brandTint,
-=======
     padding: 18,
     borderRadius: 20,
     backgroundColor: "#EAF7ED",
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     marginBottom: 24,
   },
   bannerTitle: {
     fontSize: 15,
     fontWeight: "800",
-<<<<<<< HEAD
-    color: Colors.brandDark,
-    marginBottom: 6,
-  },
-  bannerText: {
-    color: Colors.textSecondary,
-=======
     color: Colors.success,
     marginBottom: 6,
   },
   bannerText: {
     color: Colors.success,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 14,
     lineHeight: 20,
   },

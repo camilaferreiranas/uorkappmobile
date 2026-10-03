@@ -504,13 +504,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   whiteInput: {
-<<<<<<< HEAD
     backgroundColor: Colors.surfaceWhite,
     borderColor: "#E5E5E5",
-=======
-    backgroundColor: Colors.white,
-    borderColor: Colors.border,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   textArea: {
     minHeight: 120,

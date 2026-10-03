@@ -1,20 +1,5 @@
-<<<<<<< HEAD
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
-
-// SecureStore has no web implementation; AsyncStorage uses browser localStorage.
-const storage = Platform.OS === 'web'
-  ? AsyncStorage
-  : {
-      getItem: SecureStore.getItemAsync,
-      setItem: SecureStore.setItemAsync,
-      removeItem: SecureStore.deleteItemAsync,
-    };
-=======
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const ACCESS_TOKEN_KEY = "auth_access_token";
 const EXPIRES_AT_KEY = "auth_expires_at";
@@ -134,28 +119,15 @@ export async function saveToken(
     Date.now() + THIRTY_DAYS_MS;
 
   await Promise.all([
-<<<<<<< HEAD
-    storage.setItem(ACCESS_TOKEN_KEY, accessToken),
-    storage.setItem(EXPIRES_AT_KEY, String(expiresAt)),
-    storage.setItem(EMAIL_KEY, email),
-=======
     setItem(ACCESS_TOKEN_KEY, accessToken),
     setItem(EXPIRES_AT_KEY, String(expiresAt)),
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   ]);
 }
 
 export async function getToken(): Promise<StoredToken | null> {
-<<<<<<< HEAD
-  const [accessToken, expiresAt, email] = await Promise.all([
-    storage.getItem(ACCESS_TOKEN_KEY),
-    storage.getItem(EXPIRES_AT_KEY),
-    storage.getItem(EMAIL_KEY),
-=======
   const [accessToken, expiresAt] = await Promise.all([
     getItem(ACCESS_TOKEN_KEY),
     getItem(EXPIRES_AT_KEY),
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   ]);
 
   if (!accessToken || !expiresAt) {
@@ -164,10 +136,6 @@ export async function getToken(): Promise<StoredToken | null> {
 
   const parsedExpiresAt = Number(expiresAt);
 
-<<<<<<< HEAD
-export async function saveEmail(email: string): Promise<void> {
-  await storage.setItem(EMAIL_KEY, email);
-=======
   if (!Number.isFinite(parsedExpiresAt)) {
     await clearToken();
     return null;
@@ -177,7 +145,6 @@ export async function saveEmail(email: string): Promise<void> {
     accessToken,
     expiresAt: parsedExpiresAt,
   };
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 }
 
 export async function isTokenValid(): Promise<boolean> {
@@ -188,13 +155,7 @@ export async function isTokenValid(): Promise<boolean> {
 
 export async function clearToken(): Promise<void> {
   await Promise.all([
-<<<<<<< HEAD
-    storage.removeItem(ACCESS_TOKEN_KEY),
-    storage.removeItem(EXPIRES_AT_KEY),
-    storage.removeItem(EMAIL_KEY),
-=======
     removeItem(ACCESS_TOKEN_KEY),
     removeItem(EXPIRES_AT_KEY),
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   ]);
 }

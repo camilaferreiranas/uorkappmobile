@@ -15,14 +15,10 @@ import { ListCard } from "../../components/ui/list-card";
 import { ReviewCard } from "../../components/ui/review-card";
 import { ScreenHeader } from "../../components/ui/screen-header";
 import { SectionHeader } from "../../components/ui/section-header";
-<<<<<<< HEAD
-import { Colors, Radii, Shadow, Spacing } from "../../constants/theme";
-=======
 import { ServiceCard } from "../../components/ui/service-card";
 import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { Colors } from "../../constants/theme";
 import { buscarPerfilPrestador, PerfilPrestador } from "../../services/prestadorService";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const services = [
   { title: "Instalação elétrica", price: "R$ 150", subtitle: "Tomada e painel", rating: 4.9 },
@@ -46,15 +42,9 @@ const reviews = [
 ];
 
 export default function ProfileScreen() {
-<<<<<<< HEAD
-  const { id } = useLocalSearchParams<{ id?: string }>();
-  return <ProfileContent key={id ?? "demo"} id={id} />;
-}
-=======
   const router = useRouter();
   const { id, modo } = useLocalSearchParams<{ id: string; modo?: string }>();
   const somenteConsulta = modo === "candidatura";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 function ProfileContent({ id }: { id?: string }) {
   const router = useRouter();
@@ -72,20 +62,6 @@ function ProfileContent({ id }: { id?: string }) {
     return () => { active = false; };
   }, [id]);
 
-<<<<<<< HEAD
-  const openProposal = (serviceTitle = "") => {
-    if (!id) { router.push("/review"); return; }
-    router.push({ pathname: "/send-proposal", params: {
-      prestadorId: id, professional: profile?.nome ?? "", service: serviceTitle,
-    } });
-  };
-  const formatCurrency = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  const displayedServices = profile ? profile.servicos.map((service) => ({
-    title: service.titulo, subtitle: service.descricao,
-    price: formatCurrency(service.valorMedio), rating: service.avaliacao,
-  })) : services;
-  const startingPrice = profile ? (profile.servicos.length ? formatCurrency(Math.min(...profile.servicos.map((service) => service.valorMedio))) : "Sob consulta") : "R$ 90";
-=======
   const openProposal = (serviceTitle?: string) => {
   router.push({
     pathname: "/send-proposal" as any,
@@ -99,7 +75,6 @@ function ProfileContent({ id }: { id?: string }) {
     },
   });
 };
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
   if (loading || error) {
     return <SafeAreaView style={styles.safeArea}>
@@ -121,41 +96,6 @@ function ProfileContent({ id }: { id?: string }) {
           actionLabel="Compartilhar"
         />
 
-<<<<<<< HEAD
-        <View style={styles.identity}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{profile?.nome.substring(0, 2).toUpperCase() ?? "RO"}</Text>
-          </View>
-          <View style={styles.nameRow}>
-            <Text style={styles.name}>{profile?.nome ?? "Rafael Oliveira"}</Text>
-            <MaterialIcons name="verified" size={18} color={Colors.brandPrimary} />
-          </View>
-          <Text style={styles.specialty}>{profile?.descricao ?? "Técnico em Eletrônica"}</Text>
-          <View style={styles.locationRow}>
-            <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
-            <Text style={styles.location}>{profile ? `${profile.cidade} - ${profile.estado}` : "Barra, Salvador - BA"}</Text>
-          </View>
-        </View>
-
-        <View style={styles.stats}>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>{profile ? `${profile.percentualConclusao.toFixed(0)}%` : "98%"}</Text>
-            <Text style={styles.statLabel}>Conclusão</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.stat}>
-            <View style={styles.ratingRow}>
-              <MaterialIcons name="star" size={15} color={Colors.rating} />
-              <Text style={styles.statValue}>{profile?.notaMedia.toFixed(1) ?? "4.9"}</Text>
-            </View>
-            <Text style={styles.statLabel}>{profile?.totalAvaliacoes ?? 120} avaliações</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>{profile ? new Date(profile.dataCriacao).toLocaleDateString("pt-BR") : "7 anos"}</Text>
-            <Text style={styles.statLabel}>{profile ? "Membro desde" : "Experiência"}</Text>
-          </View>
-=======
         <View style={styles.avatarContainer}>
           <ProfileAvatar
             imageUrl={profile.fotoPerfilUrl}
@@ -199,7 +139,6 @@ function ProfileContent({ id }: { id?: string }) {
               onPress={() => openProposal()}
             />
           )}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         </View>
 
         <Button
@@ -214,19 +153,6 @@ function ProfileContent({ id }: { id?: string }) {
           subtitle="Orçamento fechado antes de contratar"
           style={styles.section}
         />
-<<<<<<< HEAD
-        {displayedServices.map((s) => (
-          <ListCard
-            key={s.title}
-            title={s.title}
-            subtitle={s.subtitle}
-            subtitleIcon="build"
-            price={s.price}
-            priceUnit="preço base"
-            icon="build"
-            rating={s.rating}
-            onPress={() => openProposal(s.title)}
-=======
 
         {profile.servicos.map((service) => (
           <ServiceCard
@@ -236,7 +162,6 @@ function ProfileContent({ id }: { id?: string }) {
             price={formatCurrency(service.valorMedio)}
             rating={service.avaliacao}
             onPress={somenteConsulta ? undefined : () => openProposal(service.titulo)}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
           />
         ))}
 
@@ -262,9 +187,6 @@ function ProfileContent({ id }: { id?: string }) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: Colors.surfaceWhite,
-=======
     backgroundColor: Colors.background,
   },
   centered: {
@@ -288,7 +210,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.25)",
     alignItems: "center",
     justifyContent: "center",
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
     paddingHorizontal: Spacing.gutter,
@@ -299,26 +220,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
   },
-<<<<<<< HEAD
-  avatar: {
-    width: 84,
-    height: 84,
-    borderRadius: 28,
-    backgroundColor: Colors.brandPrimary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  avatarText: {
-    color: Colors.textOnBrand,
-    fontSize: 26,
-    fontWeight: "800",
-  },
-  nameRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-=======
   detailsCard: {
     marginHorizontal: 20,
     marginTop: 20,
@@ -330,7 +231,6 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 8 },
     elevation: 8,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   name: {
     fontSize: 22,
@@ -340,16 +240,8 @@ const styles = StyleSheet.create({
   specialty: {
     fontSize: 14,
     color: Colors.textSecondary,
-<<<<<<< HEAD
-  },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-=======
     marginTop: 6,
     marginBottom: 4,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   location: {
     fontSize: 13,
@@ -379,16 +271,9 @@ const styles = StyleSheet.create({
     color: Colors.brandDark,
   },
   statLabel: {
-<<<<<<< HEAD
-    marginTop: 4,
-    color: Colors.textSecondary,
-    fontSize: 11,
-    textAlign: "center",
-=======
     marginTop: 6,
     color: Colors.textSecondary,
     fontSize: 12,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   ratingRow: {
     flexDirection: "row",
@@ -426,11 +311,4 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: Colors.brandDark,
   },
-<<<<<<< HEAD
-  ctaButton: {
-    flex: 1,
-    maxWidth: 200,
-  },
-=======
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 });

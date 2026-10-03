@@ -36,81 +36,6 @@ import {
   type StatusProposta,
 } from "../../services/propostaService";
 
-<<<<<<< HEAD
-const allDemands = [
-  {
-    id: "1",
-    title: "Instalação elétrica",
-    subtitle: "Apartamento, 3 pontos",
-    budget: "R$ 340",
-    urgency: "Urgente",
-    distance: "1,8 km",
-    client: "João Melo",
-    description: "Preciso instalar 3 novos pontos elétricos no apartamento. Sala e dois quartos.",
-    status: "new",
-  },
-  {
-    id: "2",
-    title: "Troca de torneira",
-    subtitle: "Cozinha residencial",
-    budget: "R$ 120",
-    urgency: "Normal",
-    distance: "2,3 km",
-    client: "Ana Lima",
-    description: "Torneira da cozinha com vazamento. Precisa de troca completa com peça.",
-    status: "new",
-  },
-  {
-    id: "3",
-    title: "Limpeza pós-obra",
-    subtitle: "Casa térrea, 120m²",
-    budget: "R$ 420",
-    urgency: "Hoje",
-    distance: "3,1 km",
-    client: "Pedro Santos",
-    description: "Casa após reforma. Limpeza pesada em todos os cômodos.",
-    status: "new",
-  },
-  {
-    id: "4",
-    title: "Reparo de tomadas",
-    subtitle: "Escritório comercial",
-    budget: "R$ 200",
-    urgency: "Normal",
-    distance: "4,5 km",
-    client: "Luciana Barros",
-    description: "3 tomadas com defeito no escritório. Precisa de troca urgente.",
-    status: "accepted",
-  },
-  {
-    id: "5",
-    title: "Instalação de ar condicionado",
-    subtitle: "Residência, 2 unidades",
-    budget: "R$ 600",
-    urgency: "Normal",
-    distance: "5,2 km",
-    client: "Carlos Ramos",
-    description: "Instalação de 2 splits novos. Infraestrutura já existe.",
-    status: "accepted",
-  },
-  {
-    id: "6",
-    title: "Revisão elétrica geral",
-    subtitle: "Casa, 3 quartos",
-    budget: "R$ 380",
-    urgency: "Normal",
-    distance: "2,8 km",
-    client: "Fernanda Costa",
-    description: "Revisão completa do quadro de distribuição e fiação.",
-    status: "completed",
-  },
-];
-
-const statusLabels: Record<string, { label: string; color: string; bg: string }> = {
-  new: { label: "Nova", color: Colors.brandPrimary, bg: Colors.brandTint },
-  accepted: { label: "Em andamento", color: "#2E7D32", bg: "#EAFAF1" },
-  completed: { label: "Concluída", color: "#6B6B6B", bg: "#F4F4F4" },
-=======
 const statusConfig: Record<
   StatusProposta,
   { label: string; color: string; background: string }
@@ -121,7 +46,6 @@ const statusConfig: Record<
   RECUSADA: { label: "Recusada", color: Colors.textSecondary, background: Colors.background },
   CANCELADA: { label: "Cancelada", color: Colors.error, background: "#FDECEA" },
   FINALIZADA: { label: "Finalizada", color: Colors.success, background: "#EAF7ED" },
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 };
 
 function formatarValor(valor: number) {
@@ -658,17 +582,10 @@ const styles = StyleSheet.create({
   tabTextActive: { color: Colors.white },
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: Colors.surfaceNeutral,
-  },
-  header: {
-    backgroundColor: Colors.brandPrimary,
-=======
     backgroundColor: Colors.background,
   },
   header: {
     backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingHorizontal: 20,
     paddingBottom: 22,
   },
@@ -686,11 +603,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
   },
   headerSubtitle: {
-<<<<<<< HEAD
-    color: Colors.textOnBrandMuted,
-=======
     color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
   },
   container: {
@@ -744,10 +657,6 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: 22,
     fontWeight: "800",
-<<<<<<< HEAD
-    color: Colors.brandPrimary,
-=======
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     marginBottom: 4,
   },
   summaryValueCompact: {

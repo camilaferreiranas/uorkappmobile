@@ -27,11 +27,7 @@ export function StarRating({ rating, onRatingChange, size = 40 }: StarRatingProp
             <MaterialIcons
               name={rating >= value ? 'star' : 'star-border'}
               size={size}
-<<<<<<< HEAD
               color={rating >= value ? Colors.rating : Colors.textMuted}
-=======
-              color={rating >= value ? Colors.warning : Colors.textSecondary}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
             />
           </Pressable>
         ))}

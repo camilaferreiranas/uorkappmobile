@@ -12,11 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-<<<<<<< HEAD
-import { ProfessionalColors as Colors } from "../../constants/theme";
-=======
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { useNotifications } from "../../contexts/notification-context";
 import {
   aceitarProposta,
@@ -25,7 +22,6 @@ import {
   recusarProposta,
   type StatusProposta,
 } from "../../services/propostaService";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const urgencyColors: Record<string, { bg: string; text: string }> = {
   Urgente: { bg: "#FFF7EA", text: Colors.warning },
@@ -244,13 +240,8 @@ export default function DemandDetailsScreen() {
 
         <View style={styles.infoGrid}>
           <View style={styles.infoItem}>
-<<<<<<< HEAD
-            <MaterialIcons name="person" size={20} color={Colors.brandPrimary} />
-            <View>
-=======
             <MaterialIcons name="person" size={20} color={Colors.primary} />
             <View style={styles.infoContent}>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
               <Text style={styles.infoLabel}>Cliente</Text>
               <Text style={styles.infoValue}>{params.client}</Text>
             </View>
@@ -353,17 +344,10 @@ export default function DemandDetailsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: Colors.surfaceNeutral,
-  },
-  header: {
-    backgroundColor: Colors.brandPrimary,
-=======
     backgroundColor: Colors.background,
   },
   header: {
     backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingHorizontal: 20,
     paddingBottom: 16,
     flexDirection: "row",
@@ -519,22 +503,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-<<<<<<< HEAD
-    backgroundColor: Colors.brandTint,
-=======
     backgroundColor: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },
   clientAvatarText: {
     fontSize: 16,
     fontWeight: "800",
-<<<<<<< HEAD
-    color: Colors.brandPrimary,
-=======
     color: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   clientName: {
     fontSize: 15,
@@ -599,11 +575,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-<<<<<<< HEAD
-    backgroundColor: Colors.brandPrimary,
-=======
     backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     borderRadius: 16,
     paddingVertical: 16,
   },
@@ -644,11 +616,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   backHomeButton: {
-<<<<<<< HEAD
-    backgroundColor: Colors.brandPrimary,
-=======
     marginTop: 10,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 16,

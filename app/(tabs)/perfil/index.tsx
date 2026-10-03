@@ -99,34 +99,6 @@ export default function PerfilScreen() {
           </View>
         </View>
 
-<<<<<<< HEAD
-            <View style={styles.menuCard}>
-              {menuItems.map((item, index) => (
-                <TouchableOpacity
-                  key={item.label}
-                  style={[styles.menuItem, index < menuItems.length - 1 && styles.menuItemBorder]}
-                  onPress={() => handleMenuPress(item.label)}
-                  activeOpacity={0.7}
-                >
-                  <View style={styles.menuIconWrapper}>
-                    <MaterialIcons
-                      name={item.icon as any}
-                      size={20}
-                      color={item.label === "Sair" ? "#D32F2F" : Colors.brandPrimary}
-                    />
-                  </View>
-                  <Text style={[styles.menuLabel, item.label === "Sair" && styles.menuLabelDanger]}>
-                    {item.label}
-                  </Text>
-                  {item.label !== "Sair" && (
-                    <MaterialIcons name="chevron-right" size={20} color="#C4C4C4" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </>
-        )}
-=======
         <View style={styles.menuCard}>
           {menuItems.map((item, index) => (
             <TouchableOpacity
@@ -151,7 +123,6 @@ export default function PerfilScreen() {
             </TouchableOpacity>
           ))}
         </View>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
       </ScrollView>
     </SafeAreaView>
   );
@@ -174,14 +145,6 @@ const styles = StyleSheet.create({
   avatar: {
     marginBottom: 14,
   },
-<<<<<<< HEAD
-  avatarText: {
-    color: Colors.surfaceWhite,
-    fontSize: 28,
-    fontWeight: "800",
-  },
-=======
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   name: {
     color: Colors.surfaceWhite,
     fontSize: 22,
@@ -225,48 +188,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.border,
     marginVertical: 4,
   },
-<<<<<<< HEAD
-  editCard: {
-    backgroundColor: Colors.surfaceWhite,
-    marginHorizontal: 20,
-    marginTop: -20,
-    marginBottom: 20,
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-  },
-  editTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: Colors.textPrimary,
-    marginBottom: 16,
-  },
-  editSectionTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: Colors.textPrimary,
-    marginTop: 4,
-    marginBottom: 12,
-  },
-  editError: {
-    color: Colors.error,
-    fontSize: 13,
-    marginBottom: 8,
-  },
-  editActions: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 4,
-  },
-  editActionButton: {
-    flex: 1,
-  },
-=======
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   menuCard: {
     backgroundColor: Colors.surfaceWhite,
     marginHorizontal: 20,

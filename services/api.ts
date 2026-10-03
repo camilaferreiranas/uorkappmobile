@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { request } from './request';
-const BASE_URL = 'http://192.168.15.27:8080';
-=======
 import { API_URL } from "./api_url";
 import { getToken } from "./token-storage";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 interface ApiResponse<T> {
   success: boolean;
@@ -99,54 +94,10 @@ export interface AuthResponse {
   expiresIn: number;
 }
 
-<<<<<<< HEAD
-export interface EnderecoDTO {
-  rua: string;
-  numero: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
-  cep: string;
-}
-
-export interface UserProfile {
-  id: number;
-  nome: string;
-  sobrenome: string;
-  email: string;
-  tipoPessoa: string;
-  documento: string;
-  endereco: EnderecoDTO | null;
-}
-
-export interface UpdateUserProfilePayload {
-  email: string;
-  senha?: string | null;
-  endereco?: EnderecoDTO | null;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export async function createUser(payload: CreateUserPayload): Promise<void> {
-  const response = await request(`${BASE_URL}/usuario`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message ?? 'Erro ao criar conta. Tente novamente.');
-=======
 function readAuthResponse(json: AuthResponse & { data?: AuthResponse }): AuthResponse {
   const data = json?.data?.accessToken ? json.data : json;
   if (!data?.accessToken) {
     throw new Error("Resposta de login inválida.");
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   }
 
   return {
@@ -156,11 +107,7 @@ function readAuthResponse(json: AuthResponse & { data?: AuthResponse }): AuthRes
 }
 
 export async function login(payload: LoginPayload): Promise<AuthResponse> {
-<<<<<<< HEAD
-  const response = await request(`${BASE_URL}/login`, {
-=======
   const response = await fetch(`${API_URL}/login`, {
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -179,11 +126,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 }
 
 export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthResponse> {
-<<<<<<< HEAD
-  const response = await request(`${BASE_URL}/auth/google`, {
-=======
   const response = await fetch(`${API_URL}/auth/google`, {
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -197,11 +140,6 @@ export async function loginWithGoogle(payload: GoogleAuthPayload): Promise<AuthR
   return readAuthResponse(await response.json());
 }
 
-<<<<<<< HEAD
-export async function getUserProfile(accessToken: string, email: string): Promise<UserProfile> {
-  const response = await request(`${BASE_URL}/usuario/perfil?email=${encodeURIComponent(email)}`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-=======
 export async function getUserProfile(
   accessToken: string
 ): Promise<UserProfile> {
@@ -210,7 +148,6 @@ export async function getUserProfile(
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   });
 
   const json: ApiResponse<UserProfile> | ApiError = await response.json().catch(() => ({}));
@@ -231,13 +168,8 @@ export async function updateUserProfile(
   accessToken: string,
   payload: UpdateUserProfilePayload | Pick<UpdateUserProfilePayload, "telefone">
 ): Promise<UserProfile> {
-<<<<<<< HEAD
-  const response = await request(`${BASE_URL}/usuario/perfil?email=${encodeURIComponent(email)}`, {
-    method: 'PUT',
-=======
   const response = await fetch(`${API_URL}/usuario/perfil`, {
     method: "PUT",
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,

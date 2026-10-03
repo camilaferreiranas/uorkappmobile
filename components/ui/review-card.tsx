@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-import { StyleSheet, Text, View } from 'react-native';
-import { Colors, Radius } from '../../constants/theme';
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { Colors, ProfessionalColors, Radii } from '../../constants/theme';
@@ -30,16 +25,11 @@ export function ReviewCard({ name, comment, rating, date, distance, tone = 'clie
           <Text style={styles.name}>{name}</Text>
           {(date || distance) && <Text style={styles.meta}>{date || distance}</Text>}
         </View>
-<<<<<<< HEAD
         <View
           style={styles.ratingBadge}
           accessibilityLabel={`Avaliação ${rating.toFixed(1)} de 5`}
         >
           <MaterialIcons name="star" size={14} color={Colors.rating} />
-=======
-        <View style={styles.ratingBadge}>
-          <MaterialIcons name="star" size={14} color={Colors.warning} />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
           <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
         </View>
       </View>
@@ -78,13 +68,8 @@ const createStyles = (Colors: typeof ClientColors) => StyleSheet.create({
   },
   name: {
     fontSize: 14,
-<<<<<<< HEAD
     fontWeight: '800',
     color: Colors.textPrimary,
-=======
-    fontWeight: '700',
-    color: Colors.ink,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   meta: {
     fontSize: 12,
@@ -94,7 +79,6 @@ const createStyles = (Colors: typeof ClientColors) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-<<<<<<< HEAD
     backgroundColor: Colors.ratingSurface,
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -102,15 +86,6 @@ const createStyles = (Colors: typeof ClientColors) => StyleSheet.create({
   },
   ratingText: {
     color: Colors.warningText,
-=======
-    backgroundColor: '#FFF7EA',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: Radius.pill,
-  },
-  ratingText: {
-    color: Colors.warning,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontWeight: '700',
     fontSize: 13,
   },

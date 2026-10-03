@@ -5,38 +5,6 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
-<<<<<<< HEAD
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors, Radii, Shadow } from "@/constants/theme";
-
-export default function TabLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors.brandPrimary,
-        tabBarInactiveTintColor: Colors.textMuted,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarShowLabel: true,
-        tabBarStyle: {
-          position: "absolute",
-          left: 16,
-          right: 16,
-          bottom: 20,
-          height: 64,
-          borderRadius: Radii.pill,
-          borderTopWidth: 0,
-          backgroundColor: Colors.surfaceWhite,
-          paddingHorizontal: 12,
-          ...Shadow.floating,
-        },
-        tabBarItemStyle: {
-          paddingVertical: 8,
-        },
-        tabBarLabelStyle: {
-          fontWeight: "700",
-          fontSize: 11,
-=======
 import { Colors } from "@/constants/theme";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -104,7 +72,6 @@ export default function TabLayout() {
         },
         sceneStyle: {
           backgroundColor: Colors.background,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         },
       }}
     >
@@ -120,15 +87,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore/index"
         options={{
-<<<<<<< HEAD
-          title: "Explorar",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={26} name="square.grid.2x2.fill" color={color} />
-=======
           title: "Buscar",
           tabBarIcon: ({ color, focused }) => (
             <TabIcon name="search" color={color} focused={focused} />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
           ),
         }}
       />

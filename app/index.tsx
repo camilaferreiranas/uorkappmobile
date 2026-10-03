@@ -1,12 +1,4 @@
 import { useRouter } from "expo-router";
-<<<<<<< HEAD
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
-import { Button } from "../components/ui/button";
-import { Colors } from "../constants/theme";
-
-export default function SplashScreen() {
-  const router = useRouter();
-=======
 import { useEffect, useRef } from "react";
 import {
     Animated,
@@ -31,7 +23,6 @@ export default function SplashScreen() {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
   useEffect(() => {
     if (!loading && user) {
@@ -46,19 +37,6 @@ export default function SplashScreen() {
         <Text style={styles.subtitle}>Simples. Confiável. Feito para você.</Text>
       </View>
 
-<<<<<<< HEAD
-      <View style={styles.actions}>
-        <Button title="Criar conta" onPress={() => router.replace("/signup")} />
-        <Pressable
-          onPress={() => router.replace("/login")}
-          style={styles.link}
-          accessibilityRole="link"
-          hitSlop={8}
-        >
-          <Text style={styles.linkText}>Já tenho conta</Text>
-        </Pressable>
-      </View>
-=======
       {!loading && !user ? (
         <Animated.View
           style={[
@@ -82,7 +60,6 @@ export default function SplashScreen() {
           />
         </Animated.View>
       ) : null}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     </SafeAreaView>
   );
 }
@@ -114,25 +91,13 @@ const styles = StyleSheet.create({
     maxWidth: 280,
   },
   actions: {
-<<<<<<< HEAD
-    paddingBottom: 32,
-    gap: 8,
-    alignItems: "center",
-=======
     gap: 12,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   link: {
     minHeight: 44,
     justifyContent: "center",
     alignItems: "center",
   },
-<<<<<<< HEAD
-  linkText: {
-    color: Colors.brandPrimary,
-    fontWeight: "700",
-    fontSize: 15,
-=======
   primaryButtonText: {
     color: Colors.primary,
   },
@@ -143,6 +108,5 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: Colors.white,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
 });

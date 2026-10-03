@@ -10,16 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-<<<<<<< HEAD
-import { CategoryCard } from "../../../components/ui/category-card";
-import { ListCard } from "../../../components/ui/list-card";
-import { SectionHeader } from "../../../components/ui/section-header";
-import { Colors, Radii } from "../../../constants/theme";
-import { ScreenContainer } from "../../../components/ui/screen-container";
-=======
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../../../constants/theme";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import {
   buscarPrestadoresPorTermo,
@@ -134,24 +126,6 @@ export default function BuscarScreen() {
           Pesquise por serviço, especialista ou localidade.
         </Text>
 
-<<<<<<< HEAD
-      <View style={styles.searchBox}>
-        <MaterialIcons name="search" size={20} color={Colors.textSecondary} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Eletricista, pintor, limpeza..."
-          placeholderTextColor={Colors.textSecondary}
-          value={query}
-          onChangeText={setQuery}
-          returnKeyType="search"
-        />
-        {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery("")}>
-            <MaterialIcons name="close" size={18} color={Colors.textSecondary} />
-          </TouchableOpacity>
-        )}
-      </View>
-=======
         <View style={styles.searchBox}>
           <MaterialIcons name="search" size={20} color={Colors.gray} />
           <TextInput
@@ -168,7 +142,6 @@ export default function BuscarScreen() {
             </TouchableOpacity>
           )}
         </View>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
         <View style={styles.filtersRow}>
           {filters.map((filter) => (
@@ -217,53 +190,6 @@ export default function BuscarScreen() {
             <Text style={styles.feedbackText}>
               Nenhum profissional encontrado para essa busca.
             </Text>
-<<<<<<< HEAD
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.resultCount}>{filtered.length} profissionais encontrados</Text>
-
-      {filtered.map((professional) => (
-        <ProfessionalCard
-          key={professional.name}
-          {...professional}
-          buttonTitle="Ver perfil"
-          onPress={() => router.push("/profile")}
-        />
-      ))}
-      <View style={styles.grid}>
-        {categories.map((c) => (
-          <CategoryCard
-            key={c.title}
-            title={c.title}
-            icon={c.icon}
-            onPress={() => router.push("/search")}
-          />
-        ))}
-      </View>
-
-      <SectionHeader title="Serviços populares" />
-      {popular.map((p) => (
-        <ListCard
-          key={p.title}
-          title={p.title}
-          subtitle={p.subtitle}
-          subtitleIcon="trending-up"
-          price={p.price}
-          icon={p.icon}
-          onPress={() => router.push("/search")}
-        />
-      ))}
-
-      <View style={styles.help}>
-        <MaterialIcons name="lightbulb" size={18} color={Colors.brandPrimary} />
-        <Text style={styles.helpText}>
-          Não achou? Publique uma demanda e receba propostas sob medida.
-        </Text>
-      </View>
-    </ScreenContainer>
-=======
           </View>
         ) : (
           filtered.map((professional) => (
@@ -292,7 +218,6 @@ export default function BuscarScreen() {
         )}
       </ScrollView>
     </SafeAreaView>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   );
 }
 

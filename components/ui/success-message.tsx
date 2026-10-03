@@ -1,12 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View, ViewProps } from 'react-native';
-<<<<<<< HEAD
 import { Colors, Radii } from '../../constants/theme';
 
 type Variant = 'success' | 'warning' | 'error' | 'info';
-=======
-import { Colors, Radius } from '../../constants/theme';
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 interface SuccessMessageProps extends ViewProps {
   message: string;
@@ -51,7 +47,6 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 16,
     padding: 14,
-<<<<<<< HEAD
     borderRadius: Radii.md,
     flexDirection: 'row',
     gap: 10,
@@ -68,13 +63,6 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   text: {
-=======
-    backgroundColor: '#EAF7ED',
-    borderRadius: Radius.md,
-  },
-  text: {
-    color: Colors.success,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 14,
     lineHeight: 20,
   },

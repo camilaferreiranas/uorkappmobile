@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Colors, Radii } from '../../constants/theme';
-=======
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Colors, Radius } from '../../constants/theme';
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 interface PillGroupProps {
   label?: string;
@@ -48,15 +43,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-<<<<<<< HEAD
     color: Colors.textPrimary,
     fontWeight: '700',
     marginBottom: 10,
-=======
-    color: Colors.ink,
-    fontWeight: '600',
-    marginBottom: 8,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   row: {
     flexDirection: 'row',
@@ -68,20 +57,13 @@ const styles = StyleSheet.create({
     flexBasis: '30%',
     minHeight: 44,
     paddingVertical: 12,
-<<<<<<< HEAD
     paddingHorizontal: 12,
     borderRadius: Radii.pill,
-=======
-    borderRadius: Radius.pill,
-    borderWidth: 1,
-    borderColor: Colors.border,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.surfaceNeutral,
   },
   pillActive: {
-<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
   },
   pillPressed: {
@@ -94,17 +76,5 @@ const styles = StyleSheet.create({
   },
   textActive: {
     color: Colors.textOnBrand,
-=======
-    backgroundColor: Colors.primaryLight,
-    borderColor: Colors.primary,
-  },
-  text: {
-    fontSize: 14,
-    color: Colors.ink,
-    fontWeight: '600',
-  },
-  textActive: {
-    color: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
 });

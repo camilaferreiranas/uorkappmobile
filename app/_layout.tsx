@@ -7,17 +7,13 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { AuthProvider } from "@/contexts/auth-context";
-<<<<<<< HEAD
 import { Colors } from "@/constants/theme";
-=======
 import { NotificationProvider } from "@/contexts/notification-context";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-<<<<<<< HEAD
 /** Navigation chrome mapped onto Uork tokens. */
 const UorkNavTheme = {
   ...DefaultTheme,
@@ -36,20 +32,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={UorkNavTheme}>
       <AuthProvider>
+        <NotificationProvider>
         <Stack
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: Colors.surfaceNeutral },
           }}
         >
-=======
-export default function RootLayout() {
-  return (
-    <ThemeProvider value={DefaultTheme}>
-      <AuthProvider>
-        <NotificationProvider>
-        <Stack screenOptions={{ headerShown: false }}>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
           <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="login/index" />
@@ -84,11 +73,7 @@ export default function RootLayout() {
             options={{ presentation: "modal", title: "Uork" }}
           />
         </Stack>
-<<<<<<< HEAD
-=======
         </NotificationProvider>
-        <StatusBar style="dark" />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
       </AuthProvider>
       <StatusBar style="dark" />
     </ThemeProvider>

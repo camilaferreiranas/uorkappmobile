@@ -1,5 +1,4 @@
 /**
-<<<<<<< HEAD
  * Uork Design System — token layer.
  *
  * Hex values live ONLY in this file. Components and screens must reference
@@ -9,10 +8,6 @@
  *  - amber → warning / rating signal
  *  - red   → error / destructive
  *  - violet→ special / promotional (sparingly)
-=======
- * Design tokens for the app, matching /design.md (Uork Design System & Visual Identity).
- * The colors are defined in light and dark mode.
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
  */
 
 import { Platform } from 'react-native';
@@ -53,7 +48,16 @@ const palette = {
 };
 
 export const Colors = {
-<<<<<<< HEAD
+  primary: palette.blue600,
+  ink: palette.ink,
+  white: palette.white,
+  black: "#111111",
+  primaryLight: palette.blue100,
+  background: palette.slate100,
+  text: palette.ink,
+  textLight: "rgba(255,255,255,0.92)",
+  gray: palette.slate400,
+  lightGray: palette.slate100,
   // ---- Brand ----
   brandPrimary: palette.blue600,
   brandPrimaryHover: palette.blue500,
@@ -104,39 +108,6 @@ export const Colors = {
     icon: palette.slate600,
     tabIconDefault: palette.slate400,
     tabIconSelected: palette.blue600,
-=======
-  // Primary
-  primary: '#2563EB',
-  ink: '#0F172A',
-  white: '#FFFFFF',
-  black: '#111111',
-
-  // Supporting
-  primaryLight: '#DBEAFE',
-  background: '#F1F5F9',
-  textSecondary: '#475569',
-  border: '#E2E8F0',
-
-  // Semantic
-  success: '#16A34A',
-  warning: '#F59E0B',
-  error: '#EF4444',
-  accent: '#8B5CF6',
-
-  // Legacy aliases kept for existing call sites
-  text: '#0F172A',
-  textLight: 'rgba(255,255,255,0.92)',
-  gray: '#94A3B8',
-  lightGray: '#F1F5F9',
-
-  light: {
-    text: '#0F172A',
-    background: '#FFFFFF',
-    tint: '#2563EB',
-    icon: '#475569',
-    tabIconDefault: '#475569',
-    tabIconSelected: '#2563EB',
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   dark: {
     text: palette.white,
@@ -148,10 +119,11 @@ export const Colors = {
   },
 };
 
-<<<<<<< HEAD
 /** Professional identity; status colours retain their semantic meaning. */
 export const ProfessionalColors = {
   ...Colors,
+  primary: palette.olive,
+  primaryLight: palette.oliveTint,
   brandPrimary: palette.olive,
   brandPrimaryHover: palette.olive,
   brandPrimaryMuted: palette.oliveMuted,
@@ -163,6 +135,8 @@ export const ProfessionalColors = {
 
 /** Spacing rhythm — 16px gutters, 24–32px between sections, 12–16px within. */
 export const Spacing = {
+  space1: 4, space2: 8, space3: 12, space4: 16, space5: 20, space6: 24,
+  space8: 32, space10: 40, space12: 48, space16: 64, space20: 80,
   gutter: 16,
   section: 28,
   sectionTight: 24,
@@ -190,22 +164,6 @@ export const Shadow = {
     elevation: 10,
   },
 } as const;
-=======
-// 4px-based spacing scale (design.md §5)
-export const Spacing = {
-  space1: 4,
-  space2: 8,
-  space3: 12,
-  space4: 16,
-  space5: 20,
-  space6: 24,
-  space8: 32,
-  space10: 40,
-  space12: 48,
-  space16: 64,
-  space20: 80,
-};
-
 // Radius scale (design.md §6)
 export const Radius = {
   sm: 8,
@@ -249,7 +207,6 @@ export function getStatusColor(status: string): { color: string; background: str
 
   return { color: Colors.textSecondary, background: Colors.background };
 }
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 export const Fonts = Platform.select({
   ios: {

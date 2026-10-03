@@ -69,21 +69,8 @@ export default function CategoryProvidersScreen() {
       }`;
 
   return (
-<<<<<<< HEAD
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-          <MaterialIcons name="arrow-back" size={24} color={Colors.surfaceWhite} />
-        </TouchableOpacity>
-        <View>
-          <Text style={styles.headerTitle}>{category}</Text>
-          <Text style={styles.headerSubtitle}>{prestadores.length} profissionais disponíveis</Text>
-        </View>
-      </View>
-=======
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
       <ProfileScreenHeader title={category ?? "Categoria"} subtitle={subtitulo} />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
       <ScrollView
         contentContainerStyle={styles.container}
@@ -127,38 +114,7 @@ export default function CategoryProvidersScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
-    backgroundColor: "#F7F7F7",
-  },
-  header: {
-    backgroundColor: Colors.brandPrimary,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    color: Colors.surfaceWhite,
-    fontSize: 22,
-    fontWeight: "800",
-    marginBottom: 2,
-  },
-  headerSubtitle: {
-    color: "#FFE5D9",
-    fontSize: 13,
-=======
     backgroundColor: Colors.background,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
     paddingTop: 14,

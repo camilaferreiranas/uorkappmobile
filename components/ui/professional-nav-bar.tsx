@@ -49,11 +49,7 @@ export function ProfessionalNavBar({ active }: ProfessionalNavBarProps) {
               <MaterialIcons
                 name={item.icon as any}
                 size={22}
-<<<<<<< HEAD
                 color={isActive ? Colors.brandPrimary : "#7A7A95"}
-=======
-                color={isActive ? Colors.primary : Colors.textSecondary}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
               />
             </View>
             <Text style={[styles.label, isActive && styles.labelActive]}>
@@ -99,11 +95,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   iconWrapperActive: {
-<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
-=======
-    backgroundColor: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   label: {
     color: Colors.textSecondary,
@@ -112,11 +104,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   labelActive: {
-<<<<<<< HEAD
     color: Colors.brandPrimary,
-=======
-    color: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontWeight: "700",
   },
 });

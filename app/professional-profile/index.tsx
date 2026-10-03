@@ -78,11 +78,7 @@ export default function ProfessionalProfileScreen() {
           </Text>
           <Text style={styles.specialty}>{professionalMock.specialty}</Text>
           <View style={styles.locationRow}>
-<<<<<<< HEAD
             <MaterialIcons name="location-on" size={14} color={Colors.textOnBrandMuted} />
-=======
-            <MaterialIcons name="location-on" size={14} color={Colors.primaryLight} />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
             <Text style={styles.location}>{professionalMock.location}</Text>
           </View>
           <View style={styles.memberBadge}>
@@ -173,11 +169,7 @@ export default function ProfessionalProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
-<<<<<<< HEAD
                 <MaterialIcons name={item.icon as any} size={18} color={Colors.brandPrimary} />
-=======
-                <MaterialIcons name={item.icon as any} size={18} color={Colors.primary} />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
               </View>
               <Text style={styles.menuLabel}>{item.label}</Text>
               <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
@@ -194,21 +186,13 @@ export default function ProfessionalProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
     backgroundColor: Colors.surfaceNeutral,
-=======
-    backgroundColor: Colors.background,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   container: {
     paddingBottom: 110,
   },
   header: {
-<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
-=======
-    backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingTop: 30,
     paddingBottom: 30,
     alignItems: "center",
@@ -223,11 +207,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   specialty: {
-<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
-=======
-    color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 14,
     marginBottom: 8,
   },
@@ -238,11 +218,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   location: {
-<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
-=======
-    color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
   },
   memberBadge: {
@@ -255,11 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   memberText: {
-<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
-=======
-    color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 12,
     fontWeight: "600",
   },
@@ -407,22 +379,14 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
-=======
-    backgroundColor: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },
   reviewAvatarText: {
     fontSize: 12,
     fontWeight: "800",
-<<<<<<< HEAD
     color: Colors.brandPrimary,
-=======
-    color: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   reviewMeta: {
     flex: 1,
@@ -479,11 +443,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 10,
-<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
-=======
-    backgroundColor: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },

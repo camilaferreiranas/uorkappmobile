@@ -40,28 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const authOperation = useRef(0);
 
   useEffect(() => {
-<<<<<<< HEAD
-    async function restoreSession() {
-      try {
-        const stored = await getToken();
-        if (stored) {
-          if (stored.expiresAt <= Date.now()) {
-            await clearToken();
-          } else {
-            try {
-              const profile = await getUserProfile(stored.accessToken, stored.email);
-              setUser(profile);
-            } catch {
-              setUser(null);
-            }
-          }
-        }
-      } catch {
-        await clearToken();
-      } finally {
-        setLoading(false);
-      }
-=======
     restoreSession();
   }, []);
 
@@ -149,7 +127,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw error;
     } finally {
       if (operation === authOperation.current) setLoading(false);
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     }
 
     void restoreSession();
@@ -160,18 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function loginWithGoogle(payload: GoogleAuthPayload) {
-<<<<<<< HEAD
-    const auth = await loginWithGoogleRequest(payload);
-    if (!auth.accessToken || !Number.isFinite(auth.expiresIn) || auth.expiresIn <= 0) {
-      throw new Error('Resposta de autenticação inválida. Tente novamente.');
-    }
-    const profile = await getUserProfile(auth.accessToken, payload.email);
-    if (!profile) throw new Error('Não foi possível carregar o perfil. Tente novamente.');
-    await saveToken(auth.accessToken, auth.expiresIn, profile.email);
-    setUser(profile);
-=======
     await authenticate(() => loginWithGoogleRequest(payload));
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   }
 
   async function updateProfile(payload: UpdateUserProfilePayload) {

@@ -304,13 +304,8 @@ export default function SendProposalScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-<<<<<<< HEAD
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} activeOpacity={0.7}>
-          <MaterialIcons name="arrow-back" size={22} color={Colors.surfaceWhite} />
-=======
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={22} color="#fff" />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         </TouchableOpacity>
         <View style={styles.headerContent}>
           <Text style={styles.headerTitle}>Enviar proposta</Text>
@@ -323,22 +318,6 @@ export default function SendProposalScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-<<<<<<< HEAD
-        <View style={styles.infoCard}>
-          <MaterialIcons name="info-outline" size={18} color={Colors.brandPrimary} />
-          <Text style={styles.infoText}>
-            Preencha os detalhes da sua proposta. O profissional receberá uma notificação.
-          </Text>
-        </View>
-
-        <Input
-          label="Título da proposta"
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Ex: Preciso trocar 3 lâmpadas na sala"
-          maxLength={80}
-          style={styles.input}
-=======
         <Select
           label="Tipo de serviço"
           value={servicoSelecionado}
@@ -348,7 +327,6 @@ export default function SendProposalScreen() {
             setServicoSelecionado(valor);
             setErros((atuais) => ({ ...atuais, tipoServico: undefined }));
           }}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         />
         {servicoSelecionado === OUTROS ? (
           <Input
@@ -402,9 +380,6 @@ export default function SendProposalScreen() {
           style={styles.locationButton}
         />
 
-<<<<<<< HEAD
-        {enviando && <ActivityIndicator style={{ marginTop: 16 }} color={Colors.brandPrimary} />}
-=======
         <PillGroup
           label="Urgência da demanda"
           options={URGENCIAS}
@@ -449,7 +424,6 @@ export default function SendProposalScreen() {
           style={styles.submitButton}
         />
         {enviando ? <ActivityIndicator style={styles.loading} color={Colors.primary} /> : null}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
       </ScrollView>
 
       <Modal
@@ -527,12 +501,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-<<<<<<< HEAD
-  headerTitle: {
-    color: Colors.surfaceWhite,
-    fontSize: 20,
-    fontWeight: "800",
-=======
   headerContent: { flex: 1 },
   headerTitle: { color: "#fff", fontSize: 20, fontWeight: "800" },
   headerSubtitle: { color: Colors.primaryLight, fontSize: 13, marginTop: 2 },
@@ -549,7 +517,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: 18,
     paddingVertical: 12,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   photoSection: { marginTop: 2, marginBottom: 8 },
   label: { color: Colors.black, fontSize: 14, fontWeight: "700", marginBottom: 10 },
@@ -563,40 +530,9 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-<<<<<<< HEAD
-    padding: 16,
-    marginBottom: 26,
-    gap: 10,
-    alignItems: "flex-start",
-    borderWidth: 1,
-    borderColor: "#FFD5C8",
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 13,
-    color: "#5A3020",
-    lineHeight: 18,
-  },
-  input: {
-    backgroundColor: Colors.surfaceWhite,
-    borderColor: "#E5E5E5",
-  },
-  textArea: {
-    minHeight: 120,
-    textAlignVertical: "top",
-  },
-  submitButton: {
-    marginTop: 12,
-    borderRadius: 18,
-    paddingVertical: 18,
-  },
-  successContainer: {
-    flex: 1,
-=======
     backgroundColor: Colors.primary,
     borderWidth: 2,
     borderColor: Colors.background,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },
@@ -618,24 +554,7 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     alignSelf: "center",
   },
-<<<<<<< HEAD
-  successTitle: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: Colors.textPrimary,
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  successText: {
-    fontSize: 15,
-    color: "#6B6B6B",
-    textAlign: "center",
-    lineHeight: 22,
-  },
-});
-=======
   modalTitle: { color: Colors.ink, fontSize: 20, fontWeight: "800", marginTop: 12 },
   modalText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: 8, marginBottom: 20 },
   modalCancelButton: { marginTop: 8 },
 });
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439

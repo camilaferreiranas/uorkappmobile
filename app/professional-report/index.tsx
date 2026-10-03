@@ -56,11 +56,7 @@ export default function ProfessionalReportScreen() {
 
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-<<<<<<< HEAD
             <MaterialIcons name="assignment-turned-in" size={24} color={Colors.brandPrimary} />
-=======
-            <MaterialIcons name="assignment-turned-in" size={24} color={Colors.primary} />
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
             <Text style={styles.statValue}>{summary.completedDemands}</Text>
             <Text style={styles.statLabel}>Concluídas</Text>
           </View>
@@ -104,11 +100,7 @@ export default function ProfessionalReportScreen() {
                 <MaterialIcons
                   name="flash-on"
                   size={18}
-<<<<<<< HEAD
                   color={Colors.brandPrimary}
-=======
-                  color={Colors.primary}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
                 />
               </View>
               <View style={styles.transactionInfo}>
@@ -136,17 +128,10 @@ export default function ProfessionalReportScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-<<<<<<< HEAD
     backgroundColor: Colors.surfaceNeutral,
   },
   header: {
     backgroundColor: Colors.brandPrimary,
-=======
-    backgroundColor: Colors.background,
-  },
-  header: {
-    backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 22,
@@ -158,11 +143,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
-=======
-    color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
   },
   container: {
@@ -171,22 +152,14 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
   balanceCard: {
-<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
-=======
-    backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     borderRadius: 20,
     padding: 22,
     marginBottom: 16,
     alignItems: "center",
   },
   balanceLabel: {
-<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
-=======
-    color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
     marginBottom: 6,
   },
@@ -209,11 +182,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   balanceSubText: {
-<<<<<<< HEAD
     color: Colors.textOnBrandMuted,
-=======
-    color: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     fontSize: 13,
     fontWeight: "600",
   },
@@ -289,11 +258,7 @@ const styles = StyleSheet.create({
   },
   monthBarFill: {
     height: "100%",
-<<<<<<< HEAD
     backgroundColor: Colors.brandPrimary,
-=======
-    backgroundColor: Colors.primary,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     borderRadius: 4,
   },
   monthDemands: {
@@ -333,11 +298,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-<<<<<<< HEAD
     backgroundColor: Colors.brandTint,
-=======
-    backgroundColor: Colors.primaryLight,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     alignItems: "center",
     justifyContent: "center",
   },

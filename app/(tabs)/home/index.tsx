@@ -1,16 +1,4 @@
 import { MaterialIcons } from "@expo/vector-icons";
-<<<<<<< HEAD
-import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useAuth } from "../../../contexts/auth-context";
-import { getInitials } from "../../../utils/get-initials";
-import { CategoryCard } from "../../../components/ui/category-card";
-import { Chip, ChipRow } from "../../../components/ui/chip";
-import { ListCard } from "../../../components/ui/list-card";
-import { ScreenContainer } from "../../../components/ui/screen-container";
-import { SectionHeader } from "../../../components/ui/section-header";
-import { Colors, Radii } from "../../../constants/theme";
-=======
 import { type Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -35,7 +23,6 @@ import {
   buscarPrestadoresProximos,
   type Prestador,
 } from "../../../services/prestadorService";
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 const serviceCategories = [
   { id: 1, title: "Eletrônica", icon: "flash" },
@@ -48,48 +35,9 @@ const serviceCategories = [
   { id: 8, title: "Reparo", icon: "hammer" },
 ];
 
-<<<<<<< HEAD
-
-const categories = [
-  { title: "Todos", icon: "apps" as const },
-  { title: "Eletrônica", icon: "electrical-services" as const },
-  { title: "Limpeza", icon: "cleaning-services" as const },
-  { title: "Pintura", icon: "format-paint" as const },
-  { title: "Jardinagem", icon: "grass" as const },
-  { title: "Reparos", icon: "handyman" as const },
-];
-
-const professionals = [
-  {
-    name: "Raquel Oliveira",
-    subtitle: "Eletricista · 1,2 km",
-    price: "A partir de R$ 120",
-    initials: "RO",
-    rating: 4.9,
-  },
-  {
-    name: "Marcos Costa",
-    subtitle: "Encanador · 2,4 km",
-    price: "A partir de R$ 90",
-    initials: "MC",
-    rating: 4.7,
-  },
-  {
-    name: "Lara Mendes",
-    subtitle: "Diarista · 850 m",
-    price: "A partir de R$ 140",
-    initials: "LM",
-    rating: 4.8,
-  },
-];
-
-export default function HomeScreen() {
-  const router = useRouter();
-=======
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   const { user } = useAuth();
   const { notificacoesCliente, naoLidasCliente } = useNotifications();
   const [professionals, setProfessionals] = useState<Prestador[]>([]);
@@ -97,17 +45,6 @@ export default function HomeScreen() {
   const [professionalsError, setProfessionalsError] = useState("");
   const ultimaNotificacao = notificacoesCliente.find((notificacao) => !notificacao.lida) ?? null;
 
-<<<<<<< HEAD
-  return (
-    <ScreenContainer contentContainerStyle={styles.container}>
-      <View style={styles.topBar}>
-        <View>
-          <Text style={styles.hello}>Olá, {user?.nome || "Usuário"}</Text>
-          <View style={styles.locationRow}>
-            <MaterialIcons name="place" size={13} color={Colors.textSecondary} />
-            <Text style={styles.location}>Salvador, BA</Text>
-          </View>
-=======
 
   useEffect(() => {
     async function carregarProfissionais() {
@@ -179,30 +116,12 @@ export default function HomeScreen() {
               />
             </TouchableOpacity>
           </View>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
         </View>
         <Pressable style={styles.avatar} onPress={() => router.push("/(tabs)/perfil")} accessibilityRole="button" accessibilityLabel="Meu perfil">
           <Text style={styles.avatarText}>{getInitials(user?.nome || "Usuário")}</Text>
         </Pressable>
       </View>
 
-<<<<<<< HEAD
-      <View style={{ marginVertical: 16 }}>
-        <ChipRow>
-          <Chip label="Cliente" active />
-          <Chip label="Profissional" onPress={() => router.push("/professional-home")} />
-        </ChipRow>
-      </View>
-      <Pressable
-        style={styles.search}
-        onPress={() => router.push("/search")}
-        accessibilityRole="search"
-        accessibilityLabel="Buscar profissionais ou serviços"
-      >
-        <MaterialIcons name="search" size={20} color={Colors.textSecondary} />
-        <Text style={styles.searchText}>Buscar profissionais ou serviços</Text>
-      </Pressable>
-=======
         {ultimaNotificacao ? (
           <TouchableOpacity
             style={styles.notificationCard}
@@ -234,7 +153,6 @@ export default function HomeScreen() {
             <Text style={styles.switchLabel}>Profissional</Text>
           </TouchableOpacity>
         </View>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
       <View style={styles.chips}>
         <ChipRow>
@@ -250,49 +168,6 @@ export default function HomeScreen() {
         </ChipRow>
       </View>
 
-<<<<<<< HEAD
-      <View style={styles.demandCta}>
-        <View style={styles.demandCtaText}>
-          <Text style={styles.demandCtaTitle}>Publique uma demanda</Text>
-          <Text style={styles.demandCtaSub}>
-            Descreva o serviço e receba propostas de profissionais.
-          </Text>
-        </View>
-        <Pressable
-          style={({ pressed }) => [styles.demandBtn, pressed && styles.demandBtnPressed]}
-          onPress={() => router.push("/publish-demand")}
-          accessibilityRole="button"
-        >
-          <MaterialIcons name="add" size={22} color={Colors.textOnBrand} />
-        </Pressable>
-      </View>
-
-      <SectionHeader title="Categorias" />
-      <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
-        {serviceCategories.map((category) => (
-          <CategoryCard key={category.id} title={category.title} icon={category.icon} iconFamily="community"
-            onPress={() => router.push({ pathname: "/category-providers", params: { category: category.title, categoriaId: String(category.id) } })} />
-        ))}
-      </View>
-      <SectionHeader
-        title="Profissionais em destaque"
-        actionLabel="Ver todos"
-        onAction={() => router.push("/search")}
-      />
-      {professionals.map((p) => (
-        <ListCard
-          key={p.name}
-          title={p.name}
-          subtitle={p.subtitle}
-          subtitleIcon="work-outline"
-          price={p.price}
-          initials={p.initials}
-          rating={p.rating}
-          onPress={() => router.push("/profile")}
-        />
-      ))}
-    </ScreenContainer>
-=======
         {/* Professionals */}
         <SectionHeader
           title="Profissionais próximos"
@@ -330,17 +205,10 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   );
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  container: {
-    paddingBottom: 110,
-  },
-  topBar: {
-=======
   safeArea: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -352,40 +220,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingBottom: 24,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
     marginBottom: 20,
   },
-<<<<<<< HEAD
-  hello: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: Colors.brandDark,
-    marginBottom: 2,
-  },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-  },
-  location: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.brandPrimary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: {
-    color: Colors.textOnBrand,
-    fontWeight: "800",
-=======
   headerText: {
     flex: 1,
     marginRight: 12,
@@ -476,7 +315,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 17,
     marginTop: 3,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
   search: {
     flexDirection: "row",

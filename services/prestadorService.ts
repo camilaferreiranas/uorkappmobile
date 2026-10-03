@@ -165,27 +165,9 @@ export async function buscarPrestadoresCategoria(categoriaId: number): Promise<P
     size: "10",
   });
 
-<<<<<<< HEAD
-    const response = await request(url);
-
-    if (!response.ok) {
-        const erroTexto = await response.text();
-        throw new Error(`Erro na requisição: ${response.status}`);
-    }
-
-    const json = await response.json();
-
-
-    return json.data.content;
-
-    } catch (error) {
-    console.error("Erro ao buscar prestadores:", error);
-    throw error;
-=======
   if (localizacao) {
     params.set("latitude", String(localizacao.latitude));
     params.set("longitude", String(localizacao.longitude));
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   }
 
   return buscarPrestadores(`${API_URL}/prestadores?${params.toString()}`);
@@ -279,9 +261,6 @@ export async function buscarPerfilPrestador(prestadorId: number): Promise<Perfil
     const url = `${API_URL}/prestadores/${prestadorId}/perfil`;
     const storedToken = await getToken();
 
-<<<<<<< HEAD
-    const response = await request(url);
-=======
     if (!storedToken || storedToken.expiresAt <= Date.now()) {
       throw new Error("Sessão expirada. Entre novamente.");
     }
@@ -291,7 +270,6 @@ export async function buscarPerfilPrestador(prestadorId: number): Promise<Perfil
         Authorization: `Bearer ${storedToken.accessToken}`,
       },
     });
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
 
     if (!response.ok) {

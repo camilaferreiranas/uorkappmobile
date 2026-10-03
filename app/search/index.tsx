@@ -77,17 +77,12 @@ export default function SearchScreen() {
   }, [query, activeFilter]);
 
   return (
-<<<<<<< HEAD
-    <ScreenContainer>
-      <ScreenHeader title="Buscar" onBack={() => router.back()} />
-=======
     <ScreenContainer backgroundColor={Colors.background}>
       <Text style={styles.title}>Buscar profissionais</Text>
       <Text style={styles.description}>
         Pesquise por serviço, especialista ou localidade e encontre o
         profissional ideal.
       </Text>
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
 
       <View style={styles.searchBox}>
         <MaterialIcons name="search" size={20} color={Colors.textSecondary} />
@@ -131,30 +126,6 @@ export default function SearchScreen() {
         {results.length} {results.length === 1 ? "profissional" : "profissionais"}
       </Text>
 
-<<<<<<< HEAD
-      {results.length === 0 ? (
-        <View style={styles.empty}>
-          <MaterialIcons name="search-off" size={36} color={Colors.textMuted} />
-          <Text style={styles.emptyTitle}>Nada encontrado</Text>
-          <Text style={styles.emptyText}>
-            Remova um filtro ou tente outro termo de busca.
-          </Text>
-        </View>
-      ) : (
-        results.map((p) => (
-          <ListCard
-            key={p.name}
-            title={p.name}
-            subtitle={`${p.specialty} · ${p.distance}`}
-            subtitleIcon="work-outline"
-            price={p.price}
-            initials={p.initials}
-            rating={p.rating}
-            onPress={() => router.push("/profile")}
-          />
-        ))
-      )}
-=======
       {filteredProfessionals.map((professional) => (
         <ProfessionalCard
           key={professional.name}
@@ -163,53 +134,11 @@ export default function SearchScreen() {
           onPress={() => router.push("/profile")}
         />
       ))}
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  searchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: Colors.surfaceNeutral,
-    borderRadius: Radii.pill,
-    paddingHorizontal: 18,
-    minHeight: 52,
-    marginBottom: 16,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: Colors.textPrimary,
-  },
-  chips: {
-    marginBottom: 20,
-  },
-  count: {
-    fontSize: 13,
-    color: Colors.textSecondary,
-    marginBottom: 12,
-  },
-  empty: {
-    alignItems: "center",
-    paddingVertical: 48,
-    gap: 8,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: Colors.textPrimary,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    textAlign: "center",
-    maxWidth: 260,
-    lineHeight: 20,
-=======
   title: {
     fontSize: 28,
     fontWeight: "800",
@@ -275,6 +204,5 @@ const styles = StyleSheet.create({
   },
   professionalCard: {
     marginBottom: 10,
->>>>>>> 163fc32673a0d58d3e23b1cd92b2bce7f375d439
   },
 });
