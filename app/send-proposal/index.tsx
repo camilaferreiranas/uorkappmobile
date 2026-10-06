@@ -469,7 +469,7 @@ export default function SendProposalScreen() {
               />
               <Button
                 title="Agora não"
-                variant="ghost"
+                variant="outline"
                 onPress={() => setTelefoneModalAberto(false)}
                 disabled={salvandoTelefone}
                 style={styles.modalCancelButton}

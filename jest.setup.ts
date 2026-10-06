@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
+// Fonts are a native resource; keep real icon components without async font loading.
+jest.mock('expo-font', () => ({
+  ...jest.requireActual('expo-font'),
+  isLoaded: jest.fn(() => true),
+}));
+
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );

@@ -14,7 +14,11 @@
     "e2e": "sh scripts/e2e.sh",
     "e2e:smoke": "sh scripts/e2e.sh --smoke",
     "e2e:android": "sh scripts/e2e.sh --platform android",
-    "e2e:ios": "sh scripts/e2e.sh --platform ios"
+    "e2e:ios": "sh scripts/e2e.sh --platform ios",
+    "typecheck": "tsc --noEmit",
+    "build": "expo export --platform all",
+    "test:ci": "jest --ci --runInBand --coverage",
+    "check": "npm run typecheck && npm run lint && npm run test:ci"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

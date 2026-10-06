@@ -49,15 +49,11 @@ export default function SplashScreen() {
             title="Criar conta"
             variant="primary"
             onPress={() => router.replace("/signup")}
-            style={styles.primaryButton}
-            textStyle={styles.primaryButtonText}
           />
           <Button
             title="Já tenho conta"
-            variant="ghost"
+            variant="outline"
             onPress={() => router.replace("/login")}
-            style={styles.secondaryButton}
-            textStyle={styles.secondaryButtonText}
           />
         </Animated.View>
       ) : null}

@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import React from "react";
-import { View } from "react-native";
+import { View, type ColorValue } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
@@ -14,7 +14,7 @@ function TabIcon({
   focused,
 }: {
   name: React.ComponentProps<typeof MaterialIcons>["name"];
-  color: string;
+  color: ColorValue;
   focused: boolean;
 }) {
   return (

@@ -7,7 +7,7 @@ import {
   type PaginaDemandasDisponiveis,
 } from '../services/demandaService';
 
-jest.mock('@react-navigation/native', () => {
+jest.mock('expo-router', () => {
   const { useEffect } = jest.requireActual('react') as typeof import('react');
   return {
     useFocusEffect: (callback: () => void | (() => void)) => {

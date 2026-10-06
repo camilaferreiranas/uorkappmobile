@@ -35,4 +35,11 @@ describe('useThemeColor', () => {
     const { result } = renderHook(() => useThemeColor({}, 'tint'));
     expect(result.current).toBe(Colors.light.tint);
   });
+
+  it('assume "light" quando o sistema retorna "unspecified"', () => {
+    mockColorScheme.mockReturnValue('unspecified');
+    const { result } = renderHook(() => useThemeColor({}, 'background'));
+    expect(result.current).toBe(Colors.light.background);
+  });
+
 });

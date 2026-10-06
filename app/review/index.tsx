@@ -14,7 +14,6 @@ import { Card } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { PillGroup } from "../../components/ui/pill-group";
 import { ScreenContainer } from "../../components/ui/screen-container";
-import { ScreenHeader } from "../../components/ui/screen-header";
 import { StarRating } from "../../components/ui/star-rating";
 import { avaliarPrestador } from "../../services/propostaService";
 

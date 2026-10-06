@@ -2,7 +2,10 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": ["jest", "node"],
+    "types": [
+      "jest",
+      "node"
+    ],
     "allowImportingTsExtensions": true,
     "paths": {
       "@/*": [
@@ -15,5 +18,11 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "app-example",
+    "dist",
+    "coverage"
   ]
 }

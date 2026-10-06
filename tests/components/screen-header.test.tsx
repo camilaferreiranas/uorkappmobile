@@ -1,4 +1,4 @@
-import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { act, create, type ReactTestRenderer } from '../helpers/render';
 import type { ReactElement } from 'react';
 import { Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';

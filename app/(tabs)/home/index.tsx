@@ -24,15 +24,15 @@ import {
 } from "../../../services/prestadorService";
 
 const serviceCategories = [
-  { id: 1, title: "Eletrônica", icon: "flash" },
-  { id: 2, title: "Beleza", icon: "face-woman" },
-  { id: 3, title: "Limpeza", icon: "broom" },
+  { id: 1, title: "Eletrônica", icon: "electrical-services" },
+  { id: 2, title: "Beleza", icon: "face" },
+  { id: 3, title: "Limpeza", icon: "cleaning-services" },
   { id: 4, title: "Pintura", icon: "palette" },
-  { id: 5, title: "Serviços", icon: "wrench" },
-  { id: 6, title: "Instalação", icon: "pipe" },
-  { id: 7, title: "Jardinagem", icon: "tree-outline" },
-  { id: 8, title: "Reparo", icon: "hammer" },
-];
+  { id: 5, title: "Serviços", icon: "build" },
+  { id: 6, title: "Instalação", icon: "plumbing" },
+  { id: 7, title: "Jardinagem", icon: "grass" },
+  { id: 8, title: "Reparo", icon: "handyman" },
+] as const;
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -173,8 +173,8 @@ export default function HomeScreen() {
         {/* Professionals */}
         <SectionHeader
           title="Profissionais próximos"
-          subtitle="Ver todos"
-          onSubtitlePress={() => router.push("/nearby-professionals" as Href)}
+          actionLabel="Ver todos"
+          onAction={() => router.push("/nearby-professionals" as Href)}
           style={styles.sectionHeader}
         />
         <View style={styles.professionalsContainer} testID="home-professionals-list">
@@ -211,6 +211,25 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  switchRow: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 4,
+    borderRadius: Radii.lg,
+    backgroundColor: Colors.white,
+  },
+  switchButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: "center",
+    borderRadius: Radii.md,
+  },
+  switchButtonActive: { backgroundColor: Colors.primary },
+  switchLabel: { color: Colors.textSecondary, fontWeight: "700" },
+  switchLabelActive: { color: Colors.white },
+  sectionHeader: { marginHorizontal: 20 },
+  professionalsContainer: { marginHorizontal: 20 },
   safeArea: {
     flex: 1,
     backgroundColor: Colors.background,

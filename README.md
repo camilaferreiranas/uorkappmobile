@@ -74,6 +74,11 @@ Uork é um aplicativo móvel desenvolvido com React Native e Expo, projetado par
 - `npm run ios`: Inicia especificamente para iOS.
 - `npm run web`: Inicia especificamente para web.
 - `npm run lint`: Executa o linter para verificar código.
+- `npm run typecheck`: Valida os tipos do app e dos testes, excluindo `app-example` e artefatos gerados.
+- `npm test`: Executa os testes unitários.
+- `npm run test:ci`: Executa os testes em série, com cobertura e os limites mínimos definidos no Jest.
+- `npm run check`: Executa TypeScript, lint e testes com cobertura; interrompe ao encontrar uma falha.
+- `npm run build`: Exporta os bundles de produção para Android, iOS e web em `dist/`. Para outro destino, use `npm run build -- --output-dir <pasta>`. Esse comando não gera APK, AAB ou IPA; a compilação nativa usa `npm run android` / `npm run ios` e exige os SDKs da plataforma.
 - `npm run e2e`: Executa a suíte de testes de UI (Maestro) em todos os fluxos.
 - `npm run e2e:smoke`: Executa apenas os fluxos com tag `smoke` (caminho crítico).
 - `npm run e2e:android` / `npm run e2e:ios`: Executa a suíte na plataforma indicada.

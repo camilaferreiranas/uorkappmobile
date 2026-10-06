@@ -210,7 +210,7 @@ describe('NotificationProvider - conexão e sincronização', () => {
     expect(serviceMock.buscarNotificacoes).toHaveBeenCalled();
     expect(result.current.conectado).toBe(false);
 
-    act(() => config.onConnect());
+    await act(async () => { config.onConnect(); });
 
     expect(result.current.conectado).toBe(true);
     expect(result.current.notificacoesCliente.map((n) => n.id)).toEqual([1]);
@@ -235,7 +235,7 @@ describe('NotificationProvider - conexão e sincronização', () => {
   it('encerra a conexão e zera o status ao desmontar', async () => {
     const result = montar();
     await flushAsync();
-    act(() => ultimoClienteConfig().onConnect());
+    await act(async () => { ultimoClienteConfig().onConnect(); });
     expect(result.current.conectado).toBe(true);
 
     desmontagens.pop()?.();
@@ -251,7 +251,7 @@ describe('NotificationProvider - conexão e sincronização', () => {
   ])('%s marca a conexão como desconectada', async (_nome, disparar) => {
     const result = montar();
     await flushAsync();
-    act(() => ultimoClienteConfig().onConnect());
+    await act(async () => { ultimoClienteConfig().onConnect(); });
     expect(result.current.conectado).toBe(true);
 
     act(() => disparar(ultimoClienteConfig()));
@@ -278,7 +278,7 @@ describe('NotificationProvider - mensagens em tempo real', () => {
   it('adiciona notificações unificadas por contexto, ignora inválidas e atualiza duplicadas', async () => {
     const result = montar();
     await flushAsync();
-    act(() => ultimoClienteConfig().onConnect());
+    await act(async () => { ultimoClienteConfig().onConnect(); });
 
     const unificada = destino('/user/queue/notificacoes');
     act(() => {
@@ -304,7 +304,7 @@ describe('NotificationProvider - mensagens em tempo real', () => {
   it('mantém compatibilidade com os destinos legados de cliente e prestador', async () => {
     const result = montar();
     await flushAsync();
-    act(() => ultimoClienteConfig().onConnect());
+    await act(async () => { ultimoClienteConfig().onConnect(); });
 
     const legadoCliente = destino('/user/queue/notificacoes/cliente');
     const legadoPrestador = destino('/user/queue/notificacoes/prestador');

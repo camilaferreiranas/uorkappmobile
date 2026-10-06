@@ -108,7 +108,7 @@ export default function SearchScreen() {
         )}
       </View>
 
-      <View style={styles.chips}>
+      <View style={styles.filtersRow}>
         <ChipRow>
           {filters.map((f) => (
             <Chip
@@ -128,7 +128,7 @@ export default function SearchScreen() {
       </Text>
 
       <View testID="search-results-list">
-        {filteredProfessionals.map((professional) => (
+        {results.map((professional) => (
           <ProfessionalCard
             key={professional.name}
             {...professional}

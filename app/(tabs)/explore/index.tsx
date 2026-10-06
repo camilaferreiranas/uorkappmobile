@@ -11,49 +11,12 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "../../../constants/theme";
+import { Colors, Radii } from "../../../constants/theme";
 import { ProfessionalCard } from "../../../components/ui/professional-card";
 import {
   buscarPrestadoresPorTermo,
   type Prestador,
 } from "../../../services/prestadorService";
-
-const categories = [
-  { title: "Eletrônica", icon: "electrical-services" },
-  { title: "Beleza", icon: "brush" },
-  { title: "Limpeza", icon: "cleaning-services" },
-  { title: "Pintura", icon: "format-paint" },
-  { title: "Serviços", icon: "build" },
-  { title: "Instalação", icon: "plumbing" },
-  { title: "Jardinagem", icon: "grass" },
-  { title: "Reparo", icon: "handyman" },
-  { title: "Mudança", icon: "local-shipping" },
-  { title: "Reformas", icon: "home-repair-service" },
-  { title: "Aulas", icon: "school" },
-  { title: "Pets", icon: "pets" },
-];
-
-const popular = [
-  {
-    title: "Diária de limpeza",
-    subtitle: "Mais contratado esta semana",
-    price: "A partir de R$ 140",
-    icon: "cleaning-services" as const,
-  },
-  {
-    title: "Reparo elétrico",
-    subtitle: "Resposta média em 20 min",
-    price: "A partir de R$ 120",
-    icon: "electrical-services" as const,
-  },
-  {
-    title: "Montagem de móveis",
-    subtitle: "Profissionais verificados",
-    price: "A partir de R$ 90",
-    icon: "handyman" as const,
-  },
-];
-
 
 const filters = [
   { key: "categoria", label: "Categoria" },

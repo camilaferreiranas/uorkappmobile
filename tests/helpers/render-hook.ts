@@ -1,4 +1,4 @@
-import { act, create, type ReactTestRenderer } from 'react-test-renderer';
+import { act, create, type ReactTestRenderer } from './render';
 import { createElement, type ReactElement, type ReactNode } from 'react';
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });

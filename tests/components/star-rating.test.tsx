@@ -3,7 +3,7 @@ import {
   create,
   type ReactTestInstance,
   type ReactTestRenderer,
-} from 'react-test-renderer';
+} from '../helpers/render';
 import type { ReactElement } from 'react';
 import { Text } from 'react-native';
 

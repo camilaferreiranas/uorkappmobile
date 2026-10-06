@@ -12,10 +12,9 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Chip, ChipRow } from "../../components/ui/chip";
 import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponiveis";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
-import { Colors, Radii } from "../../constants/theme";
+import { Colors, Radii, Spacing } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { useNotifications } from "../../contexts/notification-context";
 import {
@@ -169,7 +168,7 @@ export default function ProfessionalHomeScreen() {
             </View>
           </View>
 
-          <View style={styles.switchRow}>
+          <View style={styles.switch}>
             <TouchableOpacity
               style={styles.switchButton}
               onPress={() => router.replace("/(tabs)/home")}
@@ -301,7 +300,7 @@ export default function ProfessionalHomeScreen() {
           </Text>
         </View>
 
-        <View style={styles.switchRow}>
+        <View style={styles.switch}>
           <TouchableOpacity
             style={styles.switchButton}
             onPress={() => router.push("/(tabs)/home")}
@@ -358,30 +357,6 @@ export default function ProfessionalHomeScreen() {
           <Text style={styles.switchText}>Cliente</Text>
         </Pressable>
 
-        <View style={styles.stats}>
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Novas hoje</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>8</Text>
-            <Text style={styles.statLabel}>Propostas ativas</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.stat}>
-            <Text style={styles.statValue}>R$ 2,4k</Text>
-            <Text style={styles.statLabel}>Últimos 30 dias</Text>
-          </View>
-        </View>
-
-        <View style={styles.chips}>
-          <ChipRow>
-            {filters.map((f, i) => (
-              <Chip tone="professional" key={f} label={f} active={i === 0} />
-            ))}
-          </ChipRow>
-        </View>
         {erroResumo ? (
           <View style={styles.metricsError}>
             <Text style={styles.metricsErrorText}>{erroResumo}</Text>
@@ -419,6 +394,15 @@ export default function ProfessionalHomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerLeft: { flex: 1 },
+  metricIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: Radii.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  metricValue: { fontSize: 20, fontWeight: "800" },
   safeArea: {
     flex: 1,
     backgroundColor: Colors.background,
@@ -828,7 +812,7 @@ const styles = StyleSheet.create({
   section: {
     marginTop: 16,
   },
-  urgentTag: {
+  reviewTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
