@@ -20,7 +20,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { PillGroup } from "../../components/ui/pill-group";
 import { Select } from "../../components/ui/select";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { obterLocalizacaoDetalhadaAtual } from "../../services/locationService";
 import { enviarProposta, type NovaProposta } from "../../services/propostaService";

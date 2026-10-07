@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { useNotifications } from "../../contexts/notification-context";
 import {
   aceitarProposta,

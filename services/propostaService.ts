@@ -225,28 +225,6 @@ export async function buscarHistoricoDoCliente(): Promise<HistoricoCliente[]> {
   return Array.isArray(json.data) ? json.data : [];
 }
 
-export async function buscarMinhasPropostas(): Promise<HistoricoCliente[]> {
-  const storedToken = await getToken();
-  if (!storedToken || storedToken.expiresAt <= Date.now()) {
-    throw new Error("Sessão expirada. Entre novamente.");
-  }
-
-  const response = await fetch(`${API_URL}/propostas/cliente/minhas`, {
-    headers: { Authorization: `Bearer ${storedToken.accessToken}` },
-  });
-  const json = await response.json().catch(() => null);
-
-  if (!response.ok || !json?.success) {
-    throw new Error(
-      json?.erros?.[0] ??
-        json?.message ??
-        "Não foi possível carregar suas propostas."
-    );
-  }
-
-  return Array.isArray(json.data) ? json.data : [];
-}
-
 export async function buscarContatoWhatsApp(
   propostaId: number
 ): Promise<ContatoWhatsApp> {

@@ -14,15 +14,7 @@ import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { Card } from "../../components/ui/card";
 import { StarRating } from "../../components/ui/star-rating";
-import { PillGroup } from "../../components/ui/pill-group";
 import { avaliarPrestador } from "../../services/propostaService";
-
-const qualityTags = [
-  "Pontualidade",
-  "Comunicação",
-  "Qualidade",
-  "Custo-benefício",
-];
 
 export default function ReviewScreen() {
   const router = useRouter();
@@ -36,7 +28,6 @@ export default function ReviewScreen() {
     partesNome.length > 1 ? partesNome.at(-1)?.[0] ?? "" : ""
   }`.toUpperCase();
   const [rating, setRating] = useState(0);
-  const [selectedTag, setSelectedTag] = useState("");
   const [comment, setComment] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
@@ -53,7 +44,7 @@ export default function ReviewScreen() {
     try {
       await avaliarPrestador(id, {
         nota: rating,
-        destaque: selectedTag || null,
+        destaque: null,
         comentario: comment.trim() || null,
       });
 
@@ -100,13 +91,6 @@ export default function ReviewScreen() {
 
       <Text style={styles.sectionLabel}>Como você avalia o serviço?</Text>
       <StarRating rating={rating} onRatingChange={setRating} />
-
-      <Text style={styles.sectionLabel}>O que se destacou?</Text>
-      <PillGroup 
-        options={qualityTags} 
-        value={selectedTag} 
-        onSelect={setSelectedTag} 
-      />
 
       <Input
         label="Comentário"

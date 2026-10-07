@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
 import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { getInitials } from "../../utils/get-initials";
@@ -54,11 +54,12 @@ const menuItems = [
   { icon: "badge", label: "Certificações" },
   { icon: "notifications", label: "Notificações" },
   { icon: "help-outline", label: "Ajuda e suporte" },
+  { icon: "logout", label: "Sair da conta" },
 ];
 
 export default function ProfessionalProfileScreen() {
   const router = useRouter();
-  const { autorizarLocalizacao } = useAuth();
+  const { autorizarLocalizacao, logout } = useAuth();
   const [profile, setProfile] = useState<PerfilPrestador | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -85,9 +86,24 @@ export default function ProfessionalProfileScreen() {
     }, [carregarPerfil])
   );
 
+  async function executarLogout() {
+    try {
+      await logout();
+      router.replace("/login");
+    } catch {
+      Alert.alert(
+        "Não foi possível sair",
+        "Tente novamente em alguns instantes."
+      );
+    }
+  }
+
   async function handleMenuPress(label: string) {
     if (label === "Editar perfil") {
-      router.push("/edit-profile");
+      router.push({
+        pathname: "/edit-profile",
+        params: { variant: "professional" },
+      });
       return;
     }
 
@@ -109,6 +125,12 @@ export default function ProfessionalProfileScreen() {
 
     if (label === "Notificações") {
       router.push("/professional-notifications");
+      return;
+    }
+
+    if (label === "Sair da conta") {
+      await executarLogout();
+      return;
     }
   }
 
@@ -240,10 +262,23 @@ export default function ProfessionalProfileScreen() {
               activeOpacity={0.7}
             >
               <View style={styles.menuIconWrapper}>
-                <MaterialIcons name={item.icon as any} size={18} color={Colors.primary} />
+                <MaterialIcons
+                  name={item.icon as any}
+                  size={18}
+                  color={item.label === "Sair da conta" ? Colors.error : Colors.primary}
+                />
               </View>
-              <Text style={styles.menuLabel}>{item.label}</Text>
-              <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
+              <Text
+                style={[
+                  styles.menuLabel,
+                  item.label === "Sair da conta" && styles.menuLabelDanger,
+                ]}
+              >
+                {item.label}
+              </Text>
+              {item.label !== "Sair da conta" ? (
+                <MaterialIcons name="chevron-right" size={20} color={Colors.textSecondary} />
+              ) : null}
             </TouchableOpacity>
           ))}
         </View>
@@ -499,5 +534,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#111",
+  },
+  menuLabelDanger: {
+    color: Colors.error,
   },
 });

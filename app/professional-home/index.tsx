@@ -14,7 +14,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { DemandasDisponiveisPreview } from "../../components/ui/demandas-disponiveis";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { useNotifications } from "../../contexts/notification-context";
 import { buscarResumoPrestador, type ResumoPrestador } from "../../services/propostaService";
@@ -29,13 +29,6 @@ function formatarValor(valor: number) {
     maximumFractionDigits: 2,
   });
 }
-
-const lastReview = {
-  name: "Mariana Costa",
-  comment: "Serviço impecável, pontual e muito atencioso.",
-  rating: 5.0,
-  date: "2 dias atrás",
-};
 
 export default function ProfessionalHomeScreen() {
   const router = useRouter();
@@ -358,25 +351,6 @@ export default function ProfessionalHomeScreen() {
         ) : null}
 
         <DemandasDisponiveisPreview />
-
-        {/* ── Última avaliação ── */}
-        <View style={styles.reviewCard}>
-          <View style={styles.reviewTop}>
-            <View>
-              <Text style={styles.reviewTitle}>Última avaliação</Text>
-              <Text style={styles.reviewAuthor}>
-                {lastReview.name} · {lastReview.date}
-              </Text>
-            </View>
-            <View style={styles.reviewBadge}>
-              <MaterialIcons name="star" size={14} color={Colors.success} />
-              <Text style={styles.reviewBadgeText}>
-                {lastReview.rating.toFixed(1)}
-              </Text>
-            </View>
-          </View>
-          <Text style={styles.reviewComment}>{lastReview.comment}</Text>
-        </View>
       </ScrollView>
 
       <ProfessionalNavBar active="inicio" />
@@ -791,51 +765,4 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  /* Review */
-  reviewCard: {
-    backgroundColor: "#EAF7ED",
-    borderRadius: 18,
-    padding: 18,
-    marginHorizontal: 20,
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  reviewTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 10,
-    gap: 12,
-  },
-  reviewTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: Colors.ink,
-    marginBottom: 4,
-  },
-  reviewAuthor: {
-    color: Colors.textSecondary,
-    fontWeight: "600",
-    fontSize: 12,
-  },
-  reviewBadge: {
-    flexDirection: "row",
-    backgroundColor: "#EAF7ED",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    alignItems: "center",
-    gap: 4,
-    flexShrink: 0,
-  },
-  reviewBadgeText: {
-    color: Colors.success,
-    fontWeight: "700",
-    fontSize: 13,
-  },
-  reviewComment: {
-    color: Colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 19,
-  },
 });

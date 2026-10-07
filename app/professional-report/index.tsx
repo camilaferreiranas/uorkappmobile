@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import { ProfessionalNavBar } from "../../components/ui/professional-nav-bar";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 
 const summary = {
   totalReceived: "R$ 8.240",

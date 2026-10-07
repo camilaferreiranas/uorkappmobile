@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -16,7 +16,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ProfileAvatar } from "../../components/ui/profile-avatar";
 import { ProfileScreenHeader } from "../../components/ui/profile-screen-header";
-import { Colors } from "../../constants/theme";
+import { Colors, ProfessionalColors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
 import { getInitials } from "../../utils/get-initials";
 import { erroTelefoneBrasileiro } from "../../utils/validar-telefone";
@@ -41,6 +41,9 @@ function getPhotoContentType(
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const { variant } = useLocalSearchParams<{ variant?: string }>();
+  const isProfessional = variant === "professional";
+  const theme = isProfessional ? ProfessionalColors : Colors;
   const { user, updateProfile, updatePhoto, removePhoto, logout } = useAuth();
   const [nome, setNome] = useState("");
   const [sobrenome, setSobrenome] = useState("");
@@ -197,7 +200,10 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
-      <ProfileScreenHeader title="Editar perfil" />
+      <ProfileScreenHeader
+        title="Editar perfil"
+        variant={isProfessional ? "professional" : "client"}
+      />
 
       <ScrollView
         contentContainerStyle={styles.content}
@@ -217,11 +223,11 @@ export default function EditProfileScreen() {
               imageUrl={user?.fotoPerfilUrl}
               initials={getInitials(user?.nome, user?.sobrenome)}
               size={104}
-              backgroundColor={Colors.primary}
+              backgroundColor={theme.primary}
               borderColor={Colors.white}
               borderWidth={3}
             />
-            <View style={styles.cameraBadge}>
+            <View style={[styles.cameraBadge, { backgroundColor: theme.primary }]}>
               {photoLoading ? (
                 <ActivityIndicator size="small" color={Colors.white} />
               ) : (
@@ -251,6 +257,7 @@ export default function EditProfileScreen() {
         <View style={styles.card}>
           <Input
             label="Nome"
+            focusColor={theme.primary}
             value={nome}
             onChangeText={setNome}
             autoCapitalize="words"
@@ -258,6 +265,7 @@ export default function EditProfileScreen() {
           />
           <Input
             label="Sobrenome"
+            focusColor={theme.primary}
             value={sobrenome}
             onChangeText={setSobrenome}
             autoCapitalize="words"
@@ -265,6 +273,7 @@ export default function EditProfileScreen() {
           />
           <Input
             label="E-mail"
+            focusColor={theme.primary}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -277,7 +286,11 @@ export default function EditProfileScreen() {
             {(["CPF", "CNPJ"] as const).map((type) => (
               <TouchableOpacity
                 key={type}
-                style={[styles.typeOption, tipoPessoa === type && styles.typeOptionSelected]}
+                style={[
+                  styles.typeOption,
+                  tipoPessoa === type && styles.typeOptionSelected,
+                  tipoPessoa === type && { backgroundColor: theme.primary },
+                ]}
                 onPress={() => handleTipoPessoaChange(type)}
               >
                 <Text
@@ -294,6 +307,7 @@ export default function EditProfileScreen() {
 
           <Input
             label={tipoPessoa}
+            focusColor={theme.primary}
             value={documento}
             onChangeText={handleDocumentoChange}
             keyboardType="numeric"
@@ -302,6 +316,7 @@ export default function EditProfileScreen() {
           />
           <Input
             label="Telefone"
+            focusColor={theme.primary}
             value={telefone}
             onChangeText={setTelefone}
             keyboardType="phone-pad"
@@ -311,6 +326,7 @@ export default function EditProfileScreen() {
           />
           <Input
             label="Nova senha (opcional)"
+            focusColor={theme.primary}
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
@@ -319,6 +335,7 @@ export default function EditProfileScreen() {
           />
           <Input
             label="Confirmar nova senha"
+            focusColor={theme.primary}
             value={confirmacaoSenha}
             onChangeText={setConfirmacaoSenha}
             secureTextEntry
@@ -336,7 +353,15 @@ export default function EditProfileScreen() {
             onPress={handleSave}
             loading={loading}
             disabled={!!formError || !user || photoLoading}
-            style={styles.saveButton}
+            style={[
+              styles.saveButton,
+              {
+                backgroundColor:
+                  formError || !user || photoLoading
+                    ? theme.primaryLight
+                    : theme.primary,
+              },
+            ]}
           />
         </View>
       </ScrollView>

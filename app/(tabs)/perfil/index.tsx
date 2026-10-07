@@ -15,14 +15,13 @@ import { useAuth } from "../../../contexts/auth-context";
 import { getInitials } from "../../../utils/get-initials";
 
 const menuItems = [
+  { icon: "history", label: "Meus serviços" },
   { icon: "assignment", label: "Minhas demandas" },
-  { icon: "send", label: "Minhas propostas" },
   { icon: "edit", label: "Editar perfil" },
   { icon: "location-on", label: "Meu endereço" },
   { icon: "my-location", label: "Ativar localização" },
   { icon: "notifications", label: "Notificações" },
   // { icon: "payment", label: "Formas de pagamento" },
-  { icon: "history", label: "Histórico de serviços" },
   { icon: "help-outline", label: "Ajuda e suporte" },
   { icon: "logout", label: "Sair da conta" },
 ];
@@ -34,11 +33,6 @@ export default function PerfilScreen() {
   async function handleMenuPress(label: string) {
     if (label === "Minhas demandas") {
       router.push("/my-demands" as Href);
-      return;
-    }
-
-    if (label === "Minhas propostas") {
-      router.push("/my-proposals" as Href);
       return;
     }
 
@@ -73,7 +67,7 @@ export default function PerfilScreen() {
       return;
     }
 
-    if (label === "Histórico de serviços") {
+    if (label === "Meus serviços") {
       router.push("/client-history");
       return;
     }

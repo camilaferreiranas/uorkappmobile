@@ -11,9 +11,18 @@ import { Colors, Radius, Spacing } from '../../constants/theme';
 interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
+  focusColor?: string;
 }
 
-export function Input({ label, error, style, onFocus, onBlur, ...props }: InputProps) {
+export function Input({
+  label,
+  error,
+  focusColor = Colors.primary,
+  style,
+  onFocus,
+  onBlur,
+  ...props
+}: InputProps) {
   const [focused, setFocused] = useState(false);
 
   return (
@@ -22,7 +31,7 @@ export function Input({ label, error, style, onFocus, onBlur, ...props }: InputP
       <TextInput
         style={[
           styles.input,
-          focused && styles.inputFocused,
+          focused && [styles.inputFocused, { borderColor: focusColor }],
           error ? styles.inputError : null,
           style,
         ]}

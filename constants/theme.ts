@@ -7,7 +7,7 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   // Primary
-  primary: '#2563EB',
+  primary: '#1960D4',
   ink: '#0F172A',
   white: '#FFFFFF',
   black: '#111111',
@@ -33,10 +33,10 @@ export const Colors = {
   light: {
     text: '#0F172A',
     background: '#FFFFFF',
-    tint: '#2563EB',
+    tint: '#1960D4',
     icon: '#475569',
     tabIconDefault: '#475569',
-    tabIconSelected: '#2563EB',
+    tabIconSelected: '#1960D4',
   },
   dark: {
     text: '#ECEDEE',
@@ -45,6 +45,18 @@ export const Colors = {
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: '#fff',
+  },
+};
+
+/** Identidade visual exclusiva da área profissional. */
+export const ProfessionalColors = {
+  ...Colors,
+  primary: '#003054',
+  primaryLight: '#DCE7EC',
+  light: {
+    ...Colors.light,
+    tint: '#003054',
+    tabIconSelected: '#003054',
   },
 };
 

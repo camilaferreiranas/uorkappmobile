@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDemandasDisponiveis } from "../../hooks/use-demandas-disponiveis";
 import { buscarCategorias, type Categoria } from "../../services/categoriaService";
 import { type DemandaDisponivel, type OrdenacaoDemanda } from "../../services/demandaService";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 
 const opcoesOrdenacao: { valor: OrdenacaoDemanda; titulo: string }[] = [
   { valor: "RECENTES", titulo: "Mais recentes" },

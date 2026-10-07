@@ -25,7 +25,7 @@ import { DemandasDisponiveisLista } from "../../components/ui/demandas-disponive
 import { StarRating } from "../../components/ui/star-rating";
 import { type Categoria } from "../../services/categoriaService";
 import { type OrdenacaoDemanda } from "../../services/demandaService";
-import { Colors } from "../../constants/theme";
+import { ProfessionalColors as Colors } from "../../constants/theme";
 import {
   avaliarCliente,
   buscarContatoWhatsApp,

@@ -26,7 +26,12 @@ import {
   type StatusProposta,
 } from "../services/propostaService";
 
-type FiltroHistorico = "TODOS" | "ATIVOS" | "FINALIZADOS" | "ENCERRADOS";
+type FiltroHistorico =
+  | "TODOS"
+  | "AGUARDANDO"
+  | "EM_ANDAMENTO"
+  | "CONCLUIDOS"
+  | "NAO_REALIZADOS";
 
 const statusConfig: Record<
   StatusProposta,
@@ -42,9 +47,10 @@ const statusConfig: Record<
 
 const filtros: { id: FiltroHistorico; label: string }[] = [
   { id: "TODOS", label: "Todos" },
-  { id: "ATIVOS", label: "Ativas" },
-  { id: "FINALIZADOS", label: "Concluídos" },
-  { id: "ENCERRADOS", label: "Encerrados" },
+  { id: "AGUARDANDO", label: "Aguardando resposta" },
+  { id: "EM_ANDAMENTO", label: "Em andamento" },
+  { id: "CONCLUIDOS", label: "Concluídos" },
+  { id: "NAO_REALIZADOS", label: "Não realizados" },
 ];
 
 function formatarValor(valor: number) {
@@ -73,9 +79,14 @@ function urgenciaParaTela(urgencia: HistoricoCliente["urgencia"]) {
 
 function pertenceAoFiltro(status: StatusProposta, filtro: FiltroHistorico) {
   if (filtro === "TODOS") return true;
-  if (filtro === "ATIVOS") return status === "PENDENTE" || status === "ACEITA" || status === "AGUARDANDO_CONFIRMACAO";
-  if (filtro === "FINALIZADOS") return status === "FINALIZADA";
+  if (filtro === "AGUARDANDO") return status === "PENDENTE";
+  if (filtro === "EM_ANDAMENTO") return status === "ACEITA" || status === "AGUARDANDO_CONFIRMACAO";
+  if (filtro === "CONCLUIDOS") return status === "FINALIZADA";
   return status === "RECUSADA" || status === "CANCELADA";
+}
+
+function podeContratarNovamente(status: StatusProposta) {
+  return status === "FINALIZADA" || status === "RECUSADA" || status === "CANCELADA";
 }
 
 export default function ClientHistoryScreen() {
@@ -214,14 +225,14 @@ export default function ClientHistoryScreen() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
       <ProfileScreenHeader
-        title="Histórico de serviços"
-        subtitle="Acompanhe todas as suas solicitações"
+        title="Meus serviços"
+        subtitle="Acompanhe todos os serviços contratados"
       />
 
       {carregando ? (
         <View style={styles.centerState}>
           <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={styles.stateText}>Carregando histórico...</Text>
+          <Text style={styles.stateText}>Carregando seus serviços...</Text>
         </View>
       ) : erro ? (
         <View style={styles.centerState}>
@@ -271,7 +282,7 @@ export default function ClientHistoryScreen() {
               <Text style={styles.emptyTitle}>Nenhum serviço encontrado</Text>
               <Text style={styles.emptyText}>
                 {historico.length === 0
-                  ? "As propostas enviadas por você aparecerão aqui."
+                  ? "Os serviços contratados por você aparecerão aqui."
                   : "Não existem serviços nessa situação."}
               </Text>
             </View>
@@ -290,10 +301,24 @@ export default function ClientHistoryScreen() {
                   <View style={styles.cardTop}>
                     <View style={styles.cardTitleContent}>
                       <Text style={styles.cardTitle}>{item.titulo}</Text>
-                      <View style={styles.providerRow}>
+                      <TouchableOpacity
+                        style={styles.providerRow}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/profile",
+                            params: {
+                              id: String(item.prestadorId),
+                              modo: "candidatura",
+                            },
+                          })
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel={`Abrir perfil de ${item.nomePrestador}`}
+                      >
                         <MaterialIcons name="person-outline" size={17} color={Colors.textSecondary} />
                         <Text style={styles.providerText}>{item.nomePrestador}</Text>
-                      </View>
+                        <MaterialIcons name="chevron-right" size={17} color={Colors.textSecondary} />
+                      </TouchableOpacity>
                     </View>
                     <View style={[styles.statusBadge, { backgroundColor: status.background }]}>
                       <MaterialIcons name={status.icon} size={14} color={status.color} />
@@ -371,42 +396,44 @@ export default function ClientHistoryScreen() {
                     </View>
                   ) : null}
 
-                  <View style={styles.actionsRow}>
-                    {item.status === "FINALIZADA" && item.notaPrestador == null ? (
+                  {podeContratarNovamente(item.status) ? (
+                    <View style={styles.actionsRow}>
+                      {item.status === "FINALIZADA" && item.notaPrestador == null ? (
+                        <TouchableOpacity
+                          style={[styles.actionButton, styles.reviewButton]}
+                          onPress={() => avaliarPrestador(item)}
+                          activeOpacity={0.75}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Avaliar ${item.nomePrestador}`}
+                        >
+                          <MaterialIcons name="star-outline" size={18} color={Colors.primary} />
+                          <Text style={styles.reviewButtonText} numberOfLines={1}>
+                            Avaliar prestador
+                          </Text>
+                        </TouchableOpacity>
+                      ) : item.status === "FINALIZADA" && item.notaPrestador != null ? (
+                        <View style={[styles.actionButton, styles.reviewCompleted]}>
+                          <MaterialIcons name="star" size={18} color={Colors.warning} />
+                          <Text style={styles.reviewCompletedText} numberOfLines={1}>
+                            Avaliado: {Number(item.notaPrestador).toFixed(1)}
+                          </Text>
+                        </View>
+                      ) : null}
+
                       <TouchableOpacity
-                        style={[styles.actionButton, styles.reviewButton]}
-                        onPress={() => avaliarPrestador(item)}
-                        activeOpacity={0.75}
+                        style={[styles.actionButton, styles.hireAgainButton]}
+                        onPress={() => contratarNovamente(item)}
+                        activeOpacity={0.8}
                         accessibilityRole="button"
-                        accessibilityLabel={`Avaliar ${item.nomePrestador}`}
+                        accessibilityLabel={`Contratar ${item.nomePrestador} novamente`}
                       >
-                        <MaterialIcons name="star-outline" size={18} color={Colors.primary} />
-                        <Text style={styles.reviewButtonText} numberOfLines={1}>
-                          Avaliar prestador
+                        <MaterialIcons name="replay" size={18} color={Colors.white} />
+                        <Text style={styles.hireAgainButtonText} numberOfLines={1}>
+                          Contratar novamente
                         </Text>
                       </TouchableOpacity>
-                    ) : item.status === "FINALIZADA" && item.notaPrestador != null ? (
-                      <View style={[styles.actionButton, styles.reviewCompleted]}>
-                        <MaterialIcons name="star" size={18} color={Colors.warning} />
-                        <Text style={styles.reviewCompletedText} numberOfLines={1}>
-                          Avaliado: {Number(item.notaPrestador).toFixed(1)}
-                        </Text>
-                      </View>
-                    ) : null}
-
-                    <TouchableOpacity
-                      style={[styles.actionButton, styles.hireAgainButton]}
-                      onPress={() => contratarNovamente(item)}
-                      activeOpacity={0.8}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Contratar ${item.nomePrestador} novamente`}
-                    >
-                      <MaterialIcons name="replay" size={18} color={Colors.white} />
-                      <Text style={styles.hireAgainButtonText} numberOfLines={1}>
-                        Contratar novamente
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                  ) : null}
                 </View>
               );
             })
@@ -464,7 +491,12 @@ const styles = StyleSheet.create({
   cardTitleContent: { flex: 1 },
   cardTitle: { color: "#111", fontSize: 16, fontWeight: "800", lineHeight: 21 },
   providerRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 7 },
-  providerText: { color: Colors.textSecondary, fontSize: 12, fontWeight: "600" },
+  providerText: {
+    flex: 1,
+    color: Colors.textSecondary,
+    fontSize: 12,
+    fontWeight: "600",
+  },
   statusBadge: {
     flexDirection: "row",
     alignItems: "center",

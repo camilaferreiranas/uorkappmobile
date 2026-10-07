@@ -2,19 +2,30 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Colors } from "../../constants/theme";
+import { Colors, ProfessionalColors } from "../../constants/theme";
 
 interface ProfileScreenHeaderProps {
   title: string;
   subtitle?: string;
+  variant?: "client" | "professional";
 }
 
-export function ProfileScreenHeader({ title, subtitle }: ProfileScreenHeaderProps) {
+export function ProfileScreenHeader({
+  title,
+  subtitle,
+  variant = "client",
+}: ProfileScreenHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const theme = variant === "professional" ? ProfessionalColors : Colors;
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top, backgroundColor: theme.primary },
+      ]}
+    >
       <View style={[styles.row, subtitle ? styles.rowWithSubtitle : undefined]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -28,7 +39,11 @@ export function ProfileScreenHeader({ title, subtitle }: ProfileScreenHeaderProp
 
         <View style={styles.textContent}>
           <Text style={styles.title}>{title}</Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          {subtitle ? (
+            <Text style={[styles.subtitle, { color: theme.primaryLight }]}>
+              {subtitle}
+            </Text>
+          ) : null}
         </View>
 
         <View style={styles.spacer} />
@@ -68,7 +83,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   subtitle: {
-    color: Colors.primaryLight,
     fontSize: 12,
     lineHeight: 17,
     marginTop: 3,

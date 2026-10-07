@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { ProfileScreenHeader } from "../components/ui/profile-screen-header";
-import { Colors } from "../constants/theme";
+import { ProfessionalColors as Colors } from "../constants/theme";
 import {
   type Notificacao,
 } from "../services/notificacaoService";
@@ -73,7 +73,7 @@ export default function ProfessionalNotificationsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["left", "right", "bottom"]}>
-      <ProfileScreenHeader title="Notificações" />
+      <ProfileScreenHeader title="Notificações" variant="professional" />
 
       {loading ? (
         <View style={styles.centerState}>
