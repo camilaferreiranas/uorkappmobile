@@ -6,6 +6,7 @@ import {
   Alert,
   Image,
   Linking,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -46,6 +47,7 @@ export default function DemandDetailsScreen() {
 
   const [status, setStatus] = useState<StatusProposta>("PENDENTE");
   const [acaoEmAndamento, setAcaoEmAndamento] = useState<"aceitar" | "recusar" | null>(null);
+  const [confirmarRecusaVisivel, setConfirmarRecusaVisivel] = useState(false);
   const [statusCarregado, setStatusCarregado] = useState(false);
   const [abrindoWhatsApp, setAbrindoWhatsApp] = useState(false);
   const [erro, setErro] = useState("");
@@ -118,6 +120,7 @@ export default function DemandDetailsScreen() {
   };
 
   const handleRefuse = async () => {
+    setConfirmarRecusaVisivel(false);
     const propostaId = Number(params.id);
     if (!Number.isInteger(propostaId) || propostaId <= 0) {
       setErro("Não foi possível identificar esta proposta.");
@@ -301,6 +304,53 @@ export default function DemandDetailsScreen() {
         </View>
       </ScrollView>
 
+      <Modal
+        visible={confirmarRecusaVisivel}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => {
+          if (acaoEmAndamento === null) setConfirmarRecusaVisivel(false);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View
+            style={styles.modalCard}
+            accessibilityViewIsModal
+            accessibilityLabel="Confirmação de recusa da demanda"
+          >
+            <View style={styles.modalIcon}>
+              <MaterialIcons name="close" size={30} color={Colors.error} />
+            </View>
+            <Text style={styles.modalTitle}>Recusar esta demanda?</Text>
+            <Text style={styles.modalText}>
+              Ao confirmar, a proposta será recusada e deixará de aparecer entre as suas demandas pendentes.
+            </Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setConfirmarRecusaVisivel(false)}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Voltar sem recusar"
+              >
+                <Text style={styles.modalCancelText}>Voltar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalConfirmButton}
+                onPress={() => void handleRefuse()}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Confirmar recusa da demanda"
+              >
+                <MaterialIcons name="close" size={19} color={Colors.white} />
+                <Text style={styles.modalConfirmText}>Confirmar recusa</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {statusCarregado ? <View
         style={[
           styles.actionBar,
@@ -310,7 +360,10 @@ export default function DemandDetailsScreen() {
         {erro ? <Text style={styles.actionError}>{erro}</Text> : null}
         <TouchableOpacity
           style={[styles.refuseButton, acaoEmAndamento && styles.actionButtonDisabled]}
-          onPress={() => void handleRefuse()}
+          onPress={() => {
+            setErro("");
+            setConfirmarRecusaVisivel(true);
+          }}
           activeOpacity={0.8}
           disabled={acaoEmAndamento !== null}
         >
@@ -586,6 +639,85 @@ const styles = StyleSheet.create({
   },
   actionButtonDisabled: {
     opacity: 0.7,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.48)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  modalCard: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: Colors.white,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 18,
+  },
+  modalIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "#FDECEA",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    color: Colors.text,
+    fontSize: 20,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  modalText: {
+    color: Colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 21,
+    textAlign: "center",
+    marginTop: 10,
+    marginBottom: 22,
+  },
+  modalActions: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalCancelButton: {
+    flex: 1,
+    minHeight: 50,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+  },
+  modalCancelText: {
+    color: Colors.text,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  modalConfirmButton: {
+    flex: 1.5,
+    minHeight: 50,
+    borderRadius: 15,
+    backgroundColor: Colors.error,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+  },
+  modalConfirmText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: "800",
   },
   resultContainer: {
     flex: 1,
