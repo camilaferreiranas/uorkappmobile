@@ -29,11 +29,10 @@ import {
 } from "../../../services/demandaService";
 import { obterLocalizacaoDetalhadaAtual } from "../../../services/locationService";
 
-const urgencias = ["Normal", "Urgente", "Hoje"];
+const urgencias = ["Normal", "Urgente"];
 const urgenciaApi: Record<string, UrgenciaDemanda> = {
   Normal: "NORMAL",
   Urgente: "URGENTE",
-  Hoje: "HOJE",
 };
 const MAX_FOTOS = 4;
 const MAX_TAMANHO_FOTO = 5 * 1024 * 1024;

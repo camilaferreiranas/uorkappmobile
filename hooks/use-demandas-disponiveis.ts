@@ -71,10 +71,22 @@ export function useDemandasDisponiveis(tamanhoPagina = 20, categoriaId: number |
     };
   }, [carregar]));
 
+  const recarregar = useCallback(() => {
+    void carregar(0, "inicial");
+  }, [carregar]);
+
+  const atualizar = useCallback(() => {
+    void carregar(0, "atualizar");
+  }, [carregar]);
+
+  const carregarMais = useCallback(() => {
+    if (temMais) void carregar(proximaPagina.current, "mais");
+  }, [carregar, temMais]);
+
   return {
     demandas, total, temMais, carregando, atualizando, carregandoMais, erro, erroMais,
-    recarregar: () => { void carregar(0, "inicial"); },
-    atualizar: () => { void carregar(0, "atualizar"); },
-    carregarMais: () => { if (temMais) void carregar(proximaPagina.current, "mais"); },
+    recarregar,
+    atualizar,
+    carregarMais,
   };
 }

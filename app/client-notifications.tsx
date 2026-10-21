@@ -21,6 +21,7 @@ import { buscarContatoWhatsApp } from "../services/propostaService";
 import {
   type Notificacao,
 } from "../services/notificacaoService";
+import { formatarDataNotificacao } from "../utils/date-time";
 
 export default function ClientNotificationsScreen() {
   const router = useRouter();
@@ -169,12 +170,7 @@ export default function ClientNotificationsScreen() {
                   </View>
                   <Text style={styles.cardMessage}>{notificacao.mensagem}</Text>
                   <Text style={styles.cardDate}>
-                    {new Date(notificacao.dataCriacao).toLocaleString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatarDataNotificacao(notificacao.dataCriacao)}
                   </Text>
                 </View>
               </TouchableOpacity>

@@ -4,6 +4,7 @@ import { type Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -53,6 +54,8 @@ export default function ProfessionalHomeScreen() {
   const [resumo, setResumo] = useState<ResumoPrestador | null>(null);
   const [carregandoResumo, setCarregandoResumo] = useState(false);
   const [erroResumo, setErroResumo] = useState("");
+  const [atualizandoTela, setAtualizandoTela] = useState(false);
+  const [refreshDemandasToken, setRefreshDemandasToken] = useState(0);
   const resumoRequestId = useRef(0);
   const valorIndisponivel = carregandoResumo ? "…" : "—";
   const metrics = [
@@ -78,6 +81,21 @@ export default function ProfessionalHomeScreen() {
       if (requestId === resumoRequestId.current) setCarregandoResumo(false);
     }
   }, []);
+
+  const atualizarTela = useCallback(async () => {
+    if (atualizandoTela || cadastroStatus !== "prestador") return;
+
+    setAtualizandoTela(true);
+    setRefreshDemandasToken((atual) => atual + 1);
+    try {
+      await Promise.allSettled([
+        carregarResumo(),
+        sincronizarPrestador(),
+      ]);
+    } finally {
+      setAtualizandoTela(false);
+    }
+  }, [atualizandoTela, cadastroStatus, carregarResumo, sincronizarPrestador]);
 
   useEffect(() => {
     let active = true;
@@ -218,6 +236,15 @@ export default function ProfessionalHomeScreen() {
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
+        alwaysBounceVertical
+        refreshControl={
+          <RefreshControl
+            refreshing={atualizandoTela}
+            onRefresh={() => void atualizarTela()}
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
+          />
+        }
       >
         {/* ── Header ── */}
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
@@ -350,7 +377,7 @@ export default function ProfessionalHomeScreen() {
           </View>
         ) : null}
 
-        <DemandasDisponiveisPreview />
+        <DemandasDisponiveisPreview refreshToken={refreshDemandasToken} />
       </ScrollView>
 
       <ProfessionalNavBar active="inicio" />

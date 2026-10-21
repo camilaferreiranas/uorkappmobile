@@ -18,6 +18,7 @@ import {
 } from "../services/notificacaoService";
 import { buscarDetalheDemanda } from "../services/propostaService";
 import { useNotifications } from "../contexts/notification-context";
+import { formatarDataNotificacao } from "../utils/date-time";
 
 export default function ProfessionalNotificationsScreen() {
   const router = useRouter();
@@ -50,6 +51,18 @@ export default function ProfessionalNotificationsScreen() {
     try {
       if (!notificacao.lida) {
         await marcarComoLida("prestador", notificacao.id);
+      }
+
+      if (notificacao.titulo === "Serviço ainda não concluído") {
+        router.push({
+          pathname: "/professional-demands",
+          params: {
+            aba: "recebidas",
+            filtro: "EM_ANDAMENTO",
+            propostaId: String(notificacao.propostaId),
+          },
+        });
+        return;
       }
 
       const detalhe = await buscarDetalheDemanda(notificacao.propostaId);
@@ -116,12 +129,7 @@ export default function ProfessionalNotificationsScreen() {
                 </View>
                 <Text style={styles.cardMessage}>{notificacao.mensagem}</Text>
                 <Text style={styles.cardDate}>
-                  {new Date(notificacao.dataCriacao).toLocaleString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {formatarDataNotificacao(notificacao.dataCriacao)}
                 </Text>
               </View>
               <MaterialIcons name="chevron-right" size={22} color={Colors.textSecondary} />

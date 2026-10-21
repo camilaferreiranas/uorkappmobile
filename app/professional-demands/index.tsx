@@ -69,7 +69,15 @@ function formatarData(data: string) {
 
 export default function ProfessionalDemandsScreen() {
   const router = useRouter();
-  const { aba: abaInicial } = useLocalSearchParams<{ aba?: string }>();
+  const {
+    aba: abaInicial,
+    filtro: filtroInicial,
+    propostaId: propostaIdInicial,
+  } = useLocalSearchParams<{
+    aba?: string;
+    filtro?: string;
+    propostaId?: string;
+  }>();
   const [aba, setAba] = useState<"disponiveis" | "recebidas">(
     abaInicial === "recebidas" ? "recebidas" : "disponiveis"
   );
@@ -85,7 +93,11 @@ export default function ProfessionalDemandsScreen() {
   const [erro, setErro] = useState("");
   const [processandoId, setProcessandoId] = useState<number | null>(null);
   const [abrindoWhatsAppId, setAbrindoWhatsAppId] = useState<number | null>(null);
-  const [filtroRecebidas, setFiltroRecebidas] = useState<FiltroDemandaRecebida>("NOVAS");
+  const [filtroRecebidas, setFiltroRecebidas] = useState<FiltroDemandaRecebida>(
+    filtroInicial === "EM_ANDAMENTO" || filtroInicial === "CONCLUIDAS"
+      ? filtroInicial
+      : "NOVAS"
+  );
   const [finalizacaoPendente, setFinalizacaoPendente] =
     useState<DemandaProfissional | null>(null);
   const [valorCobradoTexto, setValorCobradoTexto] = useState("");
@@ -96,20 +108,30 @@ export default function ProfessionalDemandsScreen() {
   const [enviandoAvaliacao, setEnviandoAvaliacao] = useState(false);
   const [erroAvaliacao, setErroAvaliacao] = useState("");
   const carregamentoId = useRef(0);
+  const propostaIdDestacada = propostaIdInicial && /^\d+$/.test(propostaIdInicial)
+    ? Number(propostaIdInicial)
+    : null;
   const novas = demandas.filter((demanda) => demanda.status === "PENDENTE").length;
   const aceitas = demandas.filter((demanda) =>
     demanda.status === "ACEITA" || demanda.status === "AGUARDANDO_CONFIRMACAO").length;
   const concluidas = demandas.filter((demanda) => demanda.status === "FINALIZADA").length;
   const demandasFiltradas = useMemo(() => {
+    let filtradas: DemandaProfissional[];
     if (filtroRecebidas === "EM_ANDAMENTO") {
-      return demandas.filter((demanda) =>
+      filtradas = demandas.filter((demanda) =>
         demanda.status === "ACEITA" || demanda.status === "AGUARDANDO_CONFIRMACAO");
+    } else if (filtroRecebidas === "CONCLUIDAS") {
+      filtradas = demandas.filter((demanda) => demanda.status === "FINALIZADA");
+    } else {
+      filtradas = demandas.filter((demanda) => demanda.status === "PENDENTE");
     }
-    if (filtroRecebidas === "CONCLUIDAS") {
-      return demandas.filter((demanda) => demanda.status === "FINALIZADA");
-    }
-    return demandas.filter((demanda) => demanda.status === "PENDENTE");
-  }, [demandas, filtroRecebidas]);
+
+    if (propostaIdDestacada == null) return filtradas;
+    return [...filtradas].sort((a, b) =>
+      Number(b.propostaId === propostaIdDestacada)
+      - Number(a.propostaId === propostaIdDestacada)
+    );
+  }, [demandas, filtroRecebidas, propostaIdDestacada]);
 
   const carregar = useCallback(async (exibirCarregamento = true) => {
     const id = ++carregamentoId.current;
@@ -144,7 +166,14 @@ export default function ProfessionalDemandsScreen() {
 
   useEffect(() => {
     if (abaInicial === "disponiveis" || abaInicial === "recebidas") setAba(abaInicial);
-  }, [abaInicial]);
+    if (
+      filtroInicial === "NOVAS"
+      || filtroInicial === "EM_ANDAMENTO"
+      || filtroInicial === "CONCLUIDAS"
+    ) {
+      setFiltroRecebidas(filtroInicial);
+    }
+  }, [abaInicial, filtroInicial, propostaIdInicial]);
 
   function atualizar() {
     setAtualizando(true);
@@ -382,7 +411,10 @@ export default function ProfessionalDemandsScreen() {
 
             return (
               <TouchableOpacity
-                style={styles.demandCard}
+                style={[
+                  styles.demandCard,
+                  demanda.propostaId === propostaIdDestacada && styles.highlightedDemandCard,
+                ]}
                 activeOpacity={pendente ? 0.75 : 1}
                 disabled={!pendente}
                 onPress={() =>
@@ -401,6 +433,14 @@ export default function ProfessionalDemandsScreen() {
                   })
                 }
               >
+                {demanda.propostaId === propostaIdDestacada ? (
+                  <View style={styles.notificationTarget}>
+                    <MaterialIcons name="notifications-active" size={16} color={Colors.primary} />
+                    <Text style={styles.notificationTargetText}>
+                      Serviço indicado pela notificação
+                    </Text>
+                  </View>
+                ) : null}
                 <View style={styles.cardTop}>
                   <Text style={[styles.demandTitle, compact && styles.demandTitleCompact]}>
                     {demanda.titulo}
@@ -768,6 +808,21 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
+  },
+  highlightedDemandCard: {
+    borderWidth: 2,
+    borderColor: Colors.primary,
+  },
+  notificationTarget: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
+  },
+  notificationTargetText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: "800",
   },
   demandRow: {
     gap: 14,

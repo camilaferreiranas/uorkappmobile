@@ -1,7 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -22,6 +22,7 @@ import { PillGroup } from "../../components/ui/pill-group";
 import { Select } from "../../components/ui/select";
 import { ProfessionalColors as Colors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
+import { getAddressByCep, type CepResult } from "../../services/api";
 import { obterLocalizacaoDetalhadaAtual } from "../../services/locationService";
 import { enviarProposta, type NovaProposta } from "../../services/propostaService";
 import { erroTelefoneBrasileiro } from "../../utils/validar-telefone";
@@ -82,6 +83,32 @@ function lerServicos(valor?: string): string[] {
   }
 }
 
+function entradaPareceCep(valor: string): boolean {
+  return /^[\d.\s-]+$/.test(valor.trim());
+}
+
+function formatarCep(cep: string): string {
+  const digitos = cep.replace(/\D/g, "").slice(0, 8);
+  return digitos.length > 5
+    ? `${digitos.slice(0, 5)}-${digitos.slice(5)}`
+    : digitos;
+}
+
+function montarEnderecoDoCep(endereco: CepResult): string {
+  const cidadeEstado = [endereco.cidade, endereco.estado]
+    .filter(Boolean)
+    .join(" - ");
+
+  return [
+    endereco.rua,
+    endereco.bairro,
+    cidadeEstado,
+    `CEP ${formatarCep(endereco.cep)}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
 export default function SendProposalScreen() {
   const router = useRouter();
   const { user, updatePhone } = useAuth();
@@ -121,21 +148,26 @@ export default function SendProposalScreen() {
   const [erros, setErros] = useState<ErrosFormulario>({});
   const [erroEnvio, setErroEnvio] = useState("");
   const [obtendoLocalizacao, setObtendoLocalizacao] = useState(false);
+  const [consultandoCep, setConsultandoCep] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [enviada, setEnviada] = useState(false);
   const [telefoneModalAberto, setTelefoneModalAberto] = useState(false);
   const [telefoneModal, setTelefoneModal] = useState("");
   const [erroTelefoneModal, setErroTelefoneModal] = useState("");
   const [salvandoTelefone, setSalvandoTelefone] = useState(false);
+  const requisicaoLocalizacao = useRef(0);
 
   const tipoServico =
     servicoSelecionado === OUTROS ? outroServico.trim() : servicoSelecionado.trim();
 
   async function usarLocalizacaoAtual() {
+    const requisicaoAtual = ++requisicaoLocalizacao.current;
     setObtendoLocalizacao(true);
+    setConsultandoCep(false);
     setErroEnvio("");
     try {
       const atual = await obterLocalizacaoDetalhadaAtual();
+      if (requisicaoAtual !== requisicaoLocalizacao.current) return;
       if (!atual) {
         Alert.alert(
           "Localização não disponível",
@@ -146,7 +178,51 @@ export default function SendProposalScreen() {
       setLocalizacao(atual.descricao);
       setErros((atuais) => ({ ...atuais, localizacao: undefined }));
     } finally {
-      setObtendoLocalizacao(false);
+      if (requisicaoAtual === requisicaoLocalizacao.current) {
+        setObtendoLocalizacao(false);
+      }
+    }
+  }
+
+  async function resolverLocalizacaoDigitada(): Promise<string | null> {
+    const valor = localizacao.trim();
+    if (!valor || !entradaPareceCep(valor)) return valor || null;
+
+    const cep = valor.replace(/\D/g, "");
+    if (cep.length !== 8) {
+      setErros((atuais) => ({
+        ...atuais,
+        localizacao: "Informe um CEP com 8 números ou digite o endereço completo.",
+      }));
+      return null;
+    }
+
+    const requisicaoAtual = ++requisicaoLocalizacao.current;
+    setConsultandoCep(true);
+    setObtendoLocalizacao(false);
+    setErroEnvio("");
+    try {
+      const endereco = await getAddressByCep(cep);
+      if (requisicaoAtual !== requisicaoLocalizacao.current) return null;
+
+      const enderecoCompleto = montarEnderecoDoCep(endereco);
+      setLocalizacao(enderecoCompleto);
+      setErros((atuais) => ({ ...atuais, localizacao: undefined }));
+      return enderecoCompleto;
+    } catch (error) {
+      if (requisicaoAtual !== requisicaoLocalizacao.current) return null;
+      setErros((atuais) => ({
+        ...atuais,
+        localizacao:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível consultar o CEP.",
+      }));
+      return null;
+    } finally {
+      if (requisicaoAtual === requisicaoLocalizacao.current) {
+        setConsultandoCep(false);
+      }
     }
   }
 
@@ -206,6 +282,14 @@ export default function SendProposalScreen() {
 
     if (!localizacaoNormalizada) {
       novosErros.localizacao = "A localização do serviço é obrigatória.";
+    } else if (
+      entradaPareceCep(localizacaoNormalizada) &&
+      localizacaoNormalizada.replace(/\D/g, "").length !== 8
+    ) {
+      novosErros.localizacao =
+        "Informe um CEP com 8 números ou digite o endereço completo.";
+    } else if (!entradaPareceCep(localizacaoNormalizada) && localizacaoNormalizada.length < 5) {
+      novosErros.localizacao = "Informe um endereço válido.";
     }
 
     if (!URGENCIA_API[urgencia]) {
@@ -216,14 +300,14 @@ export default function SendProposalScreen() {
     return Object.keys(novosErros).length === 0;
   }
 
-  async function enviarAgora(id: number) {
+  async function enviarAgora(id: number, localizacaoParaEnviar = localizacao.trim()) {
     setEnviando(true);
     try {
       await enviarProposta({
         prestadorId: id,
         tipoServico,
         descricao: descricao.trim(),
-        localizacao: localizacao.trim(),
+        localizacao: localizacaoParaEnviar,
         urgencia: URGENCIA_API[urgencia] ?? "NORMAL",
         foto,
       });
@@ -252,6 +336,10 @@ export default function SendProposalScreen() {
       setErroEnvio("Entre na sua conta para enviar uma proposta.");
       return;
     }
+
+    const localizacaoResolvida = await resolverLocalizacaoDigitada();
+    if (!localizacaoResolvida) return;
+
     if (!user.telefone || erroTelefoneBrasileiro(user.telefone)) {
       setTelefoneModal(user.telefone ?? "");
       setErroTelefoneModal("");
@@ -259,7 +347,7 @@ export default function SendProposalScreen() {
       return;
     }
 
-    await enviarAgora(id);
+    await enviarAgora(id, localizacaoResolvida);
   }
 
   async function salvarTelefoneEEnviar() {
@@ -361,22 +449,35 @@ export default function SendProposalScreen() {
         />
 
         <Input
-          label="Localização do serviço"
+          label="CEP ou endereço do serviço"
           value={localizacao}
           onChangeText={(valor) => {
+            requisicaoLocalizacao.current += 1;
+            setConsultandoCep(false);
+            setObtendoLocalizacao(false);
             setLocalizacao(valor);
             setErros((atuais) => ({ ...atuais, localizacao: undefined }));
           }}
-          placeholder="CEP, endereço ou ponto de referência"
+          placeholder="Ex.: 41950-320 ou Rua, número e bairro"
           maxLength={MAX_LOCALIZACAO}
           error={erros.localizacao}
           style={styles.input}
         />
+        <Text style={styles.locationHint}>
+          Digite os 8 números do CEP para buscar o endereço automaticamente ou
+          informe o endereço completo.
+        </Text>
+        {consultandoCep ? (
+          <View style={styles.cepLoading}>
+            <ActivityIndicator size="small" color={Colors.primary} />
+            <Text style={styles.cepLoadingText}>Consultando CEP...</Text>
+          </View>
+        ) : null}
         <Button
           title={obtendoLocalizacao ? "Obtendo localização..." : "Usar localização atual"}
           onPress={() => void usarLocalizacaoAtual()}
           loading={obtendoLocalizacao}
-          disabled={obtendoLocalizacao || enviando}
+          disabled={obtendoLocalizacao || consultandoCep || enviando}
           style={styles.locationButton}
         />
 
@@ -420,7 +521,7 @@ export default function SendProposalScreen() {
         <Button
           title={enviando ? "Enviando..." : "Enviar proposta"}
           onPress={() => void enviar()}
-          disabled={enviando}
+          disabled={enviando || consultandoCep || obtendoLocalizacao}
           style={styles.submitButton}
         />
         {enviando ? <ActivityIndicator style={styles.loading} color={Colors.primary} /> : null}
@@ -517,6 +618,24 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     paddingHorizontal: 18,
     paddingVertical: 12,
+  },
+  locationHint: {
+    color: Colors.textSecondary,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: -14,
+    marginBottom: 12,
+  },
+  cepLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: -4,
+    marginBottom: 12,
+  },
+  cepLoadingText: {
+    color: Colors.textSecondary,
+    fontSize: 13,
   },
   photoSection: { marginTop: 2, marginBottom: 8 },
   label: { color: Colors.black, fontSize: 14, fontWeight: "700", marginBottom: 10 },

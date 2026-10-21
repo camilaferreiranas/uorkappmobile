@@ -143,6 +143,18 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        if (tipo === "CONCLUSAO_NAO_CONFIRMADA") {
+          router.push({
+            pathname: "/professional-demands",
+            params: {
+              aba: "recebidas",
+              filtro: "EM_ANDAMENTO",
+              propostaId: String(propostaId),
+            },
+          });
+          return;
+        }
+
         try {
           const detalhe = await buscarDetalheDemanda(propostaId);
           router.push({

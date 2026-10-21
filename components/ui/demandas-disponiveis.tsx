@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { type Href, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Modal, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDemandasDisponiveis } from "../../hooks/use-demandas-disponiveis";
@@ -226,9 +226,18 @@ export function DemandasDisponiveisLista({ categoriaSelecionada, onSelecionarCat
   );
 }
 
-export function DemandasDisponiveisPreview() {
+export function DemandasDisponiveisPreview({ refreshToken = 0 }: { refreshToken?: number }) {
   const lista = useDemandasDisponiveis(3);
+  const atualizarDemandas = lista.atualizar;
   const router = useRouter();
+  const ultimoRefreshToken = useRef(refreshToken);
+
+  useEffect(() => {
+    if (ultimoRefreshToken.current === refreshToken) return;
+    ultimoRefreshToken.current = refreshToken;
+    atualizarDemandas();
+  }, [atualizarDemandas, refreshToken]);
+
   return (
     <View style={styles.preview}>
       <View style={styles.previewHeading}>
