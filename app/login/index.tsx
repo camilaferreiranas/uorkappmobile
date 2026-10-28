@@ -1,14 +1,15 @@
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
+// import { View } from "react-native";
 import { Colors } from "../../constants/theme";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { AuthHeader } from "../../components/ui/auth-header";
 import { Card } from "../../components/ui/card";
-import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
-import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+// import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
+// import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { useAuth } from "../../contexts/auth-context";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,9 +22,10 @@ export default function LoginScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
-    router.replace("/home")
-  );
+  // Login com Google temporariamente desativado.
+  // const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
+  //   router.replace("/home")
+  // );
 
   useEffect(() => {
     if (!loading && user) {
@@ -68,6 +70,7 @@ export default function LoginScreen() {
       />
 
       <Card>
+        {/* Login com Google temporariamente desativado.
         <GoogleSignInButton
           onPress={promptAsync}
           loading={googleLoading}
@@ -82,6 +85,7 @@ export default function LoginScreen() {
           <Text style={styles.dividerText}>ou</Text>
           <View style={styles.dividerLine} />
         </View>
+        */}
 
         <Input
           label="E-mail"

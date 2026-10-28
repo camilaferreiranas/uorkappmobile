@@ -1,15 +1,15 @@
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AuthHeader } from "../../components/ui/auth-header";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
-import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
+// import { GoogleSignInButton } from "../../components/ui/google-sign-in-button";
 import { Input } from "../../components/ui/input";
 import { ScreenContainer } from "../../components/ui/screen-container";
 import { Colors } from "../../constants/theme";
 import { useAuth } from "../../contexts/auth-context";
-import { useGoogleAuth } from "../../hooks/useGoogleAuth";
+// import { useGoogleAuth } from "../../hooks/useGoogleAuth";
 import { createUser } from "../../services/userService";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -23,12 +23,14 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
-    router.replace("/home")
-  );
+  // Cadastro com Google temporariamente desativado.
+  // const { promptAsync, loading: googleLoading, error: googleError } = useGoogleAuth(() =>
+  //   router.replace("/home")
+  // );
 
   const nomeError = useMemo(() => {
     if (!nome.trim()) return "Informe o nome.";
@@ -71,9 +73,15 @@ export default function SignupScreen() {
     !documentoError &&
     !emailError &&
     !passwordError &&
-    !confirmPasswordError;
+    !confirmPasswordError &&
+    termsAccepted;
 
   const handleSignup = async () => {
+    if (!termsAccepted) {
+      setSubmitError("Aceite os Termos de Serviço para criar sua conta.");
+      return;
+    }
+
     setSubmitError("");
     setLoading(true);
     let contaCriada = false;
@@ -113,10 +121,12 @@ export default function SignupScreen() {
       />
 
       <Card>
+        {/* Cadastro com Google temporariamente desativado.
         <GoogleSignInButton
           label="Cadastrar com Google"
           onPress={promptAsync}
           loading={googleLoading}
+          disabled={!termsAccepted}
         />
 
         {googleError ? (
@@ -128,6 +138,23 @@ export default function SignupScreen() {
           <Text style={styles.dividerText}>ou cadastre com e-mail</Text>
           <View style={styles.dividerLine} />
         </View>
+        */}
+
+        <TouchableOpacity
+          style={styles.termsContainer}
+          onPress={() => setTermsAccepted((accepted) => !accepted)}
+          activeOpacity={0.8}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: termsAccepted }}
+          accessibilityLabel="Aceitar os Termos de Serviço"
+        >
+          <View style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>
+            {termsAccepted ? <Text style={styles.checkmark}>✓</Text> : null}
+          </View>
+          <Text style={styles.termsText}>
+            Li e aceito os <Text style={styles.termsTextStrong}>Termos de Serviço</Text>.
+          </Text>
+        </TouchableOpacity>
 
         <Input
           label="Nome"
@@ -233,5 +260,41 @@ const styles = StyleSheet.create({
     color: Colors.gray,
     fontSize: 13,
     fontWeight: "500",
+  },
+  termsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 20,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.white,
+  },
+  checkboxChecked: {
+    borderColor: Colors.primary,
+    backgroundColor: Colors.primary,
+  },
+  checkmark: {
+    color: Colors.white,
+    fontSize: 15,
+    fontWeight: "700",
+    lineHeight: 17,
+  },
+  termsText: {
+    flex: 1,
+    color: Colors.textSecondary,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  termsTextStrong: {
+    color: Colors.primary,
+    fontWeight: "700",
   },
 });
