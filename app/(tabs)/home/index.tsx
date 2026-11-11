@@ -35,6 +35,7 @@ const categories = [
   { id: 6, title: "Instalação", icon: "pipe" },
   { id: 7, title: "Jardinagem", icon: "tree-outline" },
   { id: 8, title: "Reparo", icon: "hammer" },
+  { id: 9, title: "Eventos", icon: "calendar-month" },
 ];
 
 export default function HomeScreen() {
